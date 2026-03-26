@@ -5,6 +5,11 @@ import { useSearchParams } from 'react-router-dom';
 import { BookingCalendar } from '../components/BookingCalendar';
 import { fetchBookedDates } from '../api/availability';
 import { createDepositCheckout } from '../api/stripe';
+import { loadStripe } from '@stripe/stripe-js';
+import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js';
+
+const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || import.meta.env.VITE_STRIPE_PUBLISHABLE_TEST_KEY;
+const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : Promise.resolve(null);
 import { servicePackages } from '../data/packages';
 
 // ─── Validation Helpers ─────────────────────────────────────────────────────
@@ -125,7 +130,7 @@ const BookingPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [systemError, setSystemError] = useState<string | null>(null);
   const [bookedDates, setBookedDates] = useState<string[]>([]);
-  const [stripeRedirecting, setStripeRedirecting] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   // Per-field validation errors
   const [fieldErrors, setFieldErrors] = useState({
@@ -244,9 +249,8 @@ const BookingPage = () => {
         serviceTime: formData.time,
       });
 
-      setStripeRedirecting(true);
+      setClientSecret(session.clientSecret);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      window.location.href = session.checkoutUrl;
 
     } catch (err: unknown) {
       console.error('Booking submit error:', err);
@@ -259,20 +263,15 @@ const BookingPage = () => {
 
   // ────────────────────────────────────────────────────────────────────────────
 
-  if (stripeRedirecting) {
+  if (clientSecret) {
     return (
-      <div className="booking-page container text-center" style={{ padding: '8rem 1rem' }}>
-        <div className="spinner"></div>
-        <h2 style={{ marginTop: '2rem' }}>Redirecting to secure checkout...</h2>
-        <p style={{ color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>Please do not close your browser.</p>
-        <p style={{ marginTop: '1rem', fontSize: '0.9rem', opacity: 0.5 }}>
-          <ShieldCheck size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} />
-          Powered by Stripe
-        </p>
-        <style>{`
-          .spinner { width: 50px; height: 50px; border: 4px solid rgba(158, 255, 0, 0.2); border-left-color: var(--color-accent-lime); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
-          @keyframes spin { to { transform: rotate(360deg); } }
-        `}</style>
+      <div className="booking-page container" style={{ padding: '8rem 1rem' }}>
+        <h2 className="text-center" style={{ marginBottom: '2rem' }}>Complete Your Deposit</h2>
+        <div className="glass" style={{ padding: '2rem', borderRadius: '12px', margin: '0 auto', maxWidth: '800px', background: 'var(--color-bg-elevated)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>
+            <EmbeddedCheckout />
+          </EmbeddedCheckoutProvider>
+        </div>
       </div>
     );
   }

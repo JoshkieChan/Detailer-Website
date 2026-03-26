@@ -117,6 +117,8 @@ serve(async (req) => {
     const bookingId = crypto.randomUUID()
 
     const session = await stripe.checkout.sessions.create({
+      ui_mode: 'embedded',
+      return_url: `${req.headers.get('origin')}/booking/confirmation?session_id={CHECKOUT_SESSION_ID}`,
       payment_method_types: ['card'],
       line_items: [
         {
@@ -133,8 +135,6 @@ serve(async (req) => {
       ],
       mode: 'payment',
       customer_email: customerEmail,
-      success_url: `${req.headers.get('origin')}/booking/confirmation?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get('origin')}/booking`,
       metadata: { bookingId: bookingId },
     })
 
@@ -206,7 +206,7 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ url: session.url, depositAmount: depositAmount / 100 }),
+      JSON.stringify({ clientSecret: session.client_secret, depositAmount: depositAmount / 100 }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
   } catch (error) {
