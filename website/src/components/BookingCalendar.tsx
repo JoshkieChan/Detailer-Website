@@ -47,7 +47,8 @@ export const BookingCalendar = ({ selectedDate, onChange, bookedDates }: Booking
     ].join('-');
     
     // Check constraints
-    const isPast = dateObj < today;
+    const isToday = dateObj.getTime() === today.getTime();
+    const isPast = dateObj < today || (isToday && new Date().getHours() >= 16);
     const isSunday = dateObj.getDay() === 0;
     const isBooked = bookedDates.includes(dateStr);
     const isDisabled = isPast || isSunday || isBooked;
