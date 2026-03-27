@@ -85,13 +85,16 @@ serve(async (req) => {
     const googleCalendarId = Deno.env.get('GOOGLE_CALENDAR_ID')
     const serviceAccountRaw = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_JSON')
 
-    // 1. Diagnostic Check
+    // 1. Diagnostic Check (Secrets)
     const missing = []
     if (!stripeSecretKey) missing.push('STRIPE_SECRET_KEY')
     if (!supabaseUrl) missing.push('SUPABASE_URL')
     if (!supabaseServiceRoleKey) missing.push('SUPABASE_SERVICE_ROLE_KEY')
     if (missing.length > 0) {
-      throw new Error(`Missing Supabase Secrets: ${missing.join(', ')}. Please add them in Project Settings > Edge Functions.`)
+      return new Response(
+        JSON.stringify({ error: `Missing Supabase Secrets: ${missing.join(', ')}. Please add them in Project Settings > Edge Functions.` }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      )
     }
 
     const stripe = new Stripe(stripeSecretKey, {
@@ -100,6 +103,16 @@ serve(async (req) => {
     })
     
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
+
+    // 2. Diagnostic Check (Database Schema)
+    const { error: schemaCheck } = await supabase.from('bookings').select('customer_id, google_calendar_event_id').limit(0)
+    if (schemaCheck) {
+      console.error('Schema check failed:', schemaCheck)
+      return new Response(
+        JSON.stringify({ error: `Database Schema Error: The 'bookings' table is missing required columns. Please run the Safe SQL migration again. Error: ${schemaCheck.message}` }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      )
+    }
 
     // Normalize inputs
     const numericPrice = typeof packagePrice === 'string' ? parseFloat(packagePrice) : packagePrice
@@ -157,7 +170,10 @@ serve(async (req) => {
         },
       })
     } catch (stripeErr) {
-      throw new Error(`Stripe API Error: ${stripeErr.message}`)
+      return new Response(
+        JSON.stringify({ error: `Stripe API Error: ${stripeErr.message}` }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      )
     }
 
     // Google Calendar Integration
@@ -210,7 +226,10 @@ serve(async (req) => {
       
     if (dbError) {
       console.error('Database Insert Error:', dbError)
-      throw new Error(`Database Error: ${dbError.message}. Did you run the SQL migration? Check for missing columns: customer_id, google_calendar_event_id.`)
+      return new Response(
+        JSON.stringify({ error: `Database Error: ${dbError.message}. This usually means a column is missing from your 'bookings' table. Try running the SQL again.` }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      )
     }
 
     return new Response(
@@ -220,8 +239,8 @@ serve(async (req) => {
   } catch (error) {
     console.error('Edge Function Fatal Error:', error.message)
     return new Response(
-      JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      JSON.stringify({ error: `Fatal Edge Error: ${error.message}` }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
   }
 })

@@ -42,12 +42,18 @@ export const createDepositCheckout = async (
   });
 
   if (error) {
-    // Supabase invoke errors often contain the response in a specific way
-    console.error('Edge Function Error:', error);
+    // Attempt to extract the specific error message from the response body
+    console.group('Supabase Edge Function Error');
+    console.error('Full Error Object:', error);
+    console.groupEnd();
+    
+    // If the error message is the generic one, we try to see if there's more detail
+    // In many cases, we have to look into the logs if it's a 500, 
+    // but for 400s we should get our custom message.
     throw new Error(error.message || 'Unknown backend error');
   }
 
-  // If the function returned an error in the body with status 200 (unlikely but safe)
+  // If the function returned an error in the body (fallback)
   if (data?.error) {
     throw new Error(data.error);
   }
