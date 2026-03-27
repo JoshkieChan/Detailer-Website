@@ -80,93 +80,101 @@ serve(async (req) => {
     
     // Auth & Init
     const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')
-    if (!stripeSecretKey) throw new Error('STRIPE_SECRET_KEY is missing')
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    const googleCalendarId = Deno.env.get('GOOGLE_CALENDAR_ID')
+    const serviceAccountRaw = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_JSON')
+
+    // 1. Diagnostic Check
+    const missing = []
+    if (!stripeSecretKey) missing.push('STRIPE_SECRET_KEY')
+    if (!supabaseUrl) missing.push('SUPABASE_URL')
+    if (!supabaseServiceRoleKey) missing.push('SUPABASE_SERVICE_ROLE_KEY')
+    if (missing.length > 0) {
+      throw new Error(`Missing Supabase Secrets: ${missing.join(', ')}. Please add them in Project Settings > Edge Functions.`)
+    }
 
     const stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2022-11-15',
       httpClient: Stripe.createFetchHttpClient(),
     })
     
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')
-    const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-    
-    if (!supabaseUrl || !supabaseServiceRoleKey) {
-      throw new Error('Supabase environment variables are missing')
-    }
-
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
+
+    // Normalize inputs
+    const numericPrice = typeof packagePrice === 'string' ? parseFloat(packagePrice) : packagePrice
+    const depositAmount = Math.round(numericPrice * 0.2 * 100)
+    const bookingId = crypto.randomUUID()
+    const requestOrigin = req.headers.get('origin') || 'https://signaldatasource.com'
 
     // CRM: Upsert Customer
     let customerId = null
-    const { data: customerData, error: customerError } = await supabase
-      .from('customers')
-      .upsert(
-        { full_name: fullName, email: customerEmail, phone: phone },
-        { onConflict: 'email', ignoreDuplicates: false }
-      )
-      .select('id')
-      .single()
-      
-    if (customerError) {
-      console.error('Customer upsert error:', customerError)
-    } else {
-      customerId = customerData?.id
+    try {
+      const { data: customerData, error: customerError } = await supabase
+        .from('customers')
+        .upsert(
+          { full_name: fullName, email: customerEmail, phone: phone },
+          { onConflict: 'email', ignoreDuplicates: false }
+        )
+        .select('id')
+        .single()
+        
+      if (customerError) {
+        console.warn('Customer upsert failed (continuing without ID):', customerError.message)
+      } else {
+        customerId = customerData?.id
+      }
+    } catch (err) {
+      console.warn('Customer upsert crashed (continuing):', err.message)
     }
 
-    const depositAmount = Math.round(packagePrice * 0.2 * 100)
-    const bookingId = crypto.randomUUID()
-
-    const session = await stripe.checkout.sessions.create({
-      ui_mode: 'embedded',
-      return_url: `${req.headers.get('origin')}/booking/confirmation?session_id={CHECKOUT_SESSION_ID}`,
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: `${packageName} - 20% Booking Deposit`,
-              description: `Vehicle detail reservation for booking #${bookingId}`,
+    // Create Stripe Session
+    let session;
+    try {
+      session = await stripe.checkout.sessions.create({
+        ui_mode: 'embedded',
+        return_url: `${requestOrigin}/booking/confirmation?session_id={CHECKOUT_SESSION_ID}`,
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price_data: {
+              currency: 'usd',
+              product_data: {
+                name: `${packageName} - Deposit`,
+                description: `20% deposit for booking #${bookingId}`,
+              },
+              unit_amount: depositAmount,
             },
-            unit_amount: depositAmount,
+            quantity: 1,
           },
-          quantity: 1,
+        ],
+        mode: 'payment',
+        customer_email: customerEmail,
+        metadata: { 
+          bookingId, 
+          packageId, 
+          customerName: fullName 
         },
-      ],
-      mode: 'payment',
-      customer_email: customerEmail,
-      metadata: { bookingId: bookingId },
-    })
+      })
+    } catch (stripeErr) {
+      throw new Error(`Stripe API Error: ${stripeErr.message}`)
+    }
 
-    // Calendar Integration
+    // Google Calendar Integration
     let googleEventId = null
     try {
-      const googleCalendarId = Deno.env.get('GOOGLE_CALENDAR_ID')
-      const serviceAccountRaw = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_JSON')
-      
       if (!googleCalendarId || !serviceAccountRaw) {
-        console.warn('Google Calendar Integration Skipped: Missing GOOGLE_CALENDAR_ID or GOOGLE_SERVICE_ACCOUNT_JSON in Supabase secrets.')
+        console.warn('Google Calendar Integration Skipped: Missing secrets.')
       } else {
-        let serviceAccount;
-        try {
-          serviceAccount = JSON.parse(serviceAccountRaw);
-          if (!serviceAccount.private_key || !serviceAccount.client_email) {
-            throw new Error('Service Account JSON is missing required fields (private_key or client_email).');
-          }
-        } catch (parseErr) {
-          throw new Error('Failed to parse GOOGLE_SERVICE_ACCOUNT_JSON. Ensure it is valid raw JSON data: ' + parseErr.message);
-        }
-        
+        const serviceAccount = JSON.parse(serviceAccountRaw);
         const startDate = `${serviceDate}T09:00:00`
         const endDate = `${serviceDate}T15:00:00`
         const timeZone = "America/Los_Angeles"
         
         const eventBody = {
           summary: `Detail – ${packageName} – ${fullName}`,
-          location: locationType === 'garage' 
-            ? 'Garage Studio - near Erie St, Oak Harbor (exact address sent later)'
-            : address,
-          description: `Phone: ${phone}\nEmail: ${customerEmail}\nPackage: ${packageName}\nVehicle: ${vehicleInfo}\nService Type: ${locationType === 'garage' ? 'Garage Drop-off' : 'Mobile Service'}\nDeposit: $${(depositAmount/100).toFixed(2)} paid via Stripe\nStripe Session ID: ${session.id}`,
+          location: locationType === 'garage' ? 'Garage Studio' : address,
+          description: `Phone: ${phone}\nEmail: ${customerEmail}\nVehicle: ${vehicleInfo}\nDeposit: $${(depositAmount/100).toFixed(2)}\nStripe: ${session.id}`,
           start: { dateTime: startDate, timeZone },
           end: { dateTime: endDate, timeZone }
         }
@@ -174,7 +182,7 @@ serve(async (req) => {
         googleEventId = await createGoogleCalendarEvent(googleCalendarId, serviceAccount, eventBody)
       }
     } catch (err) {
-      console.error("Google Calendar failed, continuing booking:", err)
+      console.error("Google Calendar failed:", err.message)
     }
 
     // Insert Booking
@@ -192,8 +200,8 @@ serve(async (req) => {
         service_date: serviceDate,
         service_time: serviceTime,
         location_type: locationType,
-        total_amount: packagePrice,
-        deposit_amount: packagePrice * 0.2,
+        total_amount: numericPrice,
+        deposit_amount: numericPrice * 0.2,
         status: 'pending',
         deposit_status: 'unpaid',
         stripe_session_id: session.id,
@@ -201,8 +209,8 @@ serve(async (req) => {
       }])
       
     if (dbError) {
-      console.error('Supabase Insert Error:', dbError)
-      throw new Error(`Failed to save booking details to database.`)
+      console.error('Database Insert Error:', dbError)
+      throw new Error(`Database Error: ${dbError.message}. Did you run the SQL migration? Check for missing columns: customer_id, google_calendar_event_id.`)
     }
 
     return new Response(
@@ -210,7 +218,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
   } catch (error) {
-    console.error('Edge Function Error:', error.message)
+    console.error('Edge Function Fatal Error:', error.message)
     return new Response(
       JSON.stringify({ error: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }

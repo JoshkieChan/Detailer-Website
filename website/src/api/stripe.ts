@@ -42,7 +42,14 @@ export const createDepositCheckout = async (
   });
 
   if (error) {
-    throw new Error(`Failed to create Stripe session: ${error.message}`);
+    // Supabase invoke errors often contain the response in a specific way
+    console.error('Edge Function Error:', error);
+    throw new Error(error.message || 'Unknown backend error');
+  }
+
+  // If the function returned an error in the body with status 200 (unlikely but safe)
+  if (data?.error) {
+    throw new Error(data.error);
   }
 
   return {
