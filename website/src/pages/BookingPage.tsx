@@ -270,11 +270,24 @@ const BookingPage = () => {
   // ────────────────────────────────────────────────────────────────────────────
 
   if (clientSecret) {
+    // Diagnostic log to help identify Live/Test mismatches
+    console.log('Stripe initialization check:', {
+      hasClientSecret: !!clientSecret,
+      secretType: clientSecret.startsWith('cs_live') ? 'LIVE' : 'TEST',
+      publishableKeyType: stripePublishableKey?.startsWith('pk_live') ? 'LIVE' : 'TEST',
+      match: clientSecret.startsWith('cs_live') === stripePublishableKey?.startsWith('pk_live')
+    });
+
     return (
       <div className="booking-page container" style={{ padding: '8rem 1rem' }}>
         <h2 className="text-center" style={{ marginBottom: '2rem' }}>Complete Your Deposit</h2>
-        <div className="glass" style={{ padding: '2rem', borderRadius: '12px', margin: '0 auto', maxWidth: '800px', background: 'var(--color-bg-elevated)', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="glass" style={{ padding: '2rem', borderRadius: '12px', margin: '0 auto', maxWidth: '800px', minHeight: '400px', background: 'var(--color-bg-elevated)', border: '1px solid rgba(255,255,255,0.05)' }}>
           <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>
+            <div className="stripe-loader" style={{ padding: '2rem', textAlign: 'center' }}>
+              <div className="spinner"></div>
+              <p style={{ marginTop: '1rem', opacity: 0.7 }}>Securing checkout session...</p>
+              <p style={{ fontSize: '0.8rem', opacity: 0.5 }}>If this takes more than 5 seconds, please check your browser console for Stripe mismatches.</p>
+            </div>
             <EmbeddedCheckout />
           </EmbeddedCheckoutProvider>
         </div>
