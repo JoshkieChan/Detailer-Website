@@ -8,8 +8,13 @@ import { createDepositCheckout } from '../api/stripe';
 import { loadStripe } from '@stripe/stripe-js';
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js';
 
-const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || import.meta.env.VITE_STRIPE_PUBLISHABLE_TEST_KEY;
-const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : Promise.resolve(null);
+const stripePublishableKey = (import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || import.meta.env.VITE_STRIPE_PUBLISHABLE_TEST_KEY)?.trim();
+
+if (!stripePublishableKey) {
+  console.warn('STRIPE_PUBLISHABLE_KEY is missing. Checkout will not load.');
+}
+
+const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
 import { servicePackages } from '../data/packages';
 
 // ─── Validation Helpers ─────────────────────────────────────────────────────
