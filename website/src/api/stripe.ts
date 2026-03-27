@@ -35,27 +35,35 @@ export interface BookingPayload {
 export const createDepositCheckout = async (
   payload: BookingPayload
 ): Promise<CheckoutSessionDetails> => {
-  
-  // Call the Supabase Edge Function
-  const { data, error } = await supabase.functions.invoke('stripe-checkout', {
-    body: payload,
-  });
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-  if (error) {
-    // Attempt to extract the specific error message from the response body
-    console.group('Supabase Edge Function Error');
-    console.error('Full Error Object:', error);
-    console.groupEnd();
-    
-    // If the error message is the generic one, we try to see if there's more detail
-    // In many cases, we have to look into the logs if it's a 500, 
-    // but for 400s we should get our custom message.
-    throw new Error(error.message || 'Unknown backend error');
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Supabase environment variables are missing in this environment.');
   }
 
-  // If the function returned an error in the body (fallback)
-  if (data?.error) {
-    throw new Error(data.error);
+  const functionUrl = `${supabaseUrl}/functions/v1/stripe-checkout`;
+
+  const response = await fetch(functionUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${supabaseAnonKey}`,
+      'apikey': supabaseAnonKey
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const text = await response.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (e) {
+    throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}`);
+  }
+
+  if (!response.ok || data.error) {
+    throw new Error(data.error || `Server responded with status ${response.status}: ${text}`);
   }
 
   return {
