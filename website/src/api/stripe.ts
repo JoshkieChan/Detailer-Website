@@ -1,12 +1,11 @@
 import { loadStripe } from '@stripe/stripe-js';
-import { supabase } from '../lib/supabase';
 
-const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.trim();
 
 export const getStripe = () => {
-  if (!stripePublishableKey) {
-    console.error('Missing Stripe publishable key.');
-    return null;
+  if (!stripePublishableKey || !stripePublishableKey.startsWith('pk_live')) {
+    console.warn('Production Error: STRIPE_PUBLISHABLE_KEY is either missing or is not a LIVE key. Checkout will fail.');
+    return stripePublishableKey ? loadStripe(stripePublishableKey) : null;
   }
   return loadStripe(stripePublishableKey);
 };
@@ -58,7 +57,7 @@ export const createDepositCheckout = async (
   let data;
   try {
     data = JSON.parse(text);
-  } catch (e) {
+  } catch {
     throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}`);
   }
 

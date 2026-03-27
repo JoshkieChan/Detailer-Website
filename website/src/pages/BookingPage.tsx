@@ -4,17 +4,11 @@ import { UploadCloud, CalendarCheck, X, ShieldCheck, AlertCircle } from 'lucide-
 import { useSearchParams } from 'react-router-dom';
 import { BookingCalendar } from '../components/BookingCalendar';
 import { fetchBookedDates } from '../api/availability';
+import { getStripe } from '../api/stripe';
 import { createDepositCheckout } from '../api/stripe';
-import { loadStripe } from '@stripe/stripe-js';
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js';
 
-const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.trim();
-
-if (!stripePublishableKey) {
-  console.warn('STRIPE_PUBLISHABLE_KEY is missing. Live checkout will not load.');
-}
-
-const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
+const stripePromise = getStripe();
 import { servicePackages } from '../data/packages';
 
 // ─── Validation Helpers ─────────────────────────────────────────────────────
@@ -257,9 +251,9 @@ const BookingPage = () => {
       setClientSecret(session.clientSecret);
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Booking submit error details:', err);
-      const errorMessage = err?.message || "Unknown error";
+      const errorMessage = err instanceof Error ? err.message : "Possible payment processing error";
       setSystemError(
         `Technical issue: ${errorMessage}. Please try again or contact us directly.`
       );
@@ -270,24 +264,14 @@ const BookingPage = () => {
   // ────────────────────────────────────────────────────────────────────────────
 
   if (clientSecret) {
-    // Diagnostic log for Production Live Mode
-    console.log('Stripe Live Initialization:', {
-      hasClientSecret: !!clientSecret,
-      isLiveSession: clientSecret.startsWith('cs_live'),
-      hasLivePubKey: stripePublishableKey?.startsWith('pk_live'),
-    });
-
     return (
       <div className="booking-page container" style={{ padding: '8rem 1rem' }}>
         <h2 className="text-center" style={{ marginBottom: '2rem' }}>Complete Your Deposit</h2>
         <div className="glass" style={{ padding: '2rem', borderRadius: '12px', margin: '0 auto', maxWidth: '800px', minHeight: '400px', background: 'var(--color-bg-elevated)', border: '1px solid rgba(255,255,255,0.05)' }}>
           <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>
-            <div className="stripe-loader" style={{ padding: '2rem', textAlign: 'center' }}>
-              <div className="spinner"></div>
-              <p style={{ marginTop: '1rem', opacity: 0.7 }}>Securing checkout session...</p>
-              <p style={{ fontSize: '0.8rem', opacity: 0.5 }}>If this takes more than 5 seconds, please check your browser console for Stripe mismatches.</p>
+            <div className="stripe-container">
+              <EmbeddedCheckout />
             </div>
-            <EmbeddedCheckout />
           </EmbeddedCheckoutProvider>
         </div>
       </div>
