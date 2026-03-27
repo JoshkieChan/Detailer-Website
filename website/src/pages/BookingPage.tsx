@@ -8,10 +8,10 @@ import { createDepositCheckout } from '../api/stripe';
 import { loadStripe } from '@stripe/stripe-js';
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js';
 
-const stripePublishableKey = (import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || import.meta.env.VITE_STRIPE_PUBLISHABLE_TEST_KEY)?.trim();
+const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.trim();
 
 if (!stripePublishableKey) {
-  console.warn('STRIPE_PUBLISHABLE_KEY is missing. Checkout will not load.');
+  console.warn('STRIPE_PUBLISHABLE_KEY is missing. Live checkout will not load.');
 }
 
 const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
@@ -270,12 +270,11 @@ const BookingPage = () => {
   // ────────────────────────────────────────────────────────────────────────────
 
   if (clientSecret) {
-    // Diagnostic log to help identify Live/Test mismatches
-    console.log('Stripe initialization check:', {
+    // Diagnostic log for Production Live Mode
+    console.log('Stripe Live Initialization:', {
       hasClientSecret: !!clientSecret,
-      secretType: clientSecret.startsWith('cs_live') ? 'LIVE' : 'TEST',
-      publishableKeyType: stripePublishableKey?.startsWith('pk_live') ? 'LIVE' : 'TEST',
-      match: clientSecret.startsWith('cs_live') === stripePublishableKey?.startsWith('pk_live')
+      isLiveSession: clientSecret.startsWith('cs_live'),
+      hasLivePubKey: stripePublishableKey?.startsWith('pk_live'),
     });
 
     return (
