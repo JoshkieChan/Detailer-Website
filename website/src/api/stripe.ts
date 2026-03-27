@@ -14,7 +14,7 @@ export interface CheckoutSessionDetails {
   depositAmount: number;
   totalAmount: number;
   currency: string;
-  clientSecret: string;
+  sessionUrl: string;
 }
 
 export interface BookingPayload {
@@ -69,6 +69,6 @@ export const createDepositCheckout = async (
     depositAmount: data.depositAmount,
     totalAmount: payload.packagePrice,
     currency: 'USD',
-    clientSecret: data.clientSecret 
+    sessionUrl: data.url 
   };
 };

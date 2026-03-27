@@ -4,11 +4,7 @@ import { UploadCloud, CalendarCheck, X, ShieldCheck, AlertCircle } from 'lucide-
 import { useSearchParams } from 'react-router-dom';
 import { BookingCalendar } from '../components/BookingCalendar';
 import { fetchBookedDates } from '../api/availability';
-import { getStripe } from '../api/stripe';
-import { createDepositCheckout } from '../api/stripe';
-import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js';
-
-const stripePromise = getStripe();
+import { getStripe, createDepositCheckout } from '../api/stripe';
 import { servicePackages } from '../data/packages';
 
 // ─── Validation Helpers ─────────────────────────────────────────────────────
@@ -126,10 +122,10 @@ const FieldError = ({ msg }: { msg: string }) =>
 const BookingPage = () => {
   const [searchParams] = useSearchParams();
 
+  // Booking state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [systemError, setSystemError] = useState<string | null>(null);
   const [bookedDates, setBookedDates] = useState<string[]>([]);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   // Per-field validation errors
   const [fieldErrors, setFieldErrors] = useState({
@@ -248,8 +244,12 @@ const BookingPage = () => {
         serviceTime: formData.time,
       });
 
-      setClientSecret(session.clientSecret);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Direct redirect to Stripe Hosted Checkout
+      if (session.sessionUrl) {
+        window.location.href = session.sessionUrl;
+      } else {
+        throw new Error("Failed to generate checkout URL.");
+      }
 
     } catch (err: unknown) {
       console.error('Booking submit error details:', err);
@@ -263,20 +263,7 @@ const BookingPage = () => {
 
   // ────────────────────────────────────────────────────────────────────────────
 
-  if (clientSecret) {
-    return (
-      <div className="booking-page container" style={{ padding: '8rem 1rem' }}>
-        <h2 className="text-center" style={{ marginBottom: '2rem' }}>Complete Your Deposit</h2>
-        <div className="glass" style={{ padding: '2rem', borderRadius: '12px', margin: '0 auto', maxWidth: '800px', minHeight: '400px', background: 'var(--color-bg-elevated)', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>
-            <div className="stripe-container">
-              <EmbeddedCheckout />
-            </div>
-          </EmbeddedCheckoutProvider>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <div className="booking-page">

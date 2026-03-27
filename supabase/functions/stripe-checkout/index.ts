@@ -141,12 +141,10 @@ serve(async (req) => {
       console.warn('Customer upsert crashed (continuing):', err.message)
     }
 
-    // Create Stripe Session
+    // Create Stripe Session (Redirect Mode)
     let session;
     try {
       session = await stripe.checkout.sessions.create({
-        ui_mode: 'embedded',
-        return_url: `${requestOrigin}/booking/confirmation?session_id={CHECKOUT_SESSION_ID}`,
         payment_method_types: ['card'],
         line_items: [
           {
@@ -162,6 +160,8 @@ serve(async (req) => {
           },
         ],
         mode: 'payment',
+        success_url: `${requestOrigin}/booking/confirmation?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${requestOrigin}/booking?package=${packageId}`,
         customer_email: customerEmail,
         metadata: { 
           bookingId, 
@@ -233,7 +233,7 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ clientSecret: session.client_secret, depositAmount: depositAmount / 100 }),
+      JSON.stringify({ url: session.url, depositAmount: depositAmount / 100 }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
   } catch (error) {
