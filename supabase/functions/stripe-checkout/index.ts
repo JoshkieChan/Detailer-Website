@@ -1,6 +1,6 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import Stripe from "https://esm.sh/stripe@10.0.0?target=deno"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2?target=deno"
+import { serve } from "https://deno.land/std@0.177.0/http/server.ts"
+import Stripe from "https://esm.sh/stripe@11.18.0?target=deno"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1"
 import { SignJWT, importPKCS8 } from "https://deno.land/x/jose@v4.14.4/index.ts"
 
 const corsHeaders = {

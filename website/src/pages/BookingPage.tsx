@@ -252,10 +252,11 @@ const BookingPage = () => {
       setClientSecret(session.clientSecret);
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    } catch (err: unknown) {
-      console.error('Booking submit error:', err);
+    } catch (err: any) {
+      console.error('Booking submit error details:', err);
+      const errorMessage = err?.message || "Unknown error";
       setSystemError(
-        "We couldn't start the secure deposit process. Please try again or contact us directly."
+        `Technical issue: ${errorMessage}. Please try again or contact us directly.`
       );
       setIsSubmitting(false);
     }
