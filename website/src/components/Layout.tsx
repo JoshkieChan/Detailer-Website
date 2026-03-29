@@ -160,11 +160,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         .brand-icon { background: var(--color-accent-lime); color: #000; font-weight: 800; font-size: 1.25rem; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
         .brand-text { font-family: var(--font-heading); font-weight: 900; font-size: 1.5rem; color: #fff; letter-spacing: 0.5px; }
         
-        .desktop-nav { display: flex; align-items: center; gap: 2rem; }
-        .nav-link { font-weight: 600; font-size: 0.95rem; color: var(--color-text-main); opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; position: relative; }
+        .desktop-nav { display: flex; align-items: center; gap: 2.75rem; flex-wrap: wrap; justify-content: flex-end; }
+        .nav-link { font-weight: 600; font-size: 0.95rem; color: var(--color-text-main); opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; position: relative; padding: 0.25rem 0.5rem; }
         .nav-link:hover, .nav-link.active { opacity: 1; color: var(--color-accent-lime); }
         .nav-link-special { 
-          font-weight: 800; font-size: 0.9rem; color: var(--color-accent-lime); text-transform: uppercase; letter-spacing: 0.5px; border: 1px dashed var(--color-accent-lime); padding: 0.5rem 1rem; border-radius: 6px; transition: all var(--transition-fast);
+          font-weight: 800; font-size: 0.9rem; color: var(--color-accent-lime); text-transform: uppercase; letter-spacing: 0.5px; border: 1px dashed var(--color-accent-lime); padding: 0.5rem 1rem; border-radius: 4px; transition: all var(--transition-fast);
         }
         .nav-link-special:hover { background: rgba(158, 255, 0, 0.1); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(158, 255, 0, 0.2); }
         .nav-btn { font-size: 0.9rem; padding: 0.6rem 1.5rem; }

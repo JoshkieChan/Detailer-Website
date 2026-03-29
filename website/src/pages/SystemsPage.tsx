@@ -1,4 +1,4 @@
-import { Sparkles, Brain, Lightbulb, ShoppingBag, ArrowRight, Zap, Target, Heart, MessageSquare, Mail } from 'lucide-react';
+import { Sparkles, Brain, Lightbulb, ShoppingBag, Zap, Target, Heart, MessageSquare } from 'lucide-react';
 
 const SystemsPage = () => {
   return (
@@ -125,24 +125,15 @@ const SystemsPage = () => {
           </div>
         </div>
 
-        <div className="cta-final">
-          <a 
-            href="mailto:jcab@signaldatasource.com?subject=Custom system request – [Your Name]" 
-            className="btn primary"
-            style={{ padding: '1.25rem 3rem', fontSize: '1.1rem' }}
-          >
-            <Mail size={18} style={{ marginRight: '0.75rem' }} /> Email me your problem
-          </a>
-          <p className="text-muted mt-2" style={{ fontSize: '0.9rem' }}>
-            Or text <b>SYSTEMS</b> to (904) 993-7503 to start the conversation.
-          </p>
-        </div>
+        <p className="mt-4 text-muted" style={{ fontSize: '1.1rem', fontWeight: 500, textAlign: 'center' }}>
+          When you’re ready, you can DM or email me with what you’re trying to fix. My contact details are in the footer.
+        </p>
       </section>
 
       <style>{`
         .systems-page { padding: 4rem 1.5rem; max-width: 1100px; margin: 0 auto; }
         .page-header { margin-bottom: 5rem; }
-        .badge-lime { display: inline-block; background: var(--color-accent-lime); color: #000; padding: 0.35rem 1rem; border-radius: 999px; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+        .badge-lime { display: inline-block; background: var(--color-accent-lime); color: #000; padding: 0.35rem 1rem; border-radius: 4px; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
         .page-header h1 { font-size: 3.5rem; font-weight: 900; margin-bottom: 1.25rem; }
         .subtitle { font-size: 1.35rem; color: var(--color-text-muted); max-width: 700px; margin: 0 auto; line-height: 1.6; }
 
@@ -162,7 +153,7 @@ const SystemsPage = () => {
         .feature-item h4 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.4rem; color: var(--color-text-main); }
         .feature-item p { font-size: 0.95rem; color: var(--color-text-muted); line-height: 1.5; }
 
-        .status-badge { display: inline-block; padding: 0.5rem 1.25rem; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--color-border); border-radius: 999px; font-size: 0.8rem; font-weight: 700; color: var(--color-text-muted); }
+        .status-badge { display: inline-block; padding: 0.5rem 1.25rem; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--color-border); border-radius: 4px; font-size: 0.8rem; font-weight: 700; color: var(--color-text-muted); }
 
         .concierge-box { padding: 4rem; border-radius: var(--radius-lg); text-align: center; border: 1px solid rgba(158, 255, 0, 0.2); background: radial-gradient(circle at top right, rgba(158, 255, 0, 0.05) 0%, transparent 50%); }
         .concierge-box h2 { font-size: 2.25rem; font-weight: 900; margin-bottom: 1rem; }
