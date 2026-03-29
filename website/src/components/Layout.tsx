@@ -14,6 +14,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { name: 'Pricing', path: '/pricing' },
     { name: 'Memberships', path: '/memberships' },
     { name: 'About', path: '/about' },
+    { name: 'Systems', path: '/systems' },
     { name: 'FAQ', path: '/faq' },
   ];
 
@@ -65,6 +66,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <span className="sr-only">{theme}</span>
             </button>
 
+            <Link to="/systems" className="nav-link-special">
+              Systems & Digital Products
+            </Link>
+
             <Link to="/booking" className="btn primary nav-btn">
               Book Now
             </Link>
@@ -93,6 +98,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               {link.name}
             </Link>
           ))}
+          <Link to="/systems" className="mobile-nav-link-special" onClick={() => setIsMenuOpen(false)}>
+            Systems & Digital Products
+          </Link>
           <Link to="/booking" className="btn primary mobile-nav-btn" onClick={() => setIsMenuOpen(false)}>
             Book Now
           </Link>
@@ -163,6 +171,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         .desktop-nav { display: flex; align-items: center; gap: 2rem; }
         .nav-link { font-weight: 600; font-size: 0.95rem; color: var(--color-text-main); opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; position: relative; }
         .nav-link:hover, .nav-link.active { opacity: 1; color: var(--color-accent-lime); }
+        .nav-link-special { 
+          font-weight: 800; font-size: 0.9rem; color: var(--color-accent-lime); text-transform: uppercase; letter-spacing: 0.5px; border: 1px dashed var(--color-accent-lime); padding: 0.5rem 1rem; border-radius: 6px; transition: all var(--transition-fast);
+        }
+        .nav-link-special:hover { background: rgba(158, 255, 0, 0.1); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(158, 255, 0, 0.2); }
         .nav-btn { font-size: 0.9rem; padding: 0.6rem 1.5rem; }
         
         .theme-toggle-btn {
@@ -181,6 +193,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         .mobile-nav.open { max-height: 500px; opacity: 1; padding: 1.5rem; visibility: visible; }
         
         .mobile-nav-link { padding: 1rem 0; border-bottom: 1px solid var(--color-border); font-size: 1.1rem; color: var(--color-text-main); font-weight: 700; }
+        .mobile-nav-link-special { 
+          padding: 1rem 0; font-size: 1.1rem; color: var(--color-accent-lime); font-weight: 800; border-bottom: 1px dashed var(--color-accent-lime); text-transform: uppercase;
+        }
         .mobile-nav-btn { margin-top: 1.5rem; width: 100%; }
         
         .main-content { flex: 1; }
