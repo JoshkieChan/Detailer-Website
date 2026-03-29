@@ -4,7 +4,7 @@ import { Lock, ShieldAlert } from 'lucide-react';
 const PasswordGate = ({ children }: { children: React.ReactNode }) => {
   const [password, setPassword] = useState('');
   const [isUnlocked, setIsUnlocked] = useState(() => {
-    return localStorage.getItem('site_unlocked') === 'true';
+    return sessionStorage.getItem('site_unlocked') === 'true';
   });
   const [error, setError] = useState(false);
 
@@ -29,7 +29,7 @@ const PasswordGate = ({ children }: { children: React.ReactNode }) => {
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
     if (password === SITE_PASSWORD) {
-      localStorage.setItem('site_unlocked', 'true');
+      sessionStorage.setItem('site_unlocked', 'true');
       setIsUnlocked(true);
       setError(false);
       

@@ -126,7 +126,7 @@ const SystemsPage = () => {
         </div>
 
         <p className="mt-4 text-muted" style={{ fontSize: '1.1rem', fontWeight: 500, textAlign: 'center' }}>
-          When you’re ready, you can DM or email me with what you’re trying to fix. My contact details are in the footer.
+          When you’re ready, you can DM or email me with what you’re trying to fix. My contact details are in the footer section below.
         </p>
       </section>
 

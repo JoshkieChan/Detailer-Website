@@ -160,8 +160,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         .brand-icon { background: var(--color-accent-lime); color: #000; font-weight: 800; font-size: 1.25rem; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
         .brand-text { font-family: var(--font-heading); font-weight: 900; font-size: 1.5rem; color: #fff; letter-spacing: 0.5px; }
         
-        .desktop-nav { display: flex; align-items: center; gap: 2.75rem; flex-wrap: wrap; justify-content: flex-end; }
-        .nav-link { font-weight: 600; font-size: 0.95rem; color: var(--color-text-main); opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; position: relative; padding: 0.25rem 0.5rem; }
+        .desktop-nav { display: flex; align-items: center; gap: 2.25rem; flex-wrap: nowrap; justify-content: flex-end; }
+        .nav-link { font-weight: 600; font-size: 0.95rem; color: var(--color-text-main); opacity: 0.8; text-transform: uppercase; letter-spacing: 0.8px; position: relative; padding: 0.25rem 0.5rem; transition: opacity 0.2s ease; transition: color 0.2s ease; }
         .nav-link:hover, .nav-link.active { opacity: 1; color: var(--color-accent-lime); }
         .nav-link-special { 
           font-weight: 800; font-size: 0.9rem; color: var(--color-accent-lime); text-transform: uppercase; letter-spacing: 0.5px; border: 1px dashed var(--color-accent-lime); padding: 0.5rem 1rem; border-radius: 4px; transition: all var(--transition-fast);
@@ -208,7 +208,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           .footer-right { width: 100%; }
         }
         
-        @media (max-width: 768px) {
+        @media (max-width: 1200px) {
           .desktop-nav { display: none; }
           .mobile-actions { display: flex; }
           .footer-left h2 { font-size: 2rem; }
