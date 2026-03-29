@@ -1,12 +1,12 @@
-import { Sparkles, Brain, Lightbulb, ShoppingBag, ArrowRight, Zap, Target, Heart } from 'lucide-react';
+import { Sparkles, Brain, Lightbulb, ShoppingBag, ArrowRight, Zap, Target, Heart, MessageSquare, Mail } from 'lucide-react';
 
 const SystemsPage = () => {
   return (
     <div className="systems-page">
       <div className="page-header text-center">
-        <div className="badge-lime mb-1">Coming Soon</div>
+        <div className="badge-lime mb-1">Available Now</div>
         <h1>Systems & Digital Products</h1>
-        <p className="subtitle">High-impact tools precisely engineered to solve painful business and lifestyle bottlenecks.</p>
+        <p className="subtitle">High-impact, custom-built assets designed to remove friction and automate the success of your day-to-day operations.</p>
       </div>
 
       <div className="systems-grid">
@@ -17,26 +17,33 @@ const SystemsPage = () => {
           </div>
           <div className="section-content">
             <h2>Digital Assets & Blueprints</h2>
-            <p className="section-intro">Stop guessing and start executing with field-tested frameworks for car care and business efficiency.</p>
+            <p className="section-intro">Highly personalized, outcome-focused deliverables built specifically for your vehicle or business needs.</p>
             
             <div className="feature-list">
               <div className="feature-item">
                 <Target size={20} className="icon-lime" />
                 <div>
-                  <h4>The Definitve Car Care Checklist</h4>
-                  <p>A precision-mapped guide to keeping your vehicle in showroom condition with minimal effort.</p>
+                  <h4>Car Care Blueprints</h4>
+                  <p>A custom-mapped maintenance schedule and supply list built around your specific vehicle, climate, and available time.</p>
                 </div>
               </div>
               <div className="feature-item">
                 <Heart size={20} className="icon-lime" />
                 <div>
-                  <h4>Elite Customer Experience Templates</h4>
-                  <p>The exact communication frameworks I use to turn one-time visitors into lifelong advocates.</p>
+                  <h4>Customer Experience Flows</h4>
+                  <p>Message and email sequences that handle the "small talk" and follow-ups, turning one-time visitors into repeat advocates.</p>
+                </div>
+              </div>
+              <div className="feature-item">
+                <Zap size={20} className="icon-lime" />
+                <div>
+                  <h4>Operator Dashboards</h4>
+                  <p>Centralized Notion or Airtable systems to track your pipeline, jobs, and follow-ups without the mental clutter.</p>
                 </div>
               </div>
             </div>
             
-            <div className="status-badge">Phase: Development</div>
+            <div className="status-badge">Format: 1:1 Custom Build</div>
           </div>
         </section>
 
@@ -46,43 +53,89 @@ const SystemsPage = () => {
             <Brain size={40} className="icon-lime" />
           </div>
           <div className="section-content">
-            <div className="exclusive-badge">Next Gen</div>
+            <div className="exclusive-badge">Private Build</div>
             <h2>AI-Powered Local Systems</h2>
-            <p className="section-intro">Leveraging autonomous agents to handle the heavy lifting of scheduling, lead-gen, and follow-ups for local service businesses.</p>
+            <p className="section-intro">Intelligent automation for local service businesses (detailers, cleaners, contractors) who need to scale without more staff.</p>
             
             <div className="feature-list">
               <div className="feature-item">
                 <Zap size={20} className="icon-lime" />
                 <div>
                   <h4>Automated Booking Agents</h4>
-                  <p>24/7 AI assistants that don't just take numbers, but actually 'sell' the value of your services while you sleep.</p>
+                  <p>24/7 AI assistants that qualify leads and sell the value of your services while you're focused on the job.</p>
                 </div>
               </div>
               <div className="feature-item">
                 <Sparkles size={20} className="icon-lime" />
                 <div>
                   <h4>Dynamic Operations Automator</h4>
-                  <p>A complete backend system that synchronizes your calendar, CRM, and customer feedback loop automatically.</p>
+                  <p>A back-end "brain" that syncs your calendar, CRM, and customer feedback loop automatically.</p>
                 </div>
               </div>
             </div>
 
-            <div className="status-badge">Phase: R&D / Private Beta</div>
+            <div className="status-badge">Status: Limited 1:1 Implementation</div>
           </div>
         </section>
       </div>
+
+      {/* Concierge Instructions */}
+      <section className="concierge-box glass mb-6">
+        <div className="concierge-content">
+          <div className="icon-wrapper mb-2">
+            <MessageSquare size={32} className="icon-lime" />
+          </div>
+          <h2>Custom Build Requests</h2>
+          <p className="mb-2">Need a specific routine optimized or a business bottleneck removed? I design and build tailored systems that actually solve the problem.</p>
+          <div className="concierge-steps">
+            <div className="step">
+              <span className="step-num">1</span>
+              <p>Email me a description of the outcome you're looking for.</p>
+            </div>
+            <div className="step">
+              <span className="step-num">2</span>
+              <p>I'll reply with clarifying questions and a simple, flat-rate quote.</p>
+            </div>
+            <div className="step">
+              <span className="step-num">3</span>
+              <p>I build it, you use it. No ongoing maintenance required.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="outcome-section text-center">
         <Lightbulb size={48} className="icon-lime mb-2" />
         <h2>Solving Problems, Not Just Selling Features</h2>
         <p className="outcome-text">
-          My goal isn't to give you more software to manage. It's to give you **time back**, **peace of mind**, and the **confidence** that your business or vehicle is being handled by a system that actually cares about the outcome.
+          My goal isn't to give you more software to manage. It's to deliver tangible results that change how your day feels:
         </p>
-        <div className="cta-waitlist">
-          <p>Want to be the first to know when these tools drop?</p>
-          <a href="mailto:jcab@signaldatasource.com" className="btn primary">
-            Join the Waitlist <ArrowRight size={18} />
+        <div className="outcome-grid mb-4">
+          <div className="outcome-card">
+            <h4>Less mental overhead</h4>
+            <p>Know exactly what needs to happen next without thinking about it.</p>
+          </div>
+          <div className="outcome-card">
+            <h4>Fewer dropped balls</h4>
+            <p>Leads and customers never fall through the cracks of a manual process.</p>
+          </div>
+          <div className="outcome-card">
+            <h4>Focus on real work</h4>
+            <p>Spend your energy on high-value tasks instead of fighting with admin.</p>
+          </div>
+        </div>
+
+        <div className="cta-final">
+          <a 
+            href="mailto:jcab@signaldatasource.com?subject=Custom system request – [Your Name]" 
+            className="btn primary"
+            style={{ padding: '1.25rem 3rem', fontSize: '1.1rem' }}
+          >
+            <Mail size={18} style={{ marginRight: '0.75rem' }} /> Email me your problem
           </a>
+          <p className="text-muted mt-2" style={{ fontSize: '0.9rem' }}>
+            Or text <b>SYSTEMS</b> to (904) 993-7503 to start the conversation.
+          </p>
         </div>
       </section>
 
@@ -93,7 +146,7 @@ const SystemsPage = () => {
         .page-header h1 { font-size: 3.5rem; font-weight: 900; margin-bottom: 1.25rem; }
         .subtitle { font-size: 1.35rem; color: var(--color-text-muted); max-width: 700px; margin: 0 auto; line-height: 1.6; }
 
-        .systems-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 6rem; }
+        .systems-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 4rem; }
         
         .product-section { padding: 3.5rem; border-radius: var(--radius-lg); position: relative; display: flex; flex-direction: column; }
         .highlight-border { border: 2px solid var(--color-accent-lime); background: rgba(158, 255, 0, 0.03); }
@@ -111,18 +164,28 @@ const SystemsPage = () => {
 
         .status-badge { display: inline-block; padding: 0.5rem 1.25rem; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--color-border); border-radius: 999px; font-size: 0.8rem; font-weight: 700; color: var(--color-text-muted); }
 
-        .outcome-section { max-width: 800px; margin: 0 auto; padding: 4rem 2rem; border-radius: var(--radius-lg); background: radial-gradient(circle at top, rgba(158, 255, 0, 0.05) 0%, transparent 70%); }
+        .concierge-box { padding: 4rem; border-radius: var(--radius-lg); text-align: center; border: 1px solid rgba(158, 255, 0, 0.2); background: radial-gradient(circle at top right, rgba(158, 255, 0, 0.05) 0%, transparent 50%); }
+        .concierge-box h2 { font-size: 2.25rem; font-weight: 900; margin-bottom: 1rem; }
+        .concierge-steps { display: flex; justify-content: center; gap: 3rem; margin-top: 3rem; text-align: left; }
+        .step { flex: 1; max-width: 250px; position: relative; }
+        .step-num { display: block; width: 32px; height: 32px; background: var(--color-accent-lime); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; margin-bottom: 1rem; }
+        .step p { font-size: 0.95rem; color: var(--color-text-muted); line-height: 1.5; font-weight: 500; }
+
+        .outcome-section { max-width: 900px; margin: 0 auto; padding: 4rem 2rem; }
         .outcome-section h2 { font-size: 2.5rem; font-weight: 900; margin-bottom: 1.5rem; }
         .outcome-text { font-size: 1.25rem; line-height: 1.7; color: var(--color-text-muted); margin-bottom: 3rem; }
-        .outcome-text b { color: var(--color-accent-lime); font-weight: 800; }
 
-        .cta-waitlist p { margin-bottom: 1.5rem; font-weight: 700; font-size: 1.1rem; }
-        .cta-waitlist .btn { display: inline-flex; align-items: center; gap: 0.75rem; padding: 1.25rem 2.5rem; font-size: 1.1rem; }
+        .outcome-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; text-align: left; }
+        .outcome-card h4 { color: var(--color-accent-lime); font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .outcome-card p { font-size: 0.95rem; color: var(--color-text-muted); line-height: 1.5; }
 
         @media (max-width: 900px) {
-          .systems-grid { grid-template-columns: 1fr; gap: 2rem; }
+          .systems-grid, .concierge-steps, .outcome-grid { grid-template-columns: 1fr; gap: 2rem; }
+          .concierge-steps { align-items: center; }
+          .step { max-width: 100%; text-align: center; }
+          .step-num { margin: 0 auto 1rem; }
           .page-header h1 { font-size: 2.75rem; }
-          .product-section { padding: 2.5rem; }
+          .product-section, .concierge-box { padding: 2.5rem; }
         }
 
         @media (max-width: 480px) {

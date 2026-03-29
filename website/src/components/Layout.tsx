@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Phone, Mail, Globe, Moon, Sun, Monitor } from 'lucide-react';
+import { Menu, X, Phone, Mail, Moon, Sun, Monitor } from 'lucide-react';
 import { useTheme } from './ThemeContext';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -69,10 +69,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <Link to="/systems" className="nav-link-special">
               Systems & Digital Products
             </Link>
-
-            <Link to="/booking" className="btn primary nav-btn">
-              Book Now
-            </Link>
           </nav>
 
           {/* Mobile Actions */}
@@ -101,9 +97,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <Link to="/systems" className="mobile-nav-link-special" onClick={() => setIsMenuOpen(false)}>
             Systems & Digital Products
           </Link>
-          <Link to="/booking" className="btn primary mobile-nav-btn" onClick={() => setIsMenuOpen(false)}>
-            Book Now
-          </Link>
         </div>
       </header>
 
@@ -115,9 +108,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <footer className="footer-bar">
         <div className="container footer-bar-container">
           <div className="footer-left">
-            <h2>Text or book online<br/>in 60 seconds.</h2>
-            <p className="serving-text">SERVING OAK HARBOR & SURROUNDING AREAS</p>
-            <p className="coming-soon">Coming Soon: Window Tint, Ceramic Coatings, PPF & Wraps</p>
+            <h2 className="brand-text" style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>SIGNALSOURCE</h2>
+            <p className="positioning-statement">Systems-driven car care and local service automation based in Oak Harbor, WA.</p>
+            <p className="serving-text mt-1">Serving Oak Harbor, NAS Whidbey & surrounding areas.</p>
+            <p className="footer-hours">By appointment only • Monday–Saturday</p>
+            <p className="footer-legal">Fully Licensed & Insured • Whidbey Island, WA</p>
+            <p className="coming-soon mt-1">Coming Soon: Window Tint, Ceramic Coatings, PPF & Wraps</p>
           </div>
           <div className="footer-right">
             <a href="tel:9049937503" className="contact-pill">
@@ -127,10 +123,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <a href="mailto:jcab@signaldatasource.com" className="contact-pill">
               <Mail size={18} />
               <span>jcab@signaldatasource.com</span>
-            </a>
-            <a href="https://www.signaldatasource.com" className="contact-pill">
-              <Globe size={18} />
-              <span>www.signaldatasource.com</span>
             </a>
           </div>
         </div>
