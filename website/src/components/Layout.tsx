@@ -36,7 +36,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <div className="layout">
       {/* Navbar */}
       <header className="navbar glass-nav">
-        <div className="container nav-container">
+        <div className="navbar-inner">
           <Link to="/" className="brand">
             <span className="brand-icon">S</span>
             <span className="brand-text">SIGNALSOURCE</span>
@@ -153,13 +153,25 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           color: #0f172a;
         }
         
-        .nav-container { display: flex; justify-content: space-between; align-items: center; }
+        .navbar-inner { 
+          display: flex; 
+          align-items: center; 
+          width: 100%;
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: 0 2rem;
+        }
         
-        .brand { display: flex; align-items: center; gap: 0.75rem; }
+        .brand { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; margin-right: auto; }
         .brand-icon { background: var(--color-accent-lime); color: #000; font-weight: 800; font-size: 1.25rem; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
         .brand-text { font-family: var(--font-heading); font-weight: 900; font-size: 1.5rem; color: #fff; letter-spacing: 0.5px; }
         
-        .desktop-nav { display: flex; align-items: center; gap: 2.25rem; flex-wrap: nowrap; justify-content: flex-end; }
+        .desktop-nav { 
+          display: flex; 
+          align-items: center; 
+          gap: 2.25rem; 
+          flex-wrap: nowrap; 
+        }
         .nav-link { font-weight: 600; font-size: 0.95rem; color: var(--color-text-main); opacity: 0.8; text-transform: uppercase; letter-spacing: 0.8px; position: relative; padding: 0.25rem 0.5rem; transition: opacity 0.2s ease; transition: color 0.2s ease; }
         .nav-link:hover, .nav-link.active { opacity: 1; color: var(--color-accent-lime); }
         .nav-link-special { 
