@@ -4,7 +4,7 @@ import { UploadCloud, CalendarCheck, X, ShieldCheck, AlertCircle } from 'lucide-
 import { useSearchParams } from 'react-router-dom';
 import { BookingCalendar } from '../components/BookingCalendar';
 import { fetchBookedDates } from '../api/availability';
-import { getStripe, createDepositCheckout } from '../api/stripe';
+import { createDepositCheckout } from '../api/stripe';
 import { servicePackages } from '../data/packages';
 
 // ─── Validation Helpers ─────────────────────────────────────────────────────

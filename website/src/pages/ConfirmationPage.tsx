@@ -24,7 +24,7 @@ const ConfirmationPage = () => {
       const maxAttempts = 10;
       
       const poll = async () => {
-        const { data, error: sbError } = await supabase
+        const { data } = await supabase
           .from('bookings')
           .select('*')
           .eq('stripe_session_id', sessionId)

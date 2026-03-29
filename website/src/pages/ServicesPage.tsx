@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Shield, Sparkles, Droplets, Wind, Focus, CheckCircle, Home, MapPin, Search } from 'lucide-react';
+import { Shield, Sparkles, Droplets, Wind, Focus, Home, MapPin, Search } from 'lucide-react';
 import { CalendarCheck } from 'lucide-react';
 
 const ServicesPage = () => {
