@@ -44,6 +44,12 @@ const SystemsPage = () => {
             </div>
             
             <div className="status-badge">Format: 1:1 Custom Build</div>
+            
+            <div className="mt-6 flex justify-center">
+              <a href="/systems/examples/digital-assets" className="text-link-secondary">
+                View example builds <span className="ml-1">→</span>
+              </a>
+            </div>
           </div>
         </section>
 
@@ -75,6 +81,12 @@ const SystemsPage = () => {
             </div>
 
             <div className="status-badge">Status: Limited 1:1 Implementation</div>
+            
+            <div className="mt-6 flex justify-center">
+              <a href="/systems/examples/local-systems" className="text-link-secondary">
+                View example systems <span className="ml-1">→</span>
+              </a>
+            </div>
           </div>
         </section>
       </div>
@@ -177,6 +189,22 @@ const SystemsPage = () => {
           .step-num { margin: 0 auto 1rem; }
           .page-header h1 { font-size: 2.75rem; }
           .product-section, .concierge-box { padding: 2.5rem; }
+        }
+
+        .text-link-secondary {
+          color: var(--color-text-muted);
+          font-size: 0.95rem;
+          font-weight: 600;
+          display: inline-flex;
+          align-items: center;
+          transition: all 0.2s ease;
+          opacity: 0.8;
+          border-bottom: 1px solid transparent;
+        }
+        .text-link-secondary:hover {
+          color: var(--color-accent-lime);
+          opacity: 1;
+          border-bottom-color: var(--color-accent-lime);
         }
 
         @media (max-width: 480px) {
