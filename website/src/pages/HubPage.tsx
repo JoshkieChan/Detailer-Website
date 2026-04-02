@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowDown, MapPin, Search } from 'lucide-react';
+import { ArrowRight, MapPin, Search } from 'lucide-react';
 
 const HubPage = () => {
   return (
@@ -8,16 +8,6 @@ const HubPage = () => {
         <h1>SignalSource: Systems, Services, and Digital Assets</h1>
         <p className="subtitle">Car care for Oak Harbor. Digital assets and AI systems for anywhere.</p>
         <p className="support-line text-muted">Choose how you want SignalSource to help: local detailing, world-wide guides, or custom-built systems.</p>
-        
-        <button 
-          className="btn-primary mt-6 group"
-          onClick={() => {
-            document.getElementById('paths-section')?.scrollIntoView({ behavior: 'smooth' });
-          }}
-        >
-          Explore all options
-          <ArrowDown size={18} className="ml-2 group-hover:translate-y-1 transition-transform" />
-        </button>
       </section>
 
       {/* 3-Card Section */}
