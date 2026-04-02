@@ -41,7 +41,7 @@ const DigitalAssetsExamples = () => {
       <div className="dg-container">
         <Link to="/hub" className="dg-back-link">
           <ChevronLeft size={15} />
-          Back to Hub
+          Back to More
         </Link>
 
         {/* ── Hero ── */}
