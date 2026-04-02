@@ -102,6 +102,11 @@ serve(async (req) => {
       packageId, 
       packageName, 
       packagePrice, 
+      estimatedTotal,
+      selectedAddOns,
+      maintenancePlanId,
+      notes,
+      vehicleColor,
       recaptchaToken,
       customerEmail, 
       fullName,
@@ -165,10 +170,13 @@ serve(async (req) => {
     }
 
     // Normalize inputs
-    const numericPrice = typeof packagePrice === 'string' ? parseFloat(packagePrice) : packagePrice
+    const numericPrice = typeof (estimatedTotal ?? packagePrice) === 'string'
+      ? parseFloat(estimatedTotal ?? packagePrice)
+      : (estimatedTotal ?? packagePrice)
     const depositAmount = Math.round(numericPrice * 0.2 * 100)
     const bookingId = crypto.randomUUID()
     const requestOrigin = req.headers.get('origin') || 'https://signaldatasource.com'
+    const addOnList = Array.isArray(selectedAddOns) ? selectedAddOns.filter((value) => typeof value === 'string') : []
 
     // CRM: Upsert Customer
     let customerId = null
@@ -216,7 +224,9 @@ serve(async (req) => {
         metadata: { 
           bookingId, 
           packageId, 
-          customerName: fullName 
+          customerName: fullName,
+          addOns: addOnList.join(' | ').slice(0, 500),
+          maintenancePlanId: maintenancePlanId ?? '',
         },
       })
     } catch (stripeErr) {
@@ -240,7 +250,7 @@ serve(async (req) => {
         const eventBody = {
           summary: `Detail – ${packageName} – ${fullName}`,
           location: locationType === 'garage' ? 'Garage Studio' : address,
-          description: `Phone: ${phone}\nEmail: ${customerEmail}\nVehicle: ${vehicleInfo}\nDeposit: $${(depositAmount/100).toFixed(2)}\nStripe: ${session.id}`,
+          description: `Phone: ${phone}\nEmail: ${customerEmail}\nVehicle: ${vehicleInfo}${vehicleColor ? ` (${vehicleColor})` : ''}\nAdd-ons: ${addOnList.length ? addOnList.join(', ') : 'None'}\nMaintenance Plan: ${maintenancePlanId ?? 'none'}\nNotes: ${notes || 'None'}\nDeposit: $${(depositAmount/100).toFixed(2)}\nStripe: ${session.id}`,
           start: { dateTime: startDate, timeZone },
           end: { dateTime: endDate, timeZone }
         }

@@ -1,72 +1,133 @@
 import { Link } from 'react-router-dom';
 import { ServiceCard } from '../components/ServiceCard';
 import { servicePackages } from '../data/packages';
+import { detailAddOns } from '../data/addOns';
 
 const PricingPage = () => {
   return (
-    <div className="pricing-page container">
-      <div className="page-header text-center">
-        <h1>Transparent Pricing</h1>
-        <p>No hidden fees. Just honest pricing for top-tier detailing.</p>
-      </div>
+    <div className="page-shell pricing-page">
+      <section className="page-hero text-center reveal">
+        <span className="eyebrow">Pricing / Memberships</span>
+        <h1 className="hero-title">Clear pricing, optional add-ons, visible deposit.</h1>
+        <p className="hero-subtitle">
+          Start with the tier your vehicle needs. Add upgrades only when they actually solve
+          a problem.
+        </p>
+        <div className="hero-actions" style={{ justifyContent: 'center' }}>
+          <Link to="/booking" className="btn primary btn-lg">Configure Your Detail</Link>
+        </div>
+      </section>
 
-      <div className="packages-grid">
-        {servicePackages.map(pkg => (
-          <ServiceCard 
-            key={pkg.id}
-            title={pkg.title}
-            description={pkg.description}
-            price={pkg.price}
-            features={pkg.features}
-            packageId={pkg.id}
-            highlight={pkg.highlight}
-            themeStyle={pkg.themeStyle}
-          />
-        ))}
-      </div>
+      <section className="section-stack">
+        <div className="section-header reveal">
+          <span className="eyebrow">Core Detailing Tiers</span>
+          <h2 className="section-title">Start with the baseline your vehicle needs.</h2>
+        </div>
+        <div className="card-grid three">
+          {servicePackages.map((pkg, index) => (
+            <div className="reveal" data-reveal-delay={String(index)} key={pkg.id}>
+              <ServiceCard
+                title={pkg.title}
+                description={pkg.description}
+                bestFor={pkg.bestFor}
+                price={pkg.price}
+                priceNote={pkg.priceNote}
+                features={pkg.features}
+                packageId={pkg.id}
+                highlight={pkg.highlight}
+                themeStyle={pkg.themeStyle}
+              />
+            </div>
+          ))}
+        </div>
+      </section>
 
-      <div className="pricing-note glass text-center">
-        <p><strong>Note:</strong> Final pricing may vary based on vehicle size and condition. We'll confirm everything before your deposit is charged.</p>
-      </div>
+      <section className="section-stack">
+        <div className="section-header reveal">
+          <span className="eyebrow">Optional Add-Ons</span>
+          <h2 className="section-title">Optional upgrades, not hidden fees.</h2>
+          <p className="section-copy">
+            Your base package stands on its own. Add-ons are only for extra labor, extra
+            correction, or extra convenience.
+          </p>
+        </div>
+        <div className="addon-price-grid card-grid two">
+          {detailAddOns.map((addOn, index) => (
+            <div className="addon-price-card reveal" data-reveal-delay={String(index % 2)} key={addOn.id}>
+              <div>
+                <h3>{addOn.name}</h3>
+                <p className="section-copy">{addOn.description}</p>
+              </div>
+              <div className="addon-price">+${addOn.price}</div>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      <div className="text-center mt-4">
-        <Link to="/booking" className="btn primary btn-lg">Book Your Detail Now</Link>
-      </div>
+      <section className="card-grid two">
+        <article className="content-card reveal">
+          <span className="eyebrow">Today&apos;s Deposit</span>
+          <h2 className="section-title">Today&apos;s deposit is 20%.</h2>
+          <p className="section-copy">
+            You pay 20% at booking to reserve the appointment. The remaining balance is due
+            after the work is completed.
+          </p>
+        </article>
+        <article className="content-card reveal" data-reveal-delay="1">
+          <span className="eyebrow">Whidbey Positioning</span>
+          <h2 className="section-title">A systems-driven local shop for Whidbey Island.</h2>
+          <p className="section-copy">
+            SignalSource is built around repeatable quality, clear scheduling, and honest
+            scope. On-Island Mobile Convenience is available when you want us to come to you,
+            but the service itself stays structured and predictable.
+          </p>
+        </article>
+      </section>
+
+      <section className="content-card reveal">
+        <span className="eyebrow">Ready To Book</span>
+        <h2 className="section-title">Pick the tier, add what you need, and see the deposit before you submit.</h2>
+        <p className="section-copy">
+          Final pricing is confirmed before work begins if vehicle condition or selected scope
+          changes from what was originally selected.
+        </p>
+        <div className="hero-actions">
+          <Link to="/booking" className="btn primary">Pay 20% Deposit &amp; Book</Link>
+          <Link to="/memberships" className="btn secondary">See Memberships</Link>
+        </div>
+      </section>
 
       <style>{`
-        .pricing-page { padding: 4rem 1.5rem; max-width: 1100px; }
-        .page-header { margin-bottom: 4rem; }
-        .page-header h1 { font-size: 3.5rem; margin-bottom: 1rem; }
-        .page-header p { font-size: 1.2rem; color: var(--color-text-muted); }
-        
-        .packages-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; align-items: stretch; margin-bottom: 4rem; }
-        .flyer-card { background: var(--color-bg-card-dark); padding: 2.5rem; border-radius: 12px; position: relative; border-left: 1px solid var(--color-border); border-right: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); transition: all var(--transition-fast); display: flex; flex-direction: column; }
-        .flyer-card:hover { transform: translateY(-5px); box-shadow: var(--card-shadow-hover); border-color: var(--color-border-hover); }
-        .flyer-card h3 { font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 800; }
-        .package-desc { color: var(--color-text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; min-height: 45px; }
-        
-        .style-blue { border-top: 4px solid var(--color-accent-blue); }
-        .style-lime { border-top: 4px solid var(--color-accent-lime); }
-        .style-purple { border-top: 4px solid var(--color-accent-purple); }
+        .pricing-page {
+          display: grid;
+          gap: 3rem;
+        }
 
-        .star-icon { position: absolute; top: 1.5rem; right: 1.5rem; color: var(--color-accent-lime); }
-        [data-theme='light'] .star-icon { color: #559300; }
-        
-        .package-bullets { list-style: none; padding: 0; margin-bottom: 2rem; flex: 1; display: flex; flex-direction: column; gap: 0.75rem; }
-        .feature-row { display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.95rem; font-weight: 600; line-height: 1.4; color: var(--color-text-main); }
-        .feature-row span { margin-top: 0.1rem; }
-        .icon-lime { color: var(--color-accent-lime); flex-shrink: 0; }
-        [data-theme='light'] .icon-lime { color: #559300; }
-        
-        .price-line { font-size: 0.95rem; color: var(--color-text-muted); margin-bottom: 1.5rem; display: flex; align-items: baseline; gap: 0.5rem; }
-        .price-line span { font-size: 1.75rem; font-weight: 800; color: var(--color-text-main); }
-        
-        .pricing-note { padding: 1.5rem; border-radius: var(--radius-md); max-width: 800px; margin: 0 auto 3rem; color: var(--color-text-muted); font-size: 0.95rem; border-left: 4px solid var(--color-accent-lime); }
-        .pricing-note strong { color: var(--color-text-main); }
-        [data-theme='light'] .pricing-note { background: #fdfef9; border-color: #559300; }
+        .addon-price-grid {
+          align-items: stretch;
+        }
 
-        @media (max-width: 900px) {
-          .packages-grid { grid-template-columns: 1fr; }
+        .addon-price-card {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 1rem;
+          padding: 1.4rem 1.5rem;
+          background: var(--color-background-surface);
+          border: 1px solid var(--color-border-default);
+          border-radius: var(--radius-card);
+          transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+        }
+
+        .addon-price-card:hover {
+          transform: translateY(-4px);
+          border-color: var(--color-accent-primary);
+          box-shadow: var(--shadow-hover);
+        }
+
+        .addon-price-card h3 {
+          font-size: 1.1rem;
+          margin-bottom: 0.45rem;
         }
       `}</style>
     </div>

@@ -21,6 +21,11 @@ export interface BookingPayload {
   packageId: string;
   packageName: string;
   packagePrice: number;
+  estimatedTotal?: number;
+  selectedAddOns?: string[];
+  maintenancePlanId?: string;
+  notes?: string;
+  vehicleColor?: string;
   recaptchaToken: string;
   customerEmail: string;
   fullName: string;
@@ -68,7 +73,7 @@ export const createDepositCheckout = async (
 
   return {
     depositAmount: data.depositAmount,
-    totalAmount: payload.packagePrice,
+    totalAmount: payload.estimatedTotal ?? payload.packagePrice,
     currency: 'USD',
     sessionUrl: data.url 
   };

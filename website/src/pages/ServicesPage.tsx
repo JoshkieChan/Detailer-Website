@@ -1,212 +1,179 @@
 import { Link } from 'react-router-dom';
-import { Shield, Sparkles, Droplets, Wind, Focus, Home, MapPin, Search } from 'lucide-react';
-import { CalendarCheck } from 'lucide-react';
+import { CalendarCheck, Home, MapPin, ShieldCheck, PlusCircle } from 'lucide-react';
+import { servicePackages } from '../data/packages';
+import { detailAddOns } from '../data/addOns';
 
 const ServicesPage = () => {
   return (
-    <div className="services-page">
-      <div className="text-center mb-1">
-        <div className="capacity-banner inline-block mb-3">
+    <div className="page-shell services-page">
+      <section className="page-hero text-center reveal">
+        <div className="capacity-banner inline-block">
           <CalendarCheck size={16} /> Currently accepting one vehicle per day, Monday–Saturday.
         </div>
-      </div>
-
-      <div className="page-header text-center">
-        <h1>Detailed Service Breakdown</h1>
-        <p>Explore exactly what goes into each premium package.</p>
-      </div>
-
-      <div className="service-breakdown-list">
-        
-        {/* Maintenance */}
-        <section className="service-detailed-row glass">
-          <div className="service-detailed-header">
-            <h2>Maintenance</h2>
-            <p className="service-detailed-desc">A thorough inside-out refresh to keep your daily driver looking crisp.</p>
-          </div>
-          <div className="service-detailed-body">
-            <div className="service-area">
-              <Droplets className="icon-lime" size={28} />
-              <h4>Exterior Care</h4>
-              <ul>
-                <li>Plush foam hand wash & careful hand dry</li>
-                <li>Wheel face and tire safe cleaning</li>
-                <li>Tire conditioning (no greasy sling)</li>
-              </ul>
-            </div>
-            <div className="service-area">
-              <Focus className="icon-lime" size={28} />
-              <h4>Interior Refresh</h4>
-              <ul>
-                <li>Thorough interior vacuum (seats, carpets, mats)</li>
-                <li>Light wipe-down of all hard plastics and dash</li>
-                <li>Door jambs wiped clean of surface dust</li>
-                <li>Streak-free glass cleaning inside and out</li>
-              </ul>
-            </div>
-          </div>
-          <div className="service-detailed-footer">
-            <Link to="/booking?package=maintenance" className="btn outline-lime mt-1">Book Maintenance</Link>
-          </div>
-        </section>
-
-        {/* Deep Reset */}
-        <section className="service-detailed-row glass highlight-border">
-          <div className="service-detailed-header">
-            <div className="popular-badge"><Sparkles size={16} /> Signature Service</div>
-            <h2 className="highlight-lime mt-1">Deep Reset</h2>
-            <p className="service-detailed-desc">Restores your interior and gloss back toward factory fresh. Our most comprehensive detail.</p>
-          </div>
-          <div className="service-detailed-body">
-            <div className="service-area">
-              <Shield className="icon-lime" size={28} />
-              <h4>Decontamination & Protection</h4>
-              <ul>
-                <li>Pre-wash & two-bucket safe contact wash</li>
-                <li>Iron/fallout chemical decontamination</li>
-                <li>Clay bar mechanical decontamination (smooth paint)</li>
-                <li>Premium protective sealant applied to paint, plastics, and wheel faces</li>
-              </ul>
-            </div>
-            <div className="service-area">
-              <Search className="icon-lime" size={28} />
-              <h4>Deep Interior Restoration</h4>
-              <ul>
-                <li>Extensive vacuum including deep crevices and trunk</li>
-                <li>Stain treatment on seats and carpets (as safely possible)</li>
-                <li>Deep cleaning and dressing of all interior plastics/vinyl</li>
-                <li>Pet hair removal (within reasonable limits)</li>
-              </ul>
-            </div>
-          </div>
-          <div className="service-detailed-footer">
-            <Link to="/booking?package=deep-reset" className="btn primary mt-1">Book Deep Reset</Link>
-          </div>
-        </section>
-
-        {/* New Car Protection */}
-        <section className="service-detailed-row glass">
-          <div className="service-detailed-header">
-            <h2>New Car Protection</h2>
-            <p className="service-detailed-desc">Perfect for new or newly-detailed vehicles. Lock in the gloss and protect against the PNW elements.</p>
-          </div>
-          <div className="service-detailed-body">
-            <div className="service-area">
-              <Wind className="icon-lime" size={28} />
-              <h4>Paint Enhancement</h4>
-              <ul>
-                <li>Deep exterior clean & full chemical decontamination</li>
-                <li>Light one-step gloss enhancement machine polish</li>
-                <li>Dramatically increases shine and clarity (no heavy correction)</li>
-              </ul>
-            </div>
-            <div className="service-area">
-              <Shield className="icon-lime" size={28} />
-              <h4>Long-Term Defense</h4>
-              <ul>
-                <li>Durable 1-year paint sealant applied to painted surfaces</li>
-                <li>Dedicated wheel face protection to repel brake dust</li>
-                <li>Exterior glass sealant to improve rain visibility</li>
-              </ul>
-            </div>
-          </div>
-          <div className="service-detailed-footer">
-            <Link to="/booking?package=new-car" className="btn outline-lime mt-1">Book Protection</Link>
-          </div>
-        </section>
-
-      </div>
-
-      {/* Location vs Mobile Section */}
-      <section className="location-info mt-4 glass">
-        <h2 className="text-center mb-2">How We Operate</h2>
-        <div className="location-grid">
-          <div className="loc-card">
-            <Home className="icon-lime mb-1" size={32} />
-            <h3>Garage Studio (Erie St)</h3>
-            <p>A controlled drop-off environment at my Oak Harbor studio. Features specialized lighting, power, and climate control. <strong>Best for heavy details like Deep Reset and New Car Protection.</strong></p>
-          </div>
-          <div className="loc-card">
-            <MapPin className="icon-lime mb-1" size={32} />
-            <h3>Mobile Detailing</h3>
-            <p>I bring the detailing setup to your driveway. We use the exact same premium processes adapted for your location. <strong>Best for Maintenance details and lighter services.</strong></p>
-          </div>
+        <span className="eyebrow">Detailing / Services</span>
+        <h1 className="hero-title">Three clear detailing tiers for Whidbey Island vehicles.</h1>
+        <p className="hero-subtitle">
+          Pick the baseline your vehicle needs, then add optional upgrades like pet hair,
+          stain work, or On-Island Mobile Convenience.
+        </p>
+        <div className="hero-actions" style={{ justifyContent: 'center' }}>
+          <Link to="/booking" className="btn primary btn-lg">Configure Your Detail</Link>
         </div>
       </section>
 
-      {/* Coming Soon Section */}
-      <section className="coming-soon-info mt-4">
-        <h2 className="text-center mb-2">Future Expansions</h2>
-        <p className="text-center mb-2" style={{ color: 'var(--color-text-muted)' }}>We are currently focused strictly on premium detailing and 1-year sealant protection. The following services are on our roadmap as the studio grows:</p>
-        
-        <div className="coming-soon-grid gap-2">
-          <div className="soon-card glass">
-            <h4>Ceramic Coatings</h4>
-            <p>Multi-year 9H hardness protection for the ultimate permanent gloss and extreme ease of maintenance.</p>
-            <div className="overlay-badge">COMING SOON</div>
-          </div>
-          <div className="soon-card glass">
-            <h4>Paint Protection Film (PPF)</h4>
-            <p>Self-healing clear bra to protect your high-impact areas from rock chips and scratching.</p>
-            <div className="overlay-badge">COMING SOON</div>
-          </div>
-          <div className="soon-card glass">
-            <h4>Window Tinting</h4>
-            <p>Premium heat-rejecting ceramic window film installations.</p>
-            <div className="overlay-badge">COMING SOON</div>
-          </div>
+      <section className="section-stack">
+        <div className="section-header reveal">
+          <span className="eyebrow">Choose Your Tier</span>
+          <h2 className="section-title">Start with the baseline your vehicle actually needs.</h2>
+          <p className="section-copy">
+            Every package is built to stand on its own. Add-ons are optional upgrades for
+            extra labor, extra correction, or extra convenience.
+          </p>
+        </div>
+
+        <div className="card-grid three">
+          {servicePackages.map((pkg, index) => (
+            <article className={`service-detail-card surface-card reveal ${pkg.highlight ? 'featured' : ''}`} data-reveal-delay={String(index)} key={pkg.id}>
+              {pkg.highlight && <div className="badge-popular">Signature Reset</div>}
+              <h3>{pkg.title}</h3>
+              <p className="section-copy">{pkg.description}</p>
+              <p className="service-best-for"><strong>Who it&apos;s for:</strong> {pkg.bestFor}</p>
+              <ul className="package-bullets">
+                {pkg.features.map((feature) => (
+                  <li className="feature-row" key={feature}>
+                    <ShieldCheck size={18} className="icon-lime" />
+                    <span className="feature-text">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="price-line">
+                <span className="price-prefix">From</span>
+                <span>${pkg.price}</span>
+              </div>
+              <p className="package-price-note">{pkg.priceNote}</p>
+              <Link to={`/booking?package=${pkg.id}`} className={`btn ${pkg.highlight ? 'primary' : 'secondary'}`}>
+                {pkg.title === 'New Car Protection' ? 'Book Protection' : `Book ${pkg.title}`}
+              </Link>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section-stack">
+        <div className="section-header reveal">
+          <span className="eyebrow">Optional Add-Ons</span>
+          <h2 className="section-title">Optional upgrades that solve specific problems.</h2>
+          <p className="section-copy">
+            These are upgrades, not hidden fees. Your base package stands on its own.
+          </p>
+        </div>
+        <div className="card-grid two">
+          {detailAddOns.map((addOn, index) => (
+            <article className="addon-card reveal" data-reveal-delay={String(index % 2)} key={addOn.id}>
+              <div>
+                <h3>{addOn.name}</h3>
+                <p className="section-copy">{addOn.description}</p>
+              </div>
+              <div className="addon-price">+${addOn.price}</div>
+            </article>
+          ))}
+        </div>
+        <p className="section-note reveal">
+          On-Island Mobile Convenience is not a tax. It is an optional convenience upgrade for
+          customers who want service at home or work instead of dropping off at the studio.
+        </p>
+      </section>
+
+      <section className="card-grid two">
+        <article className="content-card reveal">
+          <div className="support-pill"><Home size={16} /> Garage Studio</div>
+          <h3>Garage Studio is the better choice for heavier work.</h3>
+          <p className="section-copy">
+            Drop-off service near Erie Street in Oak Harbor with controlled lighting, reliable
+            power, and weather protection. Best for heavier interior resets, longer jobs, and
+            protection-focused work.
+          </p>
+        </article>
+        <article className="content-card reveal" data-reveal-delay="1">
+          <div className="support-pill"><MapPin size={16} /> On-Island Mobile</div>
+          <h3>Mobile is a convenience option, not the default.</h3>
+          <p className="section-copy">
+            Available across Oak Harbor, NAS Whidbey, Coupeville, Deception Pass, and nearby
+            areas within roughly 25–30 miles. Best for lighter jobs when home or work service
+            makes more sense than drop-off.
+          </p>
+        </article>
+      </section>
+
+      <section className="content-card reveal">
+        <div className="support-pill"><PlusCircle size={16} /> Deposit</div>
+        <h2 className="section-title">Simple booking, clear commitment.</h2>
+        <p className="section-copy">
+          A 20% deposit is collected at booking to reserve your appointment time. It applies
+          to your final invoice and is not an extra fee. If the scope changes significantly
+          after booking, we confirm the updated total before work begins.
+        </p>
+        <div className="hero-actions">
+          <Link to="/booking" className="btn primary">Pay 20% Deposit &amp; Book</Link>
+          <Link to="/pricing" className="btn secondary">See Pricing</Link>
         </div>
       </section>
 
       <style>{`
-        .services-page { padding: 4rem 1.5rem; max-width: 1000px; margin: 0 auto; }
-        .page-header { margin-bottom: 4rem; }
-        .page-header h1 { font-size: 3.5rem; margin-bottom: 1rem; }
-        .page-header p { font-size: 1.2rem; color: var(--color-text-muted); }
-        
-        .service-breakdown-list { display: flex; flex-direction: column; gap: 4rem; }
-        .service-detailed-row { border-radius: var(--radius-lg); padding: 3rem; display: flex; flex-direction: column; gap: 2rem; }
-        .highlight-border { border: 2px solid var(--color-accent-lime); background: rgba(158, 255, 0, 0.03); position: relative; }
-        [data-theme='light'] .highlight-border { background: #fdfef9; }
-
-        .popular-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--color-accent-lime); color: #000; padding: 0.35rem 1rem; border-radius: 999px; font-weight: 800; font-size: 0.85rem; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
-        
-        .service-detailed-header h2 { font-size: 2.25rem; font-weight: 900; }
-        .service-detailed-desc { font-size: 1.15rem; color: var(--color-text-muted); margin-top: 0.5rem; }
-        
-        .service-detailed-body { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; border-top: 1px dashed var(--color-border); border-bottom: 1px dashed var(--color-border); padding: 2rem 0; }
-        
-        .service-area h4 { font-size: 1.25rem; margin: 1rem 0; color: var(--color-text-main); }
-        .service-area ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.75rem; }
-        .service-area li { position: relative; padding-left: 1.5rem; color: var(--color-text-muted); line-height: 1.5; font-size: 0.95rem; }
-        .service-area li::before { content: "✓"; position: absolute; left: 0; color: var(--color-accent-lime); font-weight: bold; }
-        [data-theme='light'] .service-area li::before { color: #559300; }
-        
-        .service-detailed-footer { text-align: left; }
-        .service-detailed-footer .btn { padding: 1rem 3rem; font-size: 1.1rem; }
-        
-        .location-info { padding: 3rem; border-radius: var(--radius-lg); }
-        .location-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem; }
-        .loc-card h3 { font-size: 1.4rem; margin-bottom: 0.5rem; }
-        .loc-card p { color: var(--color-text-muted); line-height: 1.6; }
-        
-        .coming-soon-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; margin-top: 2rem; }
-        .soon-card { position: relative; padding: 2rem; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--color-border); overflow: hidden; opacity: 0.8; }
-        .soon-card h4 { font-size: 1.25rem; margin-bottom: 0.75rem; color: var(--color-text-main); }
-        .soon-card p { color: var(--color-text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem; }
-        
-        .overlay-badge { background: rgba(0,0,0,0.8); color: #fff; font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; padding: 0.3rem 0; text-align: center; position: absolute; top: 1rem; right: -2rem; width: 150px; transform: rotate(45deg); border: 1px dashed var(--color-text-muted); }
-        [data-theme='light'] .overlay-badge { background: #e2e8f0; color: #475569; }
-        
-        @media (max-width: 900px) {
-          .service-detailed-body { grid-template-columns: 1fr; gap: 2rem; }
-          .services-page { padding: 3rem 1rem; }
+        .services-page {
+          display: grid;
+          gap: 3rem;
         }
-        
-        @media (max-width: 768px) {
-          .location-grid, .coming-soon-grid { grid-template-columns: 1fr; }
-          .service-detailed-row { padding: 2rem; }
-          .service-detailed-header h2 { font-size: 1.75rem; }
+
+        .service-detail-card {
+          padding: 1.6rem;
+          display: grid;
+          gap: 1rem;
+        }
+
+        .service-detail-card.featured {
+          border-color: var(--color-accent-primary);
+        }
+
+        .service-detail-card h3,
+        .addon-card h3 {
+          font-size: 1.35rem;
+        }
+
+        .service-best-for {
+          color: var(--color-text-secondary);
+          font-size: 0.95rem;
+          line-height: 1.6;
+        }
+
+        .service-best-for strong {
+          color: var(--color-text-primary);
+        }
+
+        .addon-card {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 1rem;
+          padding: 1.35rem 1.5rem;
+          background: var(--color-background-surface);
+          border: 1px solid var(--color-border-default);
+          border-radius: var(--radius-card);
+          transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+        }
+
+        .addon-card:hover {
+          transform: translateY(-4px);
+          border-color: var(--color-accent-primary);
+          box-shadow: var(--shadow-hover);
+        }
+
+        .addon-price {
+          font-family: var(--font-label);
+          font-size: 0.82rem;
+          letter-spacing: 0.08em;
+          color: var(--color-accent-primary);
+          white-space: nowrap;
         }
       `}</style>
     </div>

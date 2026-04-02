@@ -13,7 +13,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem('theme') as Theme) || 'system';
+    return (localStorage.getItem('theme') as Theme) || 'light';
   });
 
   const getSystemTheme = () => 

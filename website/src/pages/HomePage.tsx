@@ -1,6 +1,18 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
-import { Star, ShieldCheck, MessageSquare, Calendar, Bell, Users, TrendingUp, RefreshCw, CalendarCheck } from 'lucide-react';
+import {
+  Star,
+  ShieldCheck,
+  MessageSquare,
+  Calendar,
+  Bell,
+  Users,
+  TrendingUp,
+  RefreshCw,
+  CalendarCheck,
+  Gauge,
+  MapPinned,
+} from 'lucide-react';
 import { ServiceCard } from '../components/ServiceCard';
 import { servicePackages } from '../data/packages';
 import { trackEvent } from '../lib/analytics';
@@ -36,18 +48,20 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div className="home-page">
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="container hero-content">
+    <div className="page-shell detailing-home">
+      <section className="hero-grid">
+        <div className="hero-copy reveal">
           <div className="capacity-banner">
             <CalendarCheck size={16} /> Currently accepting one vehicle per day, Monday–Saturday.
           </div>
-          <h1 className="hero-title">NAS Whidbey families and busy Oak Harbor drivers: get the daily driver clean, protected, and handled right the first time.</h1>
+          <h1 className="hero-title">
+            Whidbey Island detailing for drivers who want it done right the first time.
+          </h1>
           <p className="hero-subtitle">
-            If the vehicle is dirty, your schedule is full, and you do not want to gamble on a rushed job, SignalSource gives you honest pricing, studio or mobile options, and detailing built for real life in Oak Harbor.
+            SignalSource is a systems-driven local shop in Oak Harbor. We clean, protect, and
+            maintain daily drivers without wasting your day or leaving you guessing on price.
           </p>
-          <div className="hero-ctas">
+          <div className="hero-actions">
             <Link
               to="/booking"
               className="btn primary btn-lg"
@@ -57,21 +71,32 @@ const HomePage = () => {
                 })
               }
             >
-              Book a Detail
+              Configure Your Detail
             </Link>
-            <Link to="/memberships" className="btn secondary btn-lg outline-lime">See Memberships</Link>
+            <Link to="/pricing" className="btn secondary btn-lg">
+              See Pricing
+            </Link>
           </div>
+          <p className="policy-note">
+            A 20% deposit secures the appointment and goes toward the final total.
+          </p>
         </div>
-        <div className="hero-glow"></div>
+        <div className="hero-visual reveal" data-reveal-delay="1" aria-hidden="true" />
       </section>
 
-      {/* Packages Overview (3 Cards from Flyer) */}
-      <section className="packages">
-        <div className="container">
-          <div className="packages-grid">
-            {servicePackages.map(pkg => (
-              <ServiceCard 
-                key={pkg.id}
+      <section className="section-stack">
+        <div className="section-header reveal">
+          <span className="eyebrow">Choose Your Tier</span>
+          <h2 className="section-title">Three clear detailing tiers for Whidbey Island vehicles.</h2>
+          <p className="section-copy">
+            Choose the level your vehicle actually needs, then add only what solves a real
+            problem.
+          </p>
+        </div>
+        <div className="card-grid three">
+          {servicePackages.map((pkg, index) => (
+            <div className="reveal" data-reveal-delay={String(index)} key={pkg.id}>
+              <ServiceCard
                 title={pkg.title}
                 description={pkg.description}
                 bestFor={pkg.bestFor}
@@ -82,221 +107,224 @@ const HomePage = () => {
                 highlight={pkg.highlight}
                 themeStyle={pkg.themeStyle}
               />
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Two Special Sections: Garage/Mobile and Maintenance Plan */}
-      <section className="special-cards-section mt-4">
-        <div className="container">
-          <div className="special-grid">
-            
-            {/* Garage vs Mobile */}
-            <div className="special-card garage-mobile glass">
-              <div className="special-text">
-                <h3>HEAVY WORK BELONGS IN THE GARAGE STUDIO.<br/>MOBILE IS FOR LIGHTER JOBS.</h3>
-                <div className="location-details">
-                  <div className="location-item">
-                    <h4>Garage Studio (Erie St)</h4>
-                    <p>Drop-off service near Erie Street in Oak Harbor. Exact address is shared after your booking is confirmed. If the vehicle needs controlled lighting, reliable power, weather protection, or a longer reset, the studio is the better call. Best for full details, Deep Reset, and New Car Protection packages.</p>
-                  </div>
-                  <div className="location-item mt-1">
-                    <h4>Mobile Detailing</h4>
-                    <p>I come to your driveway or parking spot within roughly a 25–30 mile radius of Oak Harbor, including NAS Whidbey, Coupeville, Deception Pass, and nearby areas. Mobile is best for Maintenance and lighter Deep Reset services when convenience matters most. No heavy machine polishing or multi-day jobs on mobile appointments.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Maintenance Plan */}
-            <div className="special-card maintenance-plan glass relative">
-              <div className="badge-popular">POPULAR</div>
-              <div className="special-text">
-                <h3 className="flex items-center gap-2">
-                  <ShieldCheck size={24} className="icon-lime" /> Maintenance Plan
-                </h3>
-                <p className="plan-intro">For drivers who do not want to think about booking every time the car slips backward, this keeps you on a routine instead of waiting until it feels trashed again.</p>
-                <p className="sub-price">Keep it dialed from <span className="highlight-lime">$60/mo</span> with member-first scheduling and fewer &ldquo;it&apos;s trashed again&rdquo; surprises.</p>
-                <ul className="plan-bullets">
-                  <li><span className="bullet-arrow">{'>'}</span> Best for daily drivers after a Deep Reset or New Car Protection service</li>
-                  <li><span className="bullet-arrow">{'>'}</span> Priority booking slots and easier long-term upkeep</li>
-                </ul>
-              </div>
-              <Link
-                to="/memberships"
-                className="btn outline-lime mt-1"
-                onClick={() =>
-                  trackEvent('Detailing Lead - View Plans', {
-                    cta: 'maintenance_plan_view_plans',
-                  })
-                }
-              >
-                View Plans
-              </Link>
-            </div>
-
+      <section className="card-grid two">
+        <article className="detailing-callout content-card reveal">
+          <div className="support-pill">
+            <Gauge size={16} />
+            Garage Studio or Mobile
           </div>
-        </div>
+          <h3>Heavy work belongs in the garage studio. Mobile is for lighter jobs.</h3>
+          <div className="location-stack">
+            <div>
+              <h4>Garage Studio (Erie St)</h4>
+              <p>
+                Drop-off service near Erie Street in Oak Harbor. Exact address is shared after
+                booking. If the vehicle needs controlled lighting, reliable power, weather
+                protection, or a longer reset, the studio is the better call.
+              </p>
+            </div>
+            <div>
+              <h4>On-Island Mobile</h4>
+              <p>
+                Available within roughly a 25–30 mile radius of Oak Harbor, including NAS
+                Whidbey, Coupeville, Deception Pass, and nearby areas. No heavy machine
+                polishing or multi-day jobs on mobile appointments.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <article className="detailing-callout content-card reveal" data-reveal-delay="1">
+          <div className="badge-popular">Membership</div>
+          <h3>Keep the vehicle from sliding backward.</h3>
+          <p className="section-copy">
+            Maintenance plans are for customers who already have a clean baseline and want
+            predictable upkeep without re-deciding every month.
+          </p>
+          <p className="membership-punch">
+            Keep it dialed from <span className="accent-text">$60/mo</span> with member-first
+            scheduling and fewer “it&apos;s trashed again” surprises.
+          </p>
+          <ul className="package-bullets">
+            <li className="feature-row"><ShieldCheck size={18} className="icon-lime" /><span className="feature-text">Best for daily drivers after a Deep Reset or New Car Protection service</span></li>
+            <li className="feature-row"><ShieldCheck size={18} className="icon-lime" /><span className="feature-text">Guaranteed spots, easier long-term upkeep, and pricing you do not have to keep renegotiating</span></li>
+          </ul>
+          <Link
+            to="/memberships"
+            className="btn secondary"
+            onClick={() =>
+              trackEvent('Detailing Lead - View Plans', {
+                cta: 'maintenance_plan_view_plans',
+              })
+            }
+          >
+            View Plans
+          </Link>
+        </article>
       </section>
 
-      {/* Social Proof Band */}
-      <div className="social-proof-band mt-4">
-        <div className="container text-center">
+      <section className="review-strip reveal">
+        <div className="quote-shell">
+          <p className="quote-blurb">“Easy to book, clear on price, and the car looked right when I got it back.”</p>
           <div className="stars-row">
-            {[...Array(5)].map((_, i) => <Star key={i} fill="#facc15" color="#facc15" size={20} />)}
-            <span className="review-text"><strong>5.0★ LOCAL REVIEWS</strong> — NAS Whidbey & Oak Harbor</span>
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} fill="var(--color-rating-star)" color="var(--color-rating-star)" size={18} />
+            ))}
+            <span className="review-label">5.0★ local reviews — NAS Whidbey &amp; Oak Harbor</span>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* AI Agents Section */}
-      <section className="ai-agents mt-4">
-        <div className="container">
-          <h2 className="section-title text-center">Busy drivers should not have to chase a detailer for updates.</h2>
-          <p className="section-subtitle text-center">Automations and AI agents handle intake, scheduling, reminders, and follow-up so you get faster replies, fewer dropped details, and a smoother appointment from first message to final payment.</p>
-          <div className="agents-grid">
-            
-            <div className="agent-card glass">
-              <div className="agent-icon"><MessageSquare size={24} /></div>
-              <div className="agent-info">
-                <h4>Lead Intake</h4>
-                <p>Uses webchat and SMS to collect your details fast and help you choose the right package without a long back-and-forth.</p>
-              </div>
-            </div>
+      <section className="section-stack">
+        <div className="section-header reveal">
+          <span className="eyebrow">Systems In The Background</span>
+          <h2 className="section-title">Busy drivers should not have to chase a detailer for updates.</h2>
+          <p className="section-copy">
+            Automations and AI agents handle intake, scheduling, reminders, and follow-up so
+            you get faster replies, fewer dropped details, and a smoother appointment from
+            first message to final payment.
+          </p>
+        </div>
+        <div className="card-grid three">
+          {[
+            {
+              icon: <MessageSquare size={22} />,
+              title: 'Lead Intake',
+              text: 'Uses webchat and SMS to collect your details fast and help you choose the right package without a long back-and-forth.',
+            },
+            {
+              icon: <Calendar size={22} />,
+              title: 'Scheduling',
+              text: 'Keeps the calendar updated and blocks dates as bookings come in so your spot does not get lost or double-booked.',
+            },
+            {
+              icon: <Bell size={22} />,
+              title: 'Reminders',
+              text: 'Sends prep instructions and appointment reminders so you know what to do before service day and nothing slips through.',
+            },
+            {
+              icon: <Users size={22} />,
+              title: 'Review & Referral',
+              text: 'Follows up after service to request a Google review and make referring friends simple.',
+            },
+            {
+              icon: <TrendingUp size={22} />,
+              title: 'Planned: Membership Upsell',
+              text: 'Will follow up after a Deep Reset or New Car Protection job with maintenance plan options before the vehicle slides backward again.',
+            },
+            {
+              icon: <RefreshCw size={22} />,
+              title: 'Operations',
+              text: 'Deposits are tracked through Stripe, and booking records sync automatically to the database after payment.',
+            },
+          ].map((item, index) => (
+            <article className="info-card reveal" data-reveal-delay={String(index % 3)} key={item.title}>
+              <div className="support-pill">{item.icon}{item.title}</div>
+              <p className="section-copy">{item.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
 
-            <div className="agent-card glass">
-              <div className="agent-icon"><Calendar size={24} /></div>
-              <div className="agent-info">
-                <h4>Scheduling</h4>
-                <p>Keeps the calendar updated and blocks dates as bookings come in so your spot does not get lost or double-booked.</p>
-              </div>
-            </div>
-
-            <div className="agent-card glass">
-              <div className="agent-icon"><Bell size={24} /></div>
-              <div className="agent-info">
-                <h4>Reminders</h4>
-                <p>Sends prep instructions and appointment reminders so you know what to do before service day and nothing slips through.</p>
-              </div>
-            </div>
-
-            <div className="agent-card glass">
-              <div className="agent-icon"><Users size={24} /></div>
-              <div className="agent-info">
-                <h4>Review &amp; Referral</h4>
-                <p>Follows up after service to request a Google review and make referring friends simple.</p>
-              </div>
-            </div>
-
-            <div className="agent-card glass">
-              <div className="agent-icon"><TrendingUp size={24} /></div>
-              <div className="agent-info">
-                <h4>Planned: Membership Upsell</h4>
-                <p>Will follow up after a Deep Reset or New Car Protection job with maintenance plan options before the vehicle slides backward again.</p>
-              </div>
-            </div>
-
-            <div className="agent-card glass">
-              <div className="agent-icon"><RefreshCw size={24} /></div>
-              <div className="agent-info">
-                <h4>Operations</h4>
-                <p>Deposits are tracked through Stripe, and booking records sync automatically to the database after payment.</p>
-              </div>
-            </div>
-
-          </div>
+      <section className="final-local-cta content-card reveal">
+        <div className="support-pill">
+          <MapPinned size={16} />
+          Oak Harbor · Whidbey Island
+        </div>
+        <h2 className="section-title">Ready to book without the usual back-and-forth?</h2>
+        <p className="section-copy">
+          Pick your tier, add only the upgrades that fit your vehicle, and see today&apos;s 20%
+          deposit before you submit.
+        </p>
+        <div className="hero-actions">
+          <Link
+            to="/booking"
+            className="btn primary"
+            onClick={() =>
+              trackEvent('Detailing Lead - Booking Page', {
+                cta: 'final_configure_detail',
+              })
+            }
+          >
+            Pay 20% Deposit &amp; Book
+          </Link>
+          <Link to="/services" className="btn secondary">
+            See Service Details
+          </Link>
         </div>
       </section>
 
       <style>{`
-        /* Hero */
-        .hero { position: relative; padding: 7rem 0 5rem; text-align: center; overflow: hidden; }
-        .hero-title { font-size: 4rem; margin-bottom: 1.5rem; letter-spacing: -1.5px; line-height: 1.1; font-weight: 900; max-width: 1100px; margin-left: auto; margin-right: auto; }
-        .hero-subtitle { font-size: 1.25rem; color: var(--color-text-muted); margin-bottom: 3rem; max-width: 650px; margin-left: auto; margin-right: auto; }
-        .hero-ctas { display: flex; justify-content: center; gap: 1.5rem; }
-        .hero-glow { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(158, 255, 0, 0.15) 0%, rgba(15, 19, 31, 0) 70%); z-index: -1; pointer-events: none; }
-
-        /* General Section */
-        .section-title { font-size: 2.25rem; font-weight: 800; margin-bottom: 3rem; }
-
-        /* Flyer Packages Grid */
-        .packages { padding-top: 2rem; }
-        .packages-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; align-items: stretch; }
-        .flyer-card { background: var(--color-bg-card-dark); padding: 2.5rem; border-radius: 12px; position: relative; border-left: 1px solid var(--color-border); border-right: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); transition: all var(--transition-fast); display: flex; flex-direction: column; }
-        .flyer-card:hover { transform: translateY(-5px); box-shadow: var(--card-shadow-hover); border-color: var(--color-border-hover); }
-        .flyer-card h3 { font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 800; }
-        .package-desc { color: var(--color-text-muted); font-size: 0.95rem; margin-bottom: 1rem; min-height: 96px; }
-        .package-best-for { color: var(--color-text-main); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem; }
-        .package-price-note { color: var(--color-text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem; min-height: 88px; }
-        
-        /* Colored Borders */
-        .style-blue { border-top: 4px solid var(--color-accent-blue); }
-        .style-lime { border-top: 4px solid var(--color-accent-lime); }
-        .style-purple { border-top: 4px solid var(--color-accent-purple); }
-
-        .star-icon { position: absolute; top: 1.5rem; right: 1.5rem; color: var(--color-accent-lime); }
-        [data-theme='light'] .star-icon { color: #559300; }
-        
-        .package-bullets { list-style: none; padding: 0; margin-bottom: 2rem; flex: 1; display: flex; flex-direction: column; gap: 0.75rem; }
-        .feature-row { display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.95rem; font-weight: 600; line-height: 1.4; color: var(--color-text-main); }
-        .feature-row span { margin-top: 0.1rem; }
-        .icon-lime { color: var(--color-accent-lime); flex-shrink: 0; }
-        [data-theme='light'] .icon-lime { color: #559300; }
-        
-        .price-line { font-size: 0.95rem; color: var(--color-text-muted); margin-bottom: 1.5rem; display: flex; align-items: baseline; gap: 0.5rem; }
-        .price-line span { font-size: 1.75rem; font-weight: 800; color: var(--color-text-main); }
-
-        /* Special Grid */
-        .special-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-        .special-card { padding: 2.5rem; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
-        
-        .garage-mobile { border-color: rgba(59, 130, 246, 0.4); }
-        .garage-mobile h3 { font-weight: 800; line-height: 1.2; font-size: 1.25rem; margin-bottom: 1rem; letter-spacing: 0.5px; }
-        .location-details { display: flex; flex-direction: column; gap: 1rem; }
-        .location-item h4 { font-size: 1rem; color: var(--color-accent-lime); margin-bottom: 0.25rem; }
-        .location-item p { color: var(--color-text-muted); font-size: 0.95rem; max-width: 350px; line-height: 1.5; }
-
-        .maintenance-plan { flex-direction: column; align-items: flex-start; gap: 1rem; }
-        .plan-intro { color: var(--color-text-muted); font-size: 0.95rem; line-height: 1.6; }
-        .sub-price { font-weight: 800; font-size: 1.1rem; margin-bottom: 1rem; }
-        .plan-bullets { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
-        .plan-bullets li { display: flex; gap: 0.5rem; font-size: 0.95rem; font-weight: 600; }
-        .bullet-arrow { color: var(--color-accent-lime); font-weight: 800; }
-        .badge-popular { position: absolute; top: -12px; right: 2rem; background: var(--color-accent-lime); color: #000; font-weight: 900; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 12px; letter-spacing: 0.5px; }
-
-        .flex { display: flex; }
-        .items-center { align-items: center; }
-        .gap-2 { gap: 0.5rem; }
-
-        /* Social Proof Band */
-        .social-proof-band { background: #000; padding: 1.5rem 0; letter-spacing: 0.5px; }
-        .stars-row { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
-        .review-text { margin-left: 0.5rem; font-size: 1.1rem; }
-        .review-text strong { color: #fff; font-weight: 800; }
-
-        /* AI Agents Grid */
-        .ai-agents { padding: 4rem 0 6rem; }
-        .section-subtitle { color: var(--color-text-muted); font-size: 1.1rem; max-width: 600px; margin: -1.5rem auto 2.5rem; line-height: 1.6; }
-        .agents-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-        .agent-card { padding: 1.5rem; display: flex; gap: 1.5rem; align-items: flex-start; border: 1px solid rgba(255,255,255,0.05); }
-        .agent-icon { background: rgba(158, 255, 0, 0.1); color: var(--color-accent-lime); padding: 1rem; border-radius: var(--radius-md); flex-shrink: 0; }
-        .agent-info h4 { font-size: 1.15rem; margin-bottom: 0.25rem; }
-        .agent-info p { color: var(--color-text-muted); font-size: 0.95rem; }
-
-        @media (max-width: 900px) {
-          .packages-grid { grid-template-columns: 1fr; }
-          .special-grid { grid-template-columns: 1fr; }
-          .agents-grid { grid-template-columns: 1fr; }
-          .special-card { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
-          .special-icons { align-self: flex-start; }
+        .detailing-home {
+          display: grid;
+          gap: 3rem;
         }
 
-        @media (max-width: 768px) {
-          .hero-title { font-size: 3rem; }
-          .hero-ctas { flex-direction: column; gap: 1rem; }
-          .hero-ctas .btn { width: 100%; }
-          .review-text { font-size: 0.95rem; text-align: center; margin-top: 0.5rem; display: block; }
+        .detailing-callout,
+        .final-local-cta {
+          display: grid;
+          gap: 1rem;
+        }
+
+        .location-stack {
+          display: grid;
+          gap: 1rem;
+        }
+
+        .location-stack h4 {
+          font-size: 1rem;
+          margin-bottom: 0.35rem;
+        }
+
+        .location-stack p,
+        .membership-punch,
+        .quote-blurb,
+        .review-label {
+          color: var(--color-text-secondary);
+        }
+
+        .membership-punch {
+          font-size: 1.02rem;
+          font-weight: 700;
+        }
+
+        .review-strip {
+          padding: 1.75rem 2rem;
+          background: var(--color-background-surface);
+          border: 1px solid var(--color-border-default);
+          border-radius: 20px;
+        }
+
+        .quote-shell {
+          display: grid;
+          gap: 0.85rem;
+          justify-items: center;
+          text-align: center;
+        }
+
+        .quote-blurb {
+          font-size: 1.05rem;
+          max-width: 52ch;
+        }
+
+        .stars-row {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          align-items: center;
+          gap: 0.55rem;
+        }
+
+        .review-label {
+          font-family: var(--font-label);
+          font-size: 0.78rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
         }
       `}</style>
     </div>

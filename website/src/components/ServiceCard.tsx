@@ -39,11 +39,19 @@ export const ServiceCard = ({
   themeStyle,
 }: ServiceCardProps) => {
   return (
-    <div className={`flyer-card style-${themeStyle || 'lime'} ${highlight ? 'highlight-card' : ''}`}>
-      {highlight && <div className="badge-popular">POPULAR</div>}
-      {highlight && <div className="star-icon"><Sparkles size={20} /></div>}
+    <article className={`service-tier-card surface-card tone-${themeStyle || 'lime'} ${highlight ? 'featured' : ''}`}>
+      <div className="service-tier-top">
+        <div>
+          {highlight && <div className="badge-popular">Popular</div>}
+          <h3>{title}</h3>
+        </div>
+        {highlight && (
+          <div className="service-tier-spark">
+            <Sparkles size={18} />
+          </div>
+        )}
+      </div>
       
-      <h3>{title}</h3>
       <p className="package-desc">{description}</p>
       {bestFor && (
         <p className="package-best-for">
@@ -57,7 +65,10 @@ export const ServiceCard = ({
         ))}
       </ul>
       
-      <div className="price-line">From <span className={highlight ? 'highlight-lime' : ''}>${price}</span></div>
+      <div className="price-line">
+        <span className="price-prefix">From</span>
+        <span className={highlight ? 'highlight-lime' : ''}>${price}</span>
+      </div>
       {priceNote && <p className="package-price-note">{priceNote}</p>}
       
       <Link
@@ -72,6 +83,6 @@ export const ServiceCard = ({
       >
         Book Now
       </Link>
-    </div>
+    </article>
   );
 };

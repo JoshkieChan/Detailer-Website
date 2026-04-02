@@ -8,342 +8,144 @@ const pdfs = [
     title: 'Whidbey Navy Spouse PCS-Proof Income Blueprint 2026',
     price: '$39',
     description: 'A clear income plan for Navy spouses at or near NAS Whidbey. Learn how to keep money coming in before, during, and after PCS moves without shady schemes or burning yourself out.',
-    icon: <CheckCircle size={22} />,
-    link: GUMROAD_URL,
+    icon: <CheckCircle size={20} />,
   },
   {
     title: 'Transitioning Sailor to Civilian Success Blueprint 2026',
     price: '$49',
-    description: 'Step-by-step transition map for sailors leaving active duty. Covers timelines, savings targets, networking, and job-hunt routines so you don\'t drift for 12–18 months after separation.',
-    icon: <Shield size={22} />,
-    link: GUMROAD_URL,
+    description: 'Step-by-step transition map for sailors leaving active duty. Covers timelines, savings targets, networking, and job-hunt routines so you do not drift for 12–18 months after separation.',
+    icon: <Shield size={20} />,
   },
   {
-    title: 'Global Military Family Relocation & Income Blueprint 2026 – Survive Any Move Worldwide',
+    title: 'Global Military Family Relocation & Income Blueprint 2026',
     price: '$59',
     description: 'A relocation and income survival plan for military families moving across states or overseas. Housing, schools, budgeting, side-income options, and a repeatable move workflow.',
-    icon: <Droplets size={22} />,
-    link: GUMROAD_URL,
+    icon: <Droplets size={20} />,
   },
   {
-    title: 'AI-Proof Navy Resume Builder 2026 – Turn Your Service Into Civilian Jobs',
+    title: 'AI-Proof Navy Resume Builder 2026',
     price: '$39',
-    description: 'A guided resume and LinkedIn framework that translates ratings, quals, and eval bullets into civilian language that recruiters and ATS bots actually understand.',
-    icon: <FileText size={22} />,
-    link: GUMROAD_URL,
-  }
+    description: 'A guided resume and LinkedIn framework that translates ratings, quals, and eval bullets into civilian language recruiters and ATS tools actually understand.',
+    icon: <FileText size={20} />,
+  },
 ];
 
 const DigitalAssetsExamples = () => {
   return (
-    <div className="dg-page">
-      {/* ── Top navigation ── */}
-      <div className="dg-container">
-        <Link to="/hub" className="dg-back-link">
-          <ChevronLeft size={15} />
-          Back to More
-        </Link>
+    <div className="page-shell guides-page">
+      <Link to="/hub" className="back-link reveal">
+        <ChevronLeft size={15} />
+        Back to More
+      </Link>
 
-        {/* ── Hero ── */}
-        <header className="dg-hero">
-          <h1>Digital Guides & Playbooks</h1>
-          <p className="dg-subheading">
-            Practical, outcome-focused checklists and frameworks. Download once,
-            reference forever.
+      <section className="hero-grid">
+        <div className="hero-copy reveal">
+          <span className="eyebrow">Digital Guides &amp; Playbooks</span>
+          <h1 className="hero-title">Practical guides for moves, money, and transition planning.</h1>
+          <p className="hero-subtitle">
+            These are secondary products. SignalSource’s main local offer is still Car
+            Detailing &amp; Protection for Whidbey Island. The guides are for customers who
+            want repeatable frameworks they can download once and keep using.
           </p>
-        </header>
+          <div className="hero-actions">
+            <a href={GUMROAD_URL} target="_blank" rel="noopener noreferrer" className="btn primary">
+              Browse Guides
+            </a>
+          </div>
+        </div>
+        <div className="hero-visual reveal" data-reveal-delay="1" aria-hidden="true" />
+      </section>
 
-        {/* ── Product grid ── */}
-        <div className="dg-grid">
-          {pdfs.map((pdf) => (
-            <article key={pdf.title} className="dg-card">
-              {/* card top row: icon + price */}
-              <div className="dg-card-top">
-                <span className="dg-icon">{pdf.icon}</span>
-                <span className="dg-price">{pdf.price}</span>
+      <section className="section-stack">
+        <div className="section-header reveal">
+          <span className="eyebrow">Flagship Guides</span>
+          <h2 className="section-title">Downloadable frameworks with a concrete use case.</h2>
+        </div>
+        <div className="card-grid two">
+          {pdfs.map((pdf, index) => (
+            <article className="guide-card reveal" data-reveal-delay={String(index % 2)} key={pdf.title}>
+              <div className="guide-card-top">
+                <span className="support-pill">{pdf.icon}{pdf.price}</span>
               </div>
-
-              <h3 className="dg-card-title">{pdf.title}</h3>
-              <p className="dg-card-desc">{pdf.description}</p>
-
-              <div className="dg-card-actions">
-                <a
-                  href={pdf.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="dg-btn-primary"
-                >
+              <h3>{pdf.title}</h3>
+              <p className="section-copy">{pdf.description}</p>
+              <div className="hero-actions">
+                <a href={GUMROAD_URL} target="_blank" rel="noopener noreferrer" className="btn primary">
                   Buy on Gumroad
                 </a>
-                <a
-                  href={pdf.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="dg-link-secondary"
-                >
-                  View details →
+                <a href={GUMROAD_URL} target="_blank" rel="noopener noreferrer" className="btn secondary">
+                  View details
                 </a>
               </div>
             </article>
           ))}
         </div>
+      </section>
 
-        {/* ── Bundles section ── */}
-        <section className="dg-bundles-section">
-          <h2 className="dg-section-label">Bundles & Packs</h2>
-          <article className="dg-bundle-card">
-            <div className="dg-bundle-inner">
-              <div className="dg-bundle-icon">
-                <Package size={28} />
-              </div>
-              <div className="dg-bundle-content">
-                <div className="dg-bundle-top">
-                  <h3 className="dg-bundle-title">Full Military Move & Income Pack 2026</h3>
-                  <span className="dg-bundle-price">$129</span>
-                </div>
-                <p className="dg-bundle-desc">
-                  All four blueprints together: spouse income, sailor transition, global relocation, and AI-proof resume building. Built so your family can plan moves, money, and civilian life in one place instead of starting from scratch every time.
-                </p>
-                <div className="dg-card-actions">
-                  <a
-                    href={GUMROAD_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="dg-btn-primary"
-                  >
-                    Buy bundle on Gumroad
-                  </a>
-                  <a
-                    href={GUMROAD_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="dg-link-secondary"
-                  >
-                    View details →
-                  </a>
-                </div>
-              </div>
-            </div>
-          </article>
-        </section>
-      </div>
+      <section className="content-card reveal">
+        <div className="support-pill"><Package size={18} /> Bundles</div>
+        <h2 className="section-title">Full Military Move &amp; Income Pack 2026</h2>
+        <p className="section-copy">
+          All four blueprints together: spouse income, sailor transition, global relocation,
+          and AI-proof resume building. Built so your family can plan moves, money, and
+          civilian life in one place instead of starting from scratch every time.
+        </p>
+        <div className="hero-actions">
+          <a href={GUMROAD_URL} target="_blank" rel="noopener noreferrer" className="btn primary">
+            Buy bundle on Gumroad
+          </a>
+        </div>
+      </section>
+
+      <section className="content-card reveal">
+        <span className="eyebrow">Why these exist</span>
+        <h2 className="section-title">The same systems mindset, just packaged differently.</h2>
+        <p className="section-copy">
+          The same systems mindset behind the detailing business also shows up here: clear
+          steps, fewer dropped balls, less mental load, and no fluff.
+        </p>
+        <div className="hero-actions">
+          <Link to="/detailing" className="btn secondary">Back to detailing</Link>
+        </div>
+      </section>
 
       <style>{`
-        /* ─── Page shell ─────────────────────────── */
-        .dg-page {
-          min-height: 100vh;
-          padding: 4rem 1.5rem 7rem;
-        }
-        .dg-container {
-          max-width: 1040px;
-          margin: 0 auto;
+        .guides-page {
+          display: grid;
+          gap: 2.75rem;
         }
 
-        /* ─── Back link ──────────────────────────── */
-        .dg-back-link {
+        .back-link {
           display: inline-flex;
           align-items: center;
-          gap: 0.25rem;
-          font-size: 0.85rem;
-          font-weight: 600;
-          color: var(--color-text-muted);
-          text-decoration: none;
-          opacity: 0.65;
-          margin-bottom: 3rem;
-          transition: opacity 0.2s, color 0.2s;
-        }
-        .dg-back-link:hover { opacity: 1; color: var(--color-accent-lime); }
-
-        /* ─── Hero ───────────────────────────────── */
-        .dg-hero {
-          margin-bottom: 3.5rem;
-          text-align: center;
-        }
-        .dg-hero h1 {
-          font-size: clamp(2rem, 5vw, 3rem);
-          font-weight: 900;
-          color: var(--color-text-main);
-          margin-bottom: 1rem;
-          line-height: 1.1;
-        }
-        .dg-subheading {
-          font-size: 1.1rem;
-          color: var(--color-text-muted);
-          max-width: 560px;
-          margin: 0 auto;
-          line-height: 1.6;
+          gap: 0.35rem;
+          color: var(--color-text-secondary);
+          font-weight: 700;
+          width: fit-content;
         }
 
-        /* ─── Product grid ───────────────────────── */
-        .dg-grid {
+        .back-link:hover {
+          color: var(--color-accent-primary);
+        }
+
+        .guide-card {
           display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 2rem;
-          margin-bottom: 4rem;
-        }
-        @media (max-width: 680px) {
-          .dg-grid { grid-template-columns: 1fr; }
-        }
-
-        /* ─── Product card ───────────────────────── */
-        .dg-card {
-          display: flex;
-          flex-direction: column;
-          background: var(--color-bg-alt);
-          border: 1px solid var(--color-border);
-          border-radius: 16px;
-          padding: 2rem;
-          transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-        }
-        .dg-card:hover {
-          transform: translateY(-4px);
-          border-color: rgba(158, 255, 0, 0.35);
-          box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
-        }
-
-        .dg-card-top {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 1.25rem;
-        }
-        .dg-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 44px;
-          height: 44px;
-          background: rgba(158, 255, 0, 0.1);
-          border-radius: 10px;
-          color: var(--color-accent-lime);
-        }
-        .dg-price {
-          font-size: 1.4rem;
-          font-weight: 900;
-          color: var(--color-accent-lime);
-          letter-spacing: -0.5px;
-        }
-
-        .dg-card-title {
-          font-size: 1.15rem;
-          font-weight: 800;
-          color: var(--color-text-main);
-          margin-bottom: 0.75rem;
-          line-height: 1.3;
-        }
-        .dg-card-desc {
-          font-size: 0.92rem;
-          color: var(--color-text-muted);
-          line-height: 1.65;
-          flex-grow: 1;
-          margin-bottom: 0;
-        }
-
-        /* ─── CTA area ───────────────────────────── */
-        .dg-card-actions {
-          display: flex;
-          flex-direction: column;
-          gap: 0.6rem;
-          margin-top: 1.75rem;
-          padding-top: 1.5rem;
-          border-top: 1px solid var(--color-border);
-        }
-        .dg-btn-primary {
-          display: block;
-          text-align: center;
-          padding: 0.75rem 1rem;
-          background: var(--color-accent-lime);
-          color: #000;
-          font-weight: 800;
-          font-size: 0.9rem;
-          border-radius: 8px;
-          text-decoration: none;
-          transition: opacity 0.2s, transform 0.2s;
-        }
-        .dg-btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
-
-        .dg-link-secondary {
-          display: block;
-          text-align: center;
-          font-size: 0.82rem;
-          color: var(--color-text-muted);
-          text-decoration: none;
-          font-weight: 600;
-          transition: color 0.2s;
-        }
-        .dg-link-secondary:hover { color: var(--color-accent-lime); }
-
-        /* ─── Bundles section ────────────────────── */
-        .dg-bundles-section {
-          margin-top: 1rem;
-        }
-        .dg-section-label {
-          font-size: 0.75rem;
-          font-weight: 800;
-          letter-spacing: 2px;
-          text-transform: uppercase;
-          color: var(--color-text-muted);
-          margin-bottom: 1.5rem;
-        }
-
-        .dg-bundle-card {
-          background: var(--color-bg-alt);
-          border: 1px solid rgba(158, 255, 0, 0.25);
-          border-radius: 16px;
-          padding: 2rem;
-          transition: border-color 0.25s, box-shadow 0.25s;
-        }
-        .dg-bundle-card:hover {
-          border-color: rgba(158, 255, 0, 0.5);
-          box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
-        }
-        .dg-bundle-inner {
-          display: flex;
-          gap: 1.75rem;
-          align-items: flex-start;
-        }
-        .dg-bundle-icon {
-          flex-shrink: 0;
-          width: 52px;
-          height: 52px;
-          background: rgba(158, 255, 0, 0.1);
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--color-accent-lime);
-          margin-top: 0.25rem;
-        }
-        .dg-bundle-content { flex: 1; }
-        .dg-bundle-top {
-          display: flex;
-          align-items: baseline;
-          justify-content: space-between;
           gap: 1rem;
-          margin-bottom: 0.75rem;
-        }
-        .dg-bundle-title {
-          font-size: 1.25rem;
-          font-weight: 900;
-          color: var(--color-text-main);
-          line-height: 1.25;
-        }
-        .dg-bundle-price {
-          font-size: 1.6rem;
-          font-weight: 900;
-          color: var(--color-accent-lime);
-          white-space: nowrap;
-        }
-        .dg-bundle-desc {
-          font-size: 0.95rem;
-          color: var(--color-text-muted);
-          line-height: 1.65;
-          margin-bottom: 0;
+          padding: 1.5rem;
+          background: var(--color-background-surface);
+          border: 1px solid var(--color-border-default);
+          border-radius: var(--radius-card);
+          transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
         }
 
-        @media (max-width: 600px) {
-          .dg-bundle-inner { flex-direction: column; gap: 1.25rem; }
-          .dg-bundle-top { flex-direction: column; gap: 0.25rem; }
+        .guide-card:hover {
+          transform: translateY(-4px);
+          border-color: var(--color-border-strong);
+          box-shadow: var(--shadow-hover);
+        }
+
+        .guide-card h3 {
+          font-size: 1.2rem;
         }
       `}</style>
     </div>
