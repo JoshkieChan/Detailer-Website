@@ -8,6 +8,59 @@ import { createDepositCheckout } from '../api/stripe';
 import { servicePackages } from '../data/packages';
 import { maintenancePlans } from '../data/maintenancePlans';
 
+const recaptchaEnv = import.meta.env as ImportMetaEnv & Record<string, string | undefined>;
+const recaptchaSiteKey = (recaptchaEnv.VITE_RECAPTCHA_SITE_KEY ?? recaptchaEnv.RECAPTCHA_SITE_KEY)?.trim();
+const RECAPTCHA_SCRIPT_ID = 'google-recaptcha-v3';
+
+const loadRecaptchaScript = async (siteKey: string) => {
+  if (window.grecaptcha) return;
+
+  const existingScript = document.getElementById(RECAPTCHA_SCRIPT_ID) as HTMLScriptElement | null;
+  if (existingScript) {
+    await new Promise<void>((resolve, reject) => {
+      if (window.grecaptcha) {
+        resolve();
+        return;
+      }
+      existingScript.addEventListener('load', () => resolve(), { once: true });
+      existingScript.addEventListener('error', () => reject(new Error('Failed to load reCAPTCHA script.')), { once: true });
+    });
+    return;
+  }
+
+  await new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script');
+    script.id = RECAPTCHA_SCRIPT_ID;
+    script.src = `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(siteKey)}`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load reCAPTCHA script.'));
+    document.head.appendChild(script);
+  });
+};
+
+const getRecaptchaToken = async () => {
+  if (!recaptchaSiteKey) {
+    throw new Error('reCAPTCHA site key is missing in this environment.');
+  }
+
+  await loadRecaptchaScript(recaptchaSiteKey);
+
+  if (!window.grecaptcha) {
+    throw new Error('reCAPTCHA failed to initialize.');
+  }
+
+  return await new Promise<string>((resolve, reject) => {
+    window.grecaptcha?.ready(() => {
+      window.grecaptcha
+        ?.execute(recaptchaSiteKey, { action: 'booking' })
+        .then(resolve)
+        .catch(() => reject(new Error('Failed to verify reCAPTCHA. Please try again.')));
+    });
+  });
+};
+
 // ─── Validation Helpers ─────────────────────────────────────────────────────
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -230,11 +283,13 @@ const BookingPage = () => {
     try {
       const selectedPkg = servicePackages.find(p => p.id === formData.package);
       const basePrice = selectedPkg ? parseInt(selectedPkg.price) : 0;
+      const recaptchaToken = await getRecaptchaToken();
 
       const session = await createDepositCheckout({
         packageId: formData.package,
         packageName: selectedPkg?.title || 'Vehicle Detail',
         packagePrice: basePrice,
+        recaptchaToken,
         customerEmail: formData.email,
         fullName: formData.fullName,
         phone: formData.phone,

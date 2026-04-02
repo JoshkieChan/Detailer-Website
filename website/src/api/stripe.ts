@@ -21,6 +21,7 @@ export interface BookingPayload {
   packageId: string;
   packageName: string;
   packagePrice: number;
+  recaptchaToken: string;
   customerEmail: string;
   fullName: string;
   phone: string;

@@ -8,6 +8,40 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+const RECAPTCHA_MIN_SCORE = 0.5
+
+async function verifyRecaptchaToken(recaptchaToken: string) {
+  const recaptchaSecretKey = Deno.env.get('RECAPTCHA_SECRET_KEY')
+
+  if (!recaptchaSecretKey) {
+    throw new Error('Missing Edge Function secret: RECAPTCHA_SECRET_KEY')
+  }
+
+  const verifyResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      secret: recaptchaSecretKey,
+      response: recaptchaToken,
+    }),
+  })
+
+  const verifyData = await verifyResponse.json()
+
+  if (
+    !verifyResponse.ok ||
+    verifyData.success !== true ||
+    typeof verifyData.score !== 'number' ||
+    verifyData.score < RECAPTCHA_MIN_SCORE ||
+    verifyData.action !== 'booking'
+  ) {
+    console.warn('reCAPTCHA verification failed:', verifyData)
+    return false
+  }
+
+  return true
+}
+
 // Helper to create Google Calendar Event
 async function createGoogleCalendarEvent(
   calendarId: string, 
@@ -68,6 +102,7 @@ serve(async (req) => {
       packageId, 
       packageName, 
       packagePrice, 
+      recaptchaToken,
       customerEmail, 
       fullName,
       phone,
@@ -94,6 +129,21 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: `Missing Supabase Secrets: ${missing.join(', ')}. Please add them in Project Settings > Edge Functions.` }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      )
+    }
+
+    if (!recaptchaToken || typeof recaptchaToken !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'reCAPTCHA verification failed. Please try again.' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      )
+    }
+
+    const recaptchaPassed = await verifyRecaptchaToken(recaptchaToken)
+    if (!recaptchaPassed) {
+      return new Response(
+        JSON.stringify({ error: 'reCAPTCHA verification failed. Please try again.' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       )
     }
 
