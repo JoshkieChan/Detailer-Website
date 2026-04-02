@@ -5,9 +5,9 @@ const HubPage = () => {
     <div className="hub-page">
       {/* Hero Section */}
       <section className="hero-section text-center">
-        <h1>SignalSource: Systems, Services, and Digital Assets</h1>
-        <p className="subtitle">Car care for Oak Harbor. Digital assets and AI systems for anywhere.</p>
-        <p className="support-line text-muted">Choose how you want SignalSource to help: local detailing, world-wide guides, or custom-built systems.</p>
+        <h1>SignalSource: Car Detailing for Oak Harbor. Digital guides and AI-backed systems for anywhere.</h1>
+        <p className="subtitle">For NAS Whidbey families, commuters, and solo operators tired of a dirty vehicle, PCS scramble, or missed follow-ups, SignalSource helps you get the vehicle handled or the process cleaned up without extra guesswork.</p>
+        <p className="support-line text-muted">Choose how you want SignalSource to help: local detailing, practical guides, or AI-backed systems.</p>
       </section>
 
       {/* 3-Card Section */}
@@ -20,12 +20,11 @@ const HubPage = () => {
             <div className="card-icon-wrapper">
               <MapPin size={32} className="icon-lime" />
             </div>
-            <h3>Car Detailing & Protection</h3>
-            <p>Professional detailing, coatings, and protection services in Oak Harbor, WA. Designed for military families, commuters, and anyone who wants their vehicle to look new longer.</p>
+            <h3>Car Detailing &amp; Protection for Oak Harbor Daily Drivers</h3>
+            <p>For military families, commuters, and busy locals tired of a dirty daily driver, this gets the vehicle clean, protected, and easier to stay ahead of without wasting a full day.</p>
             <ul className="mini-features">
               <li>Detailing packages</li>
-              <li>Ceramic coatings</li>
-              <li>Tint, PPF, and wraps</li>
+              <li>Protection prep for upcoming coatings, tint, and PPF</li>
             </ul>
             <div className="card-cta">
               View local services <ArrowRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />
@@ -37,8 +36,8 @@ const HubPage = () => {
             <div className="card-icon-wrapper">
               <Search size={32} className="icon-lime" />
             </div>
-            <h3>Digital Guides & Playbooks</h3>
-            <p>Downloadable PDFs designed to save you time and stress: checklists, planning guides, and problem-specific playbooks. Built for military, local operators, and anyone who wants clearer systems.</p>
+            <h3>Digital Guides &amp; Playbooks for PCS, Money, and Daily Friction</h3>
+            <p>For military households and organized operators tired of scattered notes and last-minute scrambling, these guides turn PCS prep, planning, and repeat problems into clear checklists you can actually use.</p>
             <div className="card-cta mt-auto">
               Browse PDFs <ArrowRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />
             </div>
@@ -47,11 +46,10 @@ const HubPage = () => {
           {/* Card 3: Systems & Digital Products */}
           <a href="/systems" className="path-card glass group highlight-border">
             <div className="card-icon-wrapper">
-              <div className="badge-lime badge-ai-powered mb-2">AI Powered</div>
               <span className="brand-icon">S</span>
             </div>
-            <h3>Systems & Digital Products</h3>
-            <p>Custom-built AI systems and digital tools: audits, dashboards, and automations that help local businesses and operators run smoother with less guesswork.</p>
+            <h3>Systems &amp; Digital Products for Operators Losing Time to Missed Calls and Manual Follow-Up</h3>
+            <p>For local businesses and one-person operators tired of dropped leads, forgotten callbacks, and running the day from memory, these AI-backed tools can give you follow-up automations, simple dashboards, and systems that keep work moving.</p>
             <div className="card-cta mt-auto">
               Explore systems <ArrowRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />
             </div>
@@ -67,7 +65,7 @@ const HubPage = () => {
         /* Hero */
         .hero-section { margin-bottom: 5rem; animation: fadeIn 0.8s ease-out; }
         .hero-section h1 { font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem; }
-        .subtitle { font-size: 1.5rem; color: var(--color-text-main); font-weight: 600; margin-bottom: 0.5rem; }
+        .subtitle { font-size: 1.35rem; color: var(--color-text-main); font-weight: 600; margin-bottom: 0.75rem; max-width: 980px; margin-left: auto; margin-right: auto; }
         .support-line { font-size: 1.2rem; }
         
         /* Cards */
@@ -98,9 +96,6 @@ const HubPage = () => {
         .card-cta { display: flex; align-items: center; color: var(--color-accent-lime); font-weight: 700; font-size: 0.95rem; margin-top: auto; }
         
         .highlight-border { border: 1px solid rgba(158, 255, 0, 0.3); background: rgba(158, 255, 0, 0.02); }
-        .badge-lime { display: inline-block; background: var(--color-accent-lime); color: #000; padding: 0.25rem 0.75rem; border-radius: 4px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
-        .badge-ai-powered { position: absolute; top: -12px; right: -12px; font-size: 0.7rem; }
-
         @media (max-width: 900px) {
           .cards-grid { grid-template-columns: 1fr; }
           .hero-section h1 { font-size: 2.5rem; }
