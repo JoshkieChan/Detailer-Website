@@ -245,3 +245,32 @@ label {
   background: #f4faeb;
   border-color: #559300;
 }
+
+/* ─────────────────────────────────────────────────────────
+ * Mobile Performance & INP Optimizations 
+ * Disable or instantly complete non-essential motion/animations
+ * on mobile to prevent main-thread blocking during touch events.
+ * ───────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Disable heavy initial-load animations on mobile */
+  .hero-section, .hero {
+    animation: none !important;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  /* Remove hover-triggered transitions on touch devices */
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .btn:hover, .btn.primary:hover, .btn.secondary:hover, .btn.outline-lime:hover,
+  .flyer-card:hover, .path-card:hover, .dg-card:hover, .sp-tile:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}

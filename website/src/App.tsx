@@ -16,8 +16,18 @@ import DigitalAssetsExamples from './pages/DigitalAssetsExamples';
 import LocalSystemsExamples from './pages/LocalSystemsExamples';
 import BookingPage from './pages/BookingPage';
 import ConfirmationPage from './pages/ConfirmationPage';
+import { useState, useEffect } from 'react';
 
 function App() {
+  // Defer non-critical scripts to improve INP and initial load times on mobile.
+  const [loadAnalytics, setLoadAnalytics] = useState(false);
+
+  useEffect(() => {
+    // Wait until the main thread has likely settled before injecting tracking
+    const timer = setTimeout(() => setLoadAnalytics(true), 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <ThemeProvider>
       <PasswordGate>
@@ -42,8 +52,12 @@ function App() {
           </Layout>
         </Router>
       </PasswordGate>
-      <Analytics />
-      <SpeedInsights />
+      {loadAnalytics && (
+        <>
+          <Analytics />
+          <SpeedInsights />
+        </>
+      )}
     </ThemeProvider>
   );
 }
