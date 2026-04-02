@@ -17,28 +17,28 @@ const SystemsPage = () => {
           </div>
           <div className="section-content">
             <h2>Digital Assets & Blueprints</h2>
-            <p className="section-intro">Highly personalized, outcome-focused deliverables built specifically for your vehicle or business needs.</p>
+            <p className="section-intro">Highly personalized, outcome-focused deliverables built specifically around your life, work, and constraints.</p>
             
             <div className="feature-list">
               <div className="feature-item">
                 <Target size={20} className="icon-lime" />
                 <div>
-                  <h4>Car Care Blueprints</h4>
-                  <p>A custom-mapped maintenance schedule and supply list built around your specific vehicle, climate, and available time.</p>
+                  <h4>Personal & Business Playbooks</h4>
+                  <p>Custom SOPs, workflows, and habit trackers designed to standardize how you or your team operate on a daily basis.</p>
                 </div>
               </div>
               <div className="feature-item">
                 <Heart size={20} className="icon-lime" />
                 <div>
-                  <h4>Customer Experience Flows</h4>
-                  <p>Message and email sequences that handle the "small talk" and follow-ups, turning one-time visitors into repeat advocates.</p>
+                  <h4>High-Conversion Layouts</h4>
+                  <p>Optimized structure and copy for landing pages, service menus, or unique offer pages that effectively engage your audience.</p>
                 </div>
               </div>
               <div className="feature-item">
                 <Zap size={20} className="icon-lime" />
                 <div>
                   <h4>Operator Dashboards</h4>
-                  <p>Centralized Notion or Airtable systems to track your pipeline, jobs, and follow-ups without the mental clutter.</p>
+                  <p>Centralized Notion or Airtable systems to manage projects, clients, and finances without the mental clutter.</p>
                 </div>
               </div>
             </div>
@@ -61,21 +61,21 @@ const SystemsPage = () => {
           <div className="section-content">
             <div className="exclusive-badge">Private Build</div>
             <h2>AI-Powered Local Systems</h2>
-            <p className="section-intro">Intelligent automation for local service businesses (detailers, cleaners, contractors) who need to scale without more staff.</p>
+            <p className="section-intro">Intelligent automation for solo operators and local service businesses (detailers, cleaners, contractors, coaches) seeking to scale without adding headcount.</p>
             
             <div className="feature-list">
               <div className="feature-item">
                 <Zap size={20} className="icon-lime" />
                 <div>
                   <h4>Automated Booking Agents</h4>
-                  <p>24/7 AI assistants that qualify leads and sell the value of your services while you're focused on the job.</p>
+                  <p>24/7 AI assistants that capture leads, qualify inquiries, and handle repetitive questions while you're focused on the actual work.</p>
                 </div>
               </div>
               <div className="feature-item">
                 <Sparkles size={20} className="icon-lime" />
                 <div>
-                  <h4>Dynamic Operations Automator</h4>
-                  <p>A back-end "brain" that syncs your calendar, CRM, and customer feedback loop automatically.</p>
+                  <h4>Seamless Tool Integration</h4>
+                  <p>A back-end "brain" built directly around the tech stack you already use, syncing your calendar, CRM, inbox, and spreadsheets automatically.</p>
                 </div>
               </div>
             </div>
@@ -98,15 +98,18 @@ const SystemsPage = () => {
             <MessageSquare size={32} className="icon-lime" />
           </div>
           <h2>Custom Build Requests</h2>
-          <p className="mb-2">Need a specific routine optimized or a business bottleneck removed? I design and build tailored systems that actually solve the problem.</p>
+          <p className="mb-2">Need a specific daily routine optimized or a complex business bottleneck removed? I design and build fully tailored systems for any personal or organizational outcome.</p>
+          <p style={{ fontSize: '0.95rem', color: 'var(--color-text-muted)', marginBottom: '2rem' }}>
+            Projects are quoted case by case; simple assets are typically in the low hundreds, while complex, multi-step systems cost more.
+          </p>
           <div className="concierge-steps">
             <div className="step">
               <span className="step-num">1</span>
-              <p>Email me a description of the outcome you're looking for.</p>
+              <p>DM or email me a description of the specific outcome you're looking for (personal or business).</p>
             </div>
             <div className="step">
               <span className="step-num">2</span>
-              <p>I'll reply with clarifying questions and a simple, flat-rate quote.</p>
+              <p>I'll reply with clarifying questions and a simple, flat-rate quote for that specific build.</p>
             </div>
             <div className="step">
               <span className="step-num">3</span>
