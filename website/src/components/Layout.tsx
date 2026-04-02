@@ -37,7 +37,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       {/* Navbar */}
       <header className="navbar glass-nav">
         <div className="navbar-inner">
-          <Link to="/" className="brand">
+          <Link to="/detailing" className="brand">
             <span className="brand-icon">S</span>
             <span className="brand-text">SIGNALSOURCE</span>
           </Link>
