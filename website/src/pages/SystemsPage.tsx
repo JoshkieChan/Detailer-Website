@@ -10,11 +10,11 @@ const CASES = [
     emoji: '🗓️',
   },
   {
-    title: 'Medical Audit Companion',
-    description: 'Compliance and audit system that ingests clinical or operational data and outputs structured evaluation frameworks for review.',
-    tag: 'Back-office Automation',
+    title: 'PCS Income Tracker & Plan Board',
+    description: 'Kanban-style board that tracks your PCS-proof income ideas, commitments, and progress so you’re never starting from zero at the next set of orders.',
+    tag: 'Life & Logistics',
     color: '#60a5fa',
-    emoji: '🏥',
+    emoji: '📋',
   },
   {
     title: 'Opportunity Scanner',
@@ -38,11 +38,11 @@ const CASES = [
     emoji: '🎖️',
   },
   {
-    title: 'Shop Chemical Inventory Monitor',
-    description: 'Tracks product levels, reorder thresholds, and supplier lead times for detailers and small-shop operators. Auto-flags low stock.',
-    tag: 'Local Systems',
+    title: 'Transition Application & Interview Tracker',
+    description: 'A simple pipeline for tracking which roles you’ve applied to, interviews scheduled, follow-ups, and offers, so your civilian job hunt doesn’t live in your head.',
+    tag: 'Back-office Automation',
     color: '#fb923c',
-    emoji: '🧪',
+    emoji: '👔',
   },
   {
     title: 'Client Follow-Up Sequencer',
@@ -312,9 +312,7 @@ const SystemsPage = () => {
         }
 
         /* ── Existing sections ──────────────────── */
-        .badge-lime { display: inline-block; background: var(--color-accent-lime); color: #000; padding: 0.35rem 1rem; border-radius: 4px; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
-
-        .product-section { padding: 3.5rem; border-radius: var(--radius-lg); position: relative; display: flex; flex-direction: column; max-width: 800px; margin-bottom: 3rem; }
+        .product-section { padding: 3.5rem; border-radius: var(--radius-lg); position: relative; display: flex; flex-direction: column; width: 100%; margin-bottom: 3rem; }
         .highlight-border { border: 2px solid var(--color-accent-lime); background: rgba(158,255,0,0.03); }
         .section-icon { margin-bottom: 2rem; }
         .exclusive-badge { color: var(--color-accent-lime); font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.5rem; }
