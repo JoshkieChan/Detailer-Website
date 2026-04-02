@@ -1,94 +1,53 @@
-import { Sparkles, Brain, Lightbulb, ShoppingBag, Zap, Target, Heart, MessageSquare } from 'lucide-react';
+import { Sparkles, Brain, Lightbulb, Zap, MessageSquare } from 'lucide-react';
 
 const SystemsPage = () => {
   return (
     <div className="systems-page">
       <div className="page-header text-center">
-        <div className="badge-lime mb-1">Available Now</div>
+        <div className="badge-lime mb-1">Custom Builds</div>
         <h1>Systems & Digital Products</h1>
-        <p className="subtitle">High-impact, custom-built assets designed to remove friction and automate the success of your day-to-day operations.</p>
+        <p className="subtitle">AI-powered local systems, audits, and custom digital tools designed to remove friction from your day-to-day operations.</p>
       </div>
 
-      <div className="systems-grid">
-        {/* Section 1: Digital Products */}
-        <section className="product-section glass">
-          <div className="section-icon">
-            <ShoppingBag size={40} className="icon-lime" />
-          </div>
-          <div className="section-content">
-            <h2>Digital Assets & Blueprints</h2>
-            <p className="section-intro">Highly personalized, outcome-focused deliverables built specifically around your life, work, and constraints.</p>
-            
-            <div className="feature-list">
-              <div className="feature-item">
-                <Target size={20} className="icon-lime" />
-                <div>
-                  <h4>Personal & Business Playbooks</h4>
-                  <p>Custom SOPs, workflows, and habit trackers designed to standardize how you or your team operate on a daily basis.</p>
-                </div>
-              </div>
-              <div className="feature-item">
-                <Heart size={20} className="icon-lime" />
-                <div>
-                  <h4>High-Conversion Layouts</h4>
-                  <p>Optimized structure and copy for landing pages, service menus, or unique offer pages that effectively engage your audience.</p>
-                </div>
-              </div>
-              <div className="feature-item">
-                <Zap size={20} className="icon-lime" />
-                <div>
-                  <h4>Operator Dashboards</h4>
-                  <p>Centralized Notion or Airtable systems to manage projects, clients, and finances without the mental clutter.</p>
-                </div>
+      <div className="product-section glass highlight-border text-left mx-auto mb-12">
+        <div className="section-icon">
+          <Brain size={40} className="icon-lime" />
+        </div>
+        <div className="section-content">
+          <div className="exclusive-badge">Private Build</div>
+          <h2>Intelligent Setup & Automations</h2>
+          <p className="section-intro">Custom automated systems built for local service businesses and solo operators seeking scale without adding headcount.</p>
+          
+          <div className="feature-list">
+            <div className="feature-item">
+              <Zap size={20} className="icon-lime" />
+              <div>
+                <h4>Local Booking Systems</h4>
+                <p>24/7 AI assistants that capture leads, qualify inquiries, and handle repetitive scheduling questions while you're focused on the actual work.</p>
               </div>
             </div>
-            
-            <div className="status-badge">Format: 1:1 Custom Build</div>
-            
-            <div className="mt-6 flex justify-center">
-              <a href="/systems/examples/digital-assets" className="text-link-secondary">
-                View example builds <span className="ml-1">→</span>
-              </a>
+            <div className="feature-item">
+              <Sparkles size={20} className="icon-lime" />
+              <div>
+                <h4>Medical Audit Systems</h4>
+                <p>Data-driven audit dashboards custom-built to ingest metrics and output cleanly organized evaluation frameworks.</p>
+              </div>
+            </div>
+            <div className="feature-item">
+              <Lightbulb size={20} className="icon-lime" />
+              <div>
+                <h4>Opportunity Scanners & Action Feeds</h4>
+                <p>A back-end "brain" that monitors leads, aggregates your creator content, or scours specific markets tailored to your tech stack.</p>
+              </div>
             </div>
           </div>
-        </section>
 
-        {/* Section 2: AI & Automation */}
-        <section className="product-section glass highlight-border">
-          <div className="section-icon">
-            <Brain size={40} className="icon-lime" />
+          <div className="flex gap-4 mt-6">
+            <a href="/about#contact" className="btn btn-primary inline-flex">
+              Request a custom system
+            </a>
           </div>
-          <div className="section-content">
-            <div className="exclusive-badge">Private Build</div>
-            <h2>AI-Powered Local Systems</h2>
-            <p className="section-intro">Intelligent automation for solo operators and local service businesses (detailers, cleaners, contractors, coaches) seeking to scale without adding headcount.</p>
-            
-            <div className="feature-list">
-              <div className="feature-item">
-                <Zap size={20} className="icon-lime" />
-                <div>
-                  <h4>Automated Booking Agents</h4>
-                  <p>24/7 AI assistants that capture leads, qualify inquiries, and handle repetitive questions while you're focused on the actual work.</p>
-                </div>
-              </div>
-              <div className="feature-item">
-                <Sparkles size={20} className="icon-lime" />
-                <div>
-                  <h4>Seamless Tool Integration</h4>
-                  <p>A back-end "brain" built directly around the tech stack you already use, syncing your calendar, CRM, inbox, and spreadsheets automatically.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="status-badge">Status: Limited 1:1 Implementation</div>
-            
-            <div className="mt-6 flex justify-center">
-              <a href="/systems/examples/local-systems" className="text-link-secondary">
-                View example systems <span className="ml-1">→</span>
-              </a>
-            </div>
-          </div>
-        </section>
+        </div>
       </div>
 
       {/* Concierge Instructions */}
@@ -97,19 +56,19 @@ const SystemsPage = () => {
           <div className="icon-wrapper mb-2">
             <MessageSquare size={32} className="icon-lime" />
           </div>
-          <h2>Custom Build Requests</h2>
-          <p className="mb-2">Need a specific daily routine optimized or a complex business bottleneck removed? I design and build fully tailored systems for any personal or organizational outcome.</p>
+          <h2>How It Works</h2>
+          <p className="mb-2">Need a specific daily routine optimized or a complex business bottleneck removed? I design and build fully tailored systems for any organizational outcome.</p>
           <p style={{ fontSize: '0.95rem', color: 'var(--color-text-muted)', marginBottom: '2rem' }}>
-            Projects are quoted case by case; simple assets are typically in the low hundreds, while complex, multi-step systems cost more.
+            Projects are quoted case by case; simple automations are typically in the low hundreds, while complex, multi-step systems cost more.
           </p>
           <div className="concierge-steps">
             <div className="step">
               <span className="step-num">1</span>
-              <p>DM or email me a description of the specific outcome you're looking for (personal or business).</p>
+              <p>DM or email me a description of the specific operational bottleneck.</p>
             </div>
             <div className="step">
               <span className="step-num">2</span>
-              <p>I'll reply with clarifying questions and a simple, flat-rate quote for that specific build.</p>
+              <p>I'll reply with clarifying questions and a flat-rate quote for that specific build.</p>
             </div>
             <div className="step">
               <span className="step-num">3</span>
@@ -123,7 +82,7 @@ const SystemsPage = () => {
         <Lightbulb size={48} className="icon-lime mb-2" />
         <h2>Solving Problems, Not Just Selling Features</h2>
         <p className="outcome-text">
-          My goal isn't to give you more software to manage. It's to deliver tangible results that change how your day feels:
+          My goal isn't to give you more software to manage. It's to deliver tangible results that change how your workflow feels:
         </p>
         <div className="outcome-grid mb-4">
           <div className="outcome-card">
@@ -152,9 +111,7 @@ const SystemsPage = () => {
         .page-header h1 { font-size: 3.5rem; font-weight: 900; margin-bottom: 1.25rem; }
         .subtitle { font-size: 1.35rem; color: var(--color-text-muted); max-width: 700px; margin: 0 auto; line-height: 1.6; }
 
-        .systems-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 4rem; }
-        
-        .product-section { padding: 3.5rem; border-radius: var(--radius-lg); position: relative; display: flex; flex-direction: column; }
+        .product-section { padding: 3.5rem; border-radius: var(--radius-lg); position: relative; display: flex; flex-direction: column; max-width: 800px; }
         .highlight-border { border: 2px solid var(--color-accent-lime); background: rgba(158, 255, 0, 0.03); }
 
         .section-icon { margin-bottom: 2rem; }
@@ -167,8 +124,6 @@ const SystemsPage = () => {
         .feature-item { display: flex; gap: 1.25rem; align-items: flex-start; }
         .feature-item h4 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.4rem; color: var(--color-text-main); }
         .feature-item p { font-size: 0.95rem; color: var(--color-text-muted); line-height: 1.5; }
-
-        .status-badge { display: inline-block; padding: 0.5rem 1.25rem; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--color-border); border-radius: 4px; font-size: 0.8rem; font-weight: 700; color: var(--color-text-muted); }
 
         .concierge-box { padding: 4rem; border-radius: var(--radius-lg); text-align: center; border: 1px solid rgba(158, 255, 0, 0.2); background: radial-gradient(circle at top right, rgba(158, 255, 0, 0.05) 0%, transparent 50%); }
         .concierge-box h2 { font-size: 2.25rem; font-weight: 900; margin-bottom: 1rem; }
@@ -186,28 +141,12 @@ const SystemsPage = () => {
         .outcome-card p { font-size: 0.95rem; color: var(--color-text-muted); line-height: 1.5; }
 
         @media (max-width: 900px) {
-          .systems-grid, .concierge-steps, .outcome-grid { grid-template-columns: 1fr; gap: 2rem; }
-          .concierge-steps { align-items: center; }
-          .step { max-width: 100%; text-align: center; }
+          .concierge-steps, .outcome-grid { grid-template-columns: 1fr; gap: 2rem; }
+          .concierge-steps { align-items: center; flex-direction: column; }
+          .step { max-width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center; }
           .step-num { margin: 0 auto 1rem; }
           .page-header h1 { font-size: 2.75rem; }
           .product-section, .concierge-box { padding: 2.5rem; }
-        }
-
-        .text-link-secondary {
-          color: var(--color-text-muted);
-          font-size: 0.95rem;
-          font-weight: 600;
-          display: inline-flex;
-          align-items: center;
-          transition: all 0.2s ease;
-          opacity: 0.8;
-          border-bottom: 1px solid transparent;
-        }
-        .text-link-secondary:hover {
-          color: var(--color-accent-lime);
-          opacity: 1;
-          border-bottom-color: var(--color-accent-lime);
         }
 
         @media (max-width: 480px) {

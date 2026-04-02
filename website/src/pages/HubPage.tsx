@@ -26,7 +26,7 @@ const HubPage = () => {
         <div className="cards-grid">
           
           {/* Card 1: Car Detailing */}
-          <a href="/" className="path-card glass group">
+          <a href="/detailing" className="path-card glass group">
             <div className="card-icon-wrapper">
               <MapPin size={32} className="icon-lime" />
             </div>

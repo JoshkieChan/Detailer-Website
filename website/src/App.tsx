@@ -24,12 +24,14 @@ function App() {
         <Router>
           <Layout>
             <Routes>
-              <Route path="/" element={<HomePage />} />
+              <Route path="/" element={<HubPage />} />
+              <Route path="/detailing" element={<HomePage />} />
               <Route path="/services" element={<ServicesPage />} />
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/memberships" element={<MembershipsPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/faq" element={<FAQPage />} />
+              {/* Keep /hub as an alias if needed, though / is the primary now. */}
               <Route path="/hub" element={<HubPage />} />
               <Route path="/systems" element={<SystemsPage />} />
               <Route path="/systems/examples/digital-assets" element={<DigitalAssetsExamples />} />
