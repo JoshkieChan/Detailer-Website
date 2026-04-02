@@ -42,11 +42,6 @@ const SystemsPage = () => {
             </div>
           </div>
 
-          <div className="flex gap-4 mt-6">
-            <a href="/about#contact" className="btn btn-primary inline-flex">
-              Request a custom system
-            </a>
-          </div>
         </div>
       </div>
 

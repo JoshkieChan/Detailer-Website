@@ -35,10 +35,10 @@ const DigitalAssetsExamples = () => {
 
   return (
     <div className="examples-page">
-      <div className="container py-6 max-w-4xl mx-auto">
-        <Link to="/hub" className="back-link mb-6 flex items-center">
-          <ChevronLeft size={20} />
-          <span>Back to Hub</span>
+      <div className="container py-8 max-w-5xl mx-auto">
+        <Link to="/hub" className="back-link mb-12 inline-flex items-center text-sm opacity-60 hover:opacity-100 transition-opacity">
+          <ChevronLeft size={16} className="mr-1" />
+          Back to Hub
         </Link>
 
         <header className="page-header mb-10 text-center">
@@ -102,14 +102,16 @@ const DigitalAssetsExamples = () => {
         }
 
         .example-card { 
-          padding: 2rem; 
-          border-radius: 20px; 
+          padding: 2.5rem; 
+          border-radius: 16px; 
+          background: rgba(15, 23, 42, 0.4);
+          border: 1px solid rgba(255, 255, 255, 0.05);
           transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; 
         }
         .example-card:hover { 
-          transform: translateY(-5px); 
-          border-color: rgba(158, 255, 0, 0.4); 
-          box-shadow: 0 10px 30px rgba(158, 255, 0, 0.05);
+          transform: translateY(-4px); 
+          border-color: rgba(158, 255, 0, 0.2); 
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
         }
 
         .example-icon-wrapper { 

@@ -13,7 +13,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { name: 'Pricing', path: '/pricing' },
     { name: 'Memberships', path: '/memberships' },
     { name: 'About', path: '/about' },
-    { name: 'Systems', path: '/hub' },
+    { name: 'Hub', path: '/hub' },
     { name: 'FAQ', path: '/faq' },
   ];
 
@@ -65,9 +65,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <span className="sr-only">{theme}</span>
             </button>
 
-            <Link to="/hub" className="nav-link-special">
-              Systems & Digital Products
-            </Link>
+
           </nav>
 
           {/* Mobile Actions */}
@@ -93,9 +91,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               {link.name}
             </Link>
           ))}
-          <Link to="/systems" className="mobile-nav-link-special" onClick={() => setIsMenuOpen(false)}>
-            Systems & Digital Products
-          </Link>
         </div>
       </header>
 

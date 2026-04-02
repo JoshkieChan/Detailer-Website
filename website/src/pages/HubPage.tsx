@@ -69,64 +69,7 @@ const HubPage = () => {
         </div>
       </section>
 
-      {/* Deeper Context Sections */}
-      <section className="context-sections">
-        <div className="context-card glass">
-          <h3>For Oak Harbor & NAS Whidbey</h3>
-          <p>We provide exclusive, in-person detailing with limited slots to guarantee quality. Trusted by the local and military community to protect your investment.</p>
-          <a href="/services" className="btn-secondary mt-4 inline-flex">
-            See detailing packages
-          </a>
-        </div>
 
-        <div className="context-card glass">
-          <h3>Digital PDFs & Guides</h3>
-          <div className="pdf-mini-list mt-4">
-            <div className="pdf-row">
-              <div>
-                <strong>The Weekend Wash Blueprint</strong>
-                <p className="text-sm text-muted">A step-by-step checklist to perfectly wash your car safely at home.</p>
-              </div>
-              <a href="https://signaldatasource.gumroad.com" target="_blank" rel="noopener noreferrer" className="text-link-lime">Buy now ($15)</a>
-            </div>
-            <div className="pdf-row">
-              <div>
-                <strong>Military PCS Cleaning Guide</strong>
-                <p className="text-sm text-muted">How to prep your vehicle for a smooth, damage-free transfer.</p>
-              </div>
-              <a href="https://signaldatasource.gumroad.com" target="_blank" rel="noopener noreferrer" className="text-link-lime">Buy now ($20)</a>
-            </div>
-            <div className="pdf-row">
-              <div>
-                <strong>Ceramic Coating Aftercare</strong>
-                <p className="text-sm text-muted">Maximize the lifespan of your coating with these core principles.</p>
-              </div>
-              <a href="https://signaldatasource.gumroad.com" target="_blank" rel="noopener noreferrer" className="text-link-lime">Buy now ($10)</a>
-            </div>
-            <div className="pdf-row">
-              <div>
-                <strong>Detailer's Chemical Cheatsheet</strong>
-                <p className="text-sm text-muted">Exactly what chemicals to use, when, and on what surfaces safely.</p>
-              </div>
-              <a href="https://signaldatasource.gumroad.com" target="_blank" rel="noopener noreferrer" className="text-link-lime">Buy now ($15)</a>
-            </div>
-            <p className="text-xs text-muted mt-2">Payments are securely handled off-site via Gumroad.</p>
-          </div>
-        </div>
-
-        <div className="context-card glass">
-          <h3>AI Systems & Custom Builds</h3>
-          <p>SignalSource builds automated tools that remove daily friction. Examples include:</p>
-          <ul className="bullet-list mt-3 mb-4">
-            <li>Medical Audit Systems</li>
-            <li>Opportunity Scanners</li>
-            <li>Creator Action Feeds</li>
-          </ul>
-          <a href="/about#contact" className="btn-secondary inline-flex">
-            Request a custom system
-          </a>
-        </div>
-      </section>
 
       <style>{`
         .hub-page { padding: 5rem 1.5rem; max-width: 1200px; margin: 0 auto; }
@@ -168,25 +111,9 @@ const HubPage = () => {
         .badge-lime { display: inline-block; background: var(--color-accent-lime); color: #000; padding: 0.25rem 0.75rem; border-radius: 4px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
         .badge-ai-powered { position: absolute; top: -12px; right: -12px; font-size: 0.7rem; }
 
-        /* Context Sections */
-        .context-sections { display: grid; grid-template-columns: 1fr; gap: 2rem; margin-top: 4rem; }
-        .context-card { padding: 2.5rem; border-radius: var(--radius-lg); }
-        .context-card h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; color: var(--color-accent-lime); }
-        .context-card p { color: var(--color-text-muted); line-height: 1.6; }
-        
-        .bullet-list { padding-left: 1.25rem; color: var(--color-text-muted); }
-        .bullet-list li { margin-bottom: 0.5rem; }
-        
-        .pdf-row { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--color-border); }
-        .pdf-row:last-of-type { border-bottom: none; }
-        .text-link-lime { color: var(--color-accent-lime); font-weight: 600; text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.2s; white-space: nowrap; margin-left: 1rem; }
-        .text-link-lime:hover { border-bottom-color: var(--color-accent-lime); }
-
         @media (max-width: 900px) {
           .cards-grid { grid-template-columns: 1fr; }
           .hero-section h1 { font-size: 2.5rem; }
-          .pdf-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
-          .text-link-lime { margin-left: 0; }
         }
       `}</style>
     </div>
