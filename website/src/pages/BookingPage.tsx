@@ -6,6 +6,7 @@ import { BookingCalendar } from '../components/BookingCalendar';
 import { fetchBookedDates } from '../api/availability';
 import { createDepositCheckout } from '../api/stripe';
 import { servicePackages } from '../data/packages';
+import { maintenancePlans } from '../data/maintenancePlans';
 
 // ─── Validation Helpers ─────────────────────────────────────────────────────
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -512,12 +513,18 @@ const BookingPage = () => {
 
             <div className="upsell-box mt-2">
               <h4>Maintenance Plan</h4>
-              <p>Add a membership plan after your detail to effortlessly maintain gloss.</p>
-              <div className="checkbox-wrap mt-1">
-                <label className="checkbox-label">
-                  <input type="checkbox" />
-                  <span className="checkbox-text">I'm interested in $60/mo upkeep</span>
-                </label>
+              <p>Add a maintenance plan after your detail to keep your baseline clean without guessing on timing or pricing. Leave both boxes unchecked if you do not want a plan right now.</p>
+              <div className="checkbox-wrap mt-1" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {maintenancePlans.map((plan) => (
+                  <label key={plan.id} className="checkbox-label" style={{ alignItems: 'flex-start' }}>
+                    <input type="checkbox" style={{ marginTop: '0.25rem' }} />
+                    <span className="checkbox-text">
+                      <strong style={{ display: 'block', marginBottom: '0.1rem' }}>{plan.name}</strong>
+                      <span className="checkbox-helper-text">{plan.bookingDescription}</span>
+                      <span className="checkbox-helper-text">{plan.perksSummary}</span>
+                    </span>
+                  </label>
+                ))}
               </div>
             </div>
 
@@ -580,6 +587,7 @@ const BookingPage = () => {
         .checkbox-label { display: flex; align-items: flex-start; gap: 1rem; cursor: pointer; margin: 0; }
         .checkbox-label input { width: 1.25rem; height: 1.25rem; margin-top: 0.1rem; accent-color: var(--color-accent-lime); }
         .checkbox-text { font-weight: 600; color: var(--color-text-main); }
+        .checkbox-helper-text { display: block; font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.45; }
         
         .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
         .upload-dropzone { border: 2px dashed rgba(128, 128, 128, 0.4); border-radius: var(--radius-md); padding: 3rem 2rem; text-align: center; background: rgba(128,128,128,0.05); cursor: pointer; transition: background var(--transition-fast), border-color var(--transition-fast); }

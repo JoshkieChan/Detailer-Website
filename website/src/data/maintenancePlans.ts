@@ -1,0 +1,37 @@
+export const maintenancePlans = [
+  {
+    id: 'quarterly',
+    name: 'Quarterly Upkeep',
+    monthlyPrice: '$60',
+    monthlyEquivalent: '$60/month',
+    billingLine: 'Billed at $180 each visit (every 3 months).',
+    bookingDescription: 'Equivalent to $60/month. Billed at $180 each visit (every 3 months).',
+    perksSummary: 'Includes 4 Maintenance Details per year, Priority Scheduling, 10% off Add-on services, and pricing locked in for 12 months.',
+    features: [
+      '4 Maintenance Details per year',
+      'Priority Scheduling',
+      '10% off Add-on services',
+      'Price locked in for 12 months',
+    ],
+    ctaLabel: 'Join Quarterly Plan',
+    popular: false,
+  },
+  {
+    id: 'monthly',
+    name: 'Monthly Upkeep',
+    monthlyPrice: '$120',
+    monthlyEquivalent: '$120/month',
+    billingLine: 'Charged as a flat $120 monthly autopay for one maintenance detail every month.',
+    bookingDescription: 'Flat $120/month. Charged monthly for one maintenance detail every month.',
+    perksSummary: 'Includes 12 Maintenance Details per year, VIP Priority Scheduling, 20% off Add-on services, free minor spot-cleaning between visits, and pricing locked in for 12 months.',
+    features: [
+      '12 Maintenance Details per year',
+      'VIP Priority Scheduling',
+      '20% off Add-on services',
+      'Free minor spot-cleaning between visits',
+      'Price locked in for 12 months',
+    ],
+    ctaLabel: 'Join Monthly Plan',
+    popular: true,
+  },
+] as const;
