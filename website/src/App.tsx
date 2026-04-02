@@ -11,6 +11,7 @@ import MembershipsPage from './pages/MembershipsPage';
 import AboutPage from './pages/AboutPage';
 import FAQPage from './pages/FAQPage';
 import SystemsPage from './pages/SystemsPage';
+import HubPage from './pages/HubPage';
 import DigitalAssetsExamples from './pages/DigitalAssetsExamples';
 import LocalSystemsExamples from './pages/LocalSystemsExamples';
 import BookingPage from './pages/BookingPage';
@@ -29,6 +30,7 @@ function App() {
               <Route path="/memberships" element={<MembershipsPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/faq" element={<FAQPage />} />
+              <Route path="/hub" element={<HubPage />} />
               <Route path="/systems" element={<SystemsPage />} />
               <Route path="/systems/examples/digital-assets" element={<DigitalAssetsExamples />} />
               <Route path="/systems/examples/local-systems" element={<LocalSystemsExamples />} />

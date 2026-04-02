@@ -13,7 +13,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { name: 'Pricing', path: '/pricing' },
     { name: 'Memberships', path: '/memberships' },
     { name: 'About', path: '/about' },
-    { name: 'Systems', path: '/systems' },
+    { name: 'Systems', path: '/hub' },
     { name: 'FAQ', path: '/faq' },
   ];
 
@@ -65,7 +65,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <span className="sr-only">{theme}</span>
             </button>
 
-            <Link to="/systems" className="nav-link-special">
+            <Link to="/hub" className="nav-link-special">
               Systems & Digital Products
             </Link>
           </nav>
@@ -156,13 +156,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         .navbar-inner { 
           display: flex; 
           align-items: center; 
+          justify-content: center;
+          gap: 3rem; /* Balanced gap between logo and nav on wide screens */
           width: 100%;
           max-width: 1400px;
           margin: 0 auto;
           padding: 0 2rem;
         }
         
-        .brand { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; margin-right: auto; }
+        .brand { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; }
         .brand-icon { background: var(--color-accent-lime); color: #000; font-weight: 800; font-size: 1.25rem; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
         .brand-text { font-family: var(--font-heading); font-weight: 900; font-size: 1.5rem; color: #fff; letter-spacing: 0.5px; }
         
@@ -214,7 +216,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         .contact-pill:hover { transform: translateY(-2px); color: var(--color-accent-lime); }
         .contact-pill svg { color: var(--color-accent-lime); }
         
-        @media (max-width: 900px) {
+        @media (max-width: 1048px) {
+          .navbar-inner {
+            justify-content: space-between;
+            gap: 0;
+          }
           .footer-bar-container { flex-direction: column; text-align: center; }
           .footer-right { width: 100%; }
         }
