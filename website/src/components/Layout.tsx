@@ -137,12 +137,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           border-bottom: 1px solid var(--color-border);
         }
         .glass-nav {
-          background: rgba(15, 19, 31, 0.85);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
+          background: #0f131f;
+          backdrop-filter: none;
+          -webkit-backdrop-filter: none;
         }
         [data-theme='light'] .glass-nav {
-          background: rgba(255, 255, 255, 0.9);
+          background: #ffffff;
         }
         [data-theme='light'] .brand-text {
           color: #0f172a;
