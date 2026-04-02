@@ -1,4 +1,8 @@
-import { Sparkles, Brain, Lightbulb, Zap, MessageSquare, ArrowUpRight } from 'lucide-react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Sparkles, Brain, Lightbulb, Zap, MessageSquare, ArrowUpRight, ChevronLeft } from 'lucide-react';
+
+const CUSTOM_BUILD_INTAKE_URL = 'https://www.signaldatasource.com/intake';
 
 /* ── Use-case data ───────────────────────────────────────────────────────── */
 const CASES = [
@@ -68,12 +72,19 @@ const CASES = [
 ];
 
 const SystemsPage = () => {
+  const [activeCase, setActiveCase] = useState<string | null>(null);
+  const localBookingBrain = CASES[0];
+
   return (
     <div className="sp-page">
 
       {/* ── Hero ────────────────────────────────────── */}
+      <Link to="/hub" className="sp-back-link">
+        <ChevronLeft size={15} />
+        Back to More
+      </Link>
+
       <div className="sp-hero text-center">
-        <div className="sp-badge">Custom Builds</div>
         <h1>Systems & Digital Products</h1>
         <p className="sp-subtitle">
           AI-powered local systems, audits, and custom digital tools designed to remove
@@ -106,16 +117,78 @@ const SystemsPage = () => {
               </div>
 
               <div className="sp-tile-footer">
-                <a href="#" className="sp-tile-link" aria-label={`View details for ${c.title} (coming soon)`}>
-                  View details
-                  <ArrowUpRight size={13} className="sp-tile-link-icon" />
-                  <span className="sp-coming-soon">coming soon</span>
-                </a>
+                {c.title === 'Local Booking Brain' ? (
+                  <button
+                    type="button"
+                    className="sp-tile-link sp-tile-link-button"
+                    onClick={() => setActiveCase(c.title)}
+                    aria-label={`View details for ${c.title}`}
+                  >
+                    View details
+                    <ArrowUpRight size={13} className="sp-tile-link-icon" />
+                  </button>
+                ) : (
+                  <a href="#" className="sp-tile-link" aria-label={`View details for ${c.title} (coming soon)`}>
+                    View details
+                    <ArrowUpRight size={13} className="sp-tile-link-icon" />
+                    <span className="sp-coming-soon">coming soon</span>
+                  </a>
+                )}
               </div>
             </article>
           ))}
         </div>
       </section>
+
+      {activeCase === 'Local Booking Brain' && (
+        <section className="sp-case-detail glass">
+          <div className="sp-case-detail-header">
+            <div>
+              <span className="sp-tag">{localBookingBrain.tag}</span>
+              <h2>{localBookingBrain.title}</h2>
+            </div>
+            <button
+              type="button"
+              className="sp-case-close"
+              onClick={() => setActiveCase(null)}
+              aria-label="Close Local Booking Brain details"
+            >
+              Close
+            </button>
+          </div>
+          <p className="sp-case-intro">
+            {localBookingBrain.description}
+          </p>
+          <div className="sp-case-grid">
+            <div className="sp-case-card">
+              <h3>Who it&apos;s for</h3>
+              <p>
+                Local service businesses that handle inbound leads all day, especially shops
+                that miss calls while they&apos;re on jobs or answering the same scheduling questions
+                over and over.
+              </p>
+            </div>
+            <div className="sp-case-card">
+              <h3>What problem it solves</h3>
+              <p>
+                It cuts down on missed inquiries, slow replies, and back-and-forth scheduling by
+                capturing leads instantly, qualifying them, and routing the right next step without
+                you having to stop work.
+              </p>
+            </div>
+            <div className="sp-case-card">
+              <h3>What the deliverable is</h3>
+              <p>
+                Starts with an intake and workflow audit, then moves into a custom build. Ongoing
+                monthly support can be scoped if the system needs active tuning after launch.
+              </p>
+            </div>
+          </div>
+          <a href={CUSTOM_BUILD_INTAKE_URL} className="btn primary mt-2">
+            Start the intake
+          </a>
+        </section>
+      )}
 
       {/* ── Intelligent Setup & Automations ─────────── */}
       <div className="product-section glass highlight-border text-left mx-auto mb-12">
@@ -215,9 +288,28 @@ const SystemsPage = () => {
         </p>
       </section>
 
+      <section className="sp-bottom-cta text-center">
+        <p>
+          Want a custom build? <a href={CUSTOM_BUILD_INTAKE_URL}>Start with a short intake here.</a>
+        </p>
+      </section>
+
       <style>{`
         /* ── Page shell ─────────────────────────── */
         .sp-page { padding: 4rem 1.5rem 7rem; max-width: 1200px; margin: 0 auto; }
+        .sp-back-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          font-size: 0.95rem;
+          font-weight: 600;
+          color: var(--color-text-muted);
+          text-decoration: none;
+          margin-bottom: 1.5rem;
+          opacity: 0.85;
+          transition: color 0.18s, opacity 0.18s;
+        }
+        .sp-back-link:hover { opacity: 1; color: var(--color-accent-lime); }
 
         /* ── Hero ───────────────────────────────── */
         .sp-hero { margin-bottom: 5rem; }
@@ -300,6 +392,12 @@ const SystemsPage = () => {
           transition: color 0.18s;
         }
         .sp-tile-link:hover { color: var(--color-accent-lime); }
+        .sp-tile-link-button {
+          background: none;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+        }
         .sp-tile-link-icon { opacity: 0.6; }
         .sp-coming-soon {
           font-size: 0.67rem;
@@ -309,6 +407,66 @@ const SystemsPage = () => {
           color: var(--color-text-muted);
           opacity: 0.45;
           margin-left: 0.15rem;
+        }
+
+        .sp-case-detail {
+          padding: 2rem;
+          border-radius: 16px;
+          margin: -1rem 0 4rem;
+          border: 1px solid rgba(158,255,0,0.18);
+        }
+        .sp-case-detail-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 1rem;
+          margin-bottom: 1rem;
+        }
+        .sp-case-detail-header h2 {
+          font-size: 2rem;
+          font-weight: 900;
+          margin-top: 0.75rem;
+        }
+        .sp-case-close {
+          background: none;
+          border: 1px solid var(--color-border);
+          color: var(--color-text-muted);
+          border-radius: 999px;
+          padding: 0.5rem 0.9rem;
+          font-weight: 700;
+          cursor: pointer;
+        }
+        .sp-case-close:hover {
+          color: var(--color-accent-lime);
+          border-color: var(--color-accent-lime);
+        }
+        .sp-case-intro {
+          color: var(--color-text-muted);
+          font-size: 1rem;
+          line-height: 1.7;
+          margin-bottom: 1.5rem;
+        }
+        .sp-case-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1rem;
+        }
+        .sp-case-card {
+          border: 1px solid var(--color-border);
+          border-radius: 12px;
+          padding: 1.25rem;
+          background: rgba(128,128,128,0.05);
+        }
+        .sp-case-card h3 {
+          font-size: 1rem;
+          font-weight: 800;
+          margin-bottom: 0.5rem;
+          color: var(--color-text-main);
+        }
+        .sp-case-card p {
+          font-size: 0.92rem;
+          color: var(--color-text-muted);
+          line-height: 1.6;
         }
 
         /* ── Existing sections ──────────────────── */
@@ -338,12 +496,29 @@ const SystemsPage = () => {
         .outcome-card h4 { color: var(--color-accent-lime); font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem; }
         .outcome-card p { font-size: 0.95rem; color: var(--color-text-muted); line-height: 1.5; }
         .outcome-contact-note { font-size: 1.05rem; font-weight: 500; color: var(--color-text-muted); }
+        .sp-bottom-cta {
+          padding-top: 2rem;
+          border-top: 1px solid var(--color-border);
+          max-width: 900px;
+          margin: 0 auto;
+        }
+        .sp-bottom-cta p {
+          font-size: 1.05rem;
+          color: var(--color-text-muted);
+        }
+        .sp-bottom-cta a {
+          color: var(--color-accent-lime);
+          font-weight: 700;
+          text-decoration: none;
+        }
+        .sp-bottom-cta a:hover { text-decoration: underline; }
 
         @media (max-width: 900px) {
           .concierge-steps { flex-direction: column; align-items: center; gap: 2rem; }
           .step { max-width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center; }
           .step-num { margin: 0 auto 1rem; }
           .outcome-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+          .sp-case-grid { grid-template-columns: 1fr; }
           .product-section, .concierge-box { padding: 2.5rem; }
         }
         @media (max-width: 480px) {
