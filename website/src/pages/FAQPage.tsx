@@ -5,6 +5,28 @@ const FAQPage = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const faqs = [
+    // ── Brand clarity ──────────────────────────────────────────────────────
+    {
+      question: "What does SignalSource actually do?",
+      answer: "SignalSource is a systems-driven car care service based in Oak Harbor, WA. Our main work is hands-on detailing and protection for local vehicles. On top of that, we create digital guides and simple systems that help military families and solo operators stay organized with money, moves, and day-to-day operations."
+    },
+    {
+      question: "Is this just a detailing shop or a tech company?",
+      answer: "Detailing and protection work in Oak Harbor is our core service and where most customers start. The guides and systems exist for people who want to bring the same level of organization to their money, moves, and business operations."
+    },
+    {
+      question: "What are the Digital Guides & Playbooks?",
+      answer: "They are downloadable PDF blueprints that solve specific, real problems—like PCS-proofing your income, planning a military move, or translating Navy experience into a civilian resume. You can download them once and reuse them as many times as you need."
+    },
+    {
+      question: 'What are "Systems & Digital Products"?',
+      answer: "These are custom setups and templates that make your life easier without needing a full SaaS app. Think: booking and reminder flows, move-planning boards, income trackers, and application pipelines built on low-cost or free tools you already use."
+    },
+    {
+      question: "Do your systems rely on expensive subscriptions or paid APIs?",
+      answer: "No. By default, we build systems that run on free or low-cost tools (like spreadsheets, calendars, and simple automation services) inside your own accounts. We do not hide ongoing software costs or require you to pay us monthly to keep using what we set up."
+    },
+    // ── Detailing service specifics ────────────────────────────────────────
     {
       question: "What's included in a Maintenance Detail?",
       answer: "A Maintenance Detail provides a thorough inside-out refresh. It includes a plush foam hand wash, wheel and tire cleaning, wiping down the door jambs, a full interior vacuum with a light wipe-down, and streak-free glass inside and out."
