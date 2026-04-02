@@ -5,37 +5,33 @@ const GUMROAD_URL = 'https://signaldatasource.gumroad.com';
 
 const pdfs = [
   {
-    title: 'The Weekend Wash Blueprint',
-    price: '$15',
-    description:
-      'A step-by-step checklist to perfectly wash your car at home without scratching the paint. Includes product recommendations and the exact order of operations.',
-    icon: <Droplets size={22} />,
-    link: GUMROAD_URL,
-  },
-  {
-    title: 'Military PCS Cleaning Guide',
-    price: '$20',
-    description:
-      'How to prep your vehicle for a smooth, damage-free transfer. Essential for military families shipping vehicles or handing off a car at inspection.',
+    title: 'Whidbey Navy Spouse PCS-Proof Income Blueprint 2026',
+    price: '$39',
+    description: 'A clear income plan for Navy spouses at or near NAS Whidbey. Learn how to keep money coming in before, during, and after PCS moves without shady schemes or burning yourself out.',
     icon: <CheckCircle size={22} />,
     link: GUMROAD_URL,
   },
   {
-    title: 'Ceramic Coating Aftercare',
-    price: '$10',
-    description:
-      'Maximize the lifespan of your coating with these core principles. Know exactly what chemicals to avoid and how to maintain the hydrophobic layer long-term.',
+    title: 'Transitioning Sailor to Civilian Success Blueprint 2026',
+    price: '$49',
+    description: 'Step-by-step transition map for sailors leaving active duty. Covers timelines, savings targets, networking, and job-hunt routines so you don\'t drift for 12–18 months after separation.',
     icon: <Shield size={22} />,
     link: GUMROAD_URL,
   },
   {
-    title: "Detailer's Chemical Cheatsheet",
-    price: '$15',
-    description:
-      'Exactly what chemicals to use, when, and on what surfaces safely. A quick-reference guide to avoid costly mistakes on sensitive interior and exterior trims.',
-    icon: <FileText size={22} />,
+    title: 'Global Military Family Relocation & Income Blueprint 2026 – Survive Any Move Worldwide',
+    price: '$59',
+    description: 'A relocation and income survival plan for military families moving across states or overseas. Housing, schools, budgeting, side-income options, and a repeatable move workflow.',
+    icon: <Droplets size={22} />,
     link: GUMROAD_URL,
   },
+  {
+    title: 'AI-Proof Navy Resume Builder 2026 – Turn Your Service Into Civilian Jobs',
+    price: '$39',
+    description: 'A guided resume and LinkedIn framework that translates ratings, quals, and eval bullets into civilian language that recruiters and ATS bots actually understand.',
+    icon: <FileText size={22} />,
+    link: GUMROAD_URL,
+  }
 ];
 
 const DigitalAssetsExamples = () => {
@@ -102,13 +98,11 @@ const DigitalAssetsExamples = () => {
               </div>
               <div className="dg-bundle-content">
                 <div className="dg-bundle-top">
-                  <h3 className="dg-bundle-title">Complete Car Care Operator Pack</h3>
-                  <span className="dg-bundle-price">$49</span>
+                  <h3 className="dg-bundle-title">Full Military Move & Income Pack 2026</h3>
+                  <span className="dg-bundle-price">$129</span>
                 </div>
                 <p className="dg-bundle-desc">
-                  All four guides together — wash blueprint, PCS cleaning, ceramic aftercare, and
-                  chemical cheatsheet — in one bundle. Best value if you plan to detail
-                  regularly or run a small operation.
+                  All four blueprints together: spouse income, sailor transition, global relocation, and AI-proof resume building. Built so your family can plan moves, money, and civilian life in one place instead of starting from scratch every time.
                 </p>
                 <div className="dg-card-actions">
                   <a
