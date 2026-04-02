@@ -47,7 +47,7 @@ const AboutPage = () => {
         .promise-list { list-style: none; padding-left: 0; margin-top: 2rem; }
         .promise-list li { font-size: 1.15rem; margin-bottom: 1.5rem; padding-left: 2rem; position: relative; color: var(--color-text-muted); line-height: 1.6; }
         .promise-list li::before { content: "•"; position: absolute; left: 0; color: var(--color-accent-lime); font-size: 1.5rem; top: -5px; }
-        .promise-list strong { color: #fff; font-weight: 700; }
+        .promise-list strong { color: var(--color-text-main); font-weight: 700; }
 
         @media (max-width: 768px) {
           .about-content { padding: 2.5rem 1.5rem; }

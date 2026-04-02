@@ -98,7 +98,7 @@ const HubPage = () => {
         .card-icon-wrapper { margin-bottom: 1.5rem; position: relative; display: inline-flex; }
         .brand-icon { background: var(--color-accent-lime); color: #000; font-weight: 800; font-size: 1.25rem; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
         
-        .path-card h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; color: #fff; }
+        .path-card h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; color: var(--color-text-main); }
         .path-card p { color: var(--color-text-muted); line-height: 1.6; margin-bottom: 1.5rem; font-size: 0.95rem; }
         
         .mini-features { list-style: none; padding: 0; margin: 0 0 1.5rem 0; }
