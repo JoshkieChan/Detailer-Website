@@ -28,6 +28,12 @@ const pdfs = [
     description: 'A guided resume and LinkedIn framework that translates ratings, quals, and eval bullets into civilian language recruiters and ATS tools actually understand.',
     icon: <FileText size={20} />,
   },
+  {
+    title: 'Faceless Launch OS – Launch System Guide 2026',
+    price: '$67',
+    description: 'Launch your faceless digital product in 30 days using a simple operating system and content sprint. Turn scattered ideas into a focused offer, build automated DM funnels, and track every sale in one lightweight system—no personal brand or face-on-camera required.',
+    icon: <Package size={20} />,
+  },
 ];
 
 const DigitalAssetsExamples = () => {
