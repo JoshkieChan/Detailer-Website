@@ -1,37 +1,56 @@
 import { Link } from 'react-router-dom';
-import { CheckCircle, CalendarClock } from 'lucide-react';
+import { CheckCircle, CalendarClock, ClipboardList } from 'lucide-react';
 import { maintenancePlans } from '../data/maintenancePlans';
+
+const planBestFor: Record<string, string> = {
+  quarterly: 'Best for families and daily drivers who want predictable upkeep after a Deep Reset or New Car Protection service.',
+  monthly: 'Best for drivers who want the cleanest ongoing cadence after a Deep Reset or New Car Protection service.',
+};
+
+const planPricingLine: Record<string, string> = {
+  quarterly: 'From $180 every 3 months (equivalent to $60/month)',
+  monthly: 'From $120 every month',
+};
 
 const MembershipsPage = () => {
   return (
     <div className="page-shell memberships-page">
-      <section className="page-hero text-center reveal">
+      <section className="page-hero text-center reveal compact-hero">
         <span className="eyebrow">Maintenance Plans</span>
         <h1 className="hero-title">Keep the vehicle from sliding backward.</h1>
         <p className="hero-subtitle">
-          Maintenance plans are for customers who already have a clean baseline and want
-          predictable upkeep without re-deciding every month.
+          For customers who already have a clean baseline and want predictable upkeep without
+          re-deciding every month.
+        </p>
+      </section>
+
+      <section className="content-card reveal baseline-callout">
+        <div className="support-pill"><CalendarClock size={16} /> Baseline required</div>
+        <p className="section-copy">
+          Maintenance plans assume a clean baseline from a recent Deep Reset or New Car
+          Protection service. They are for keeping a good vehicle from sliding backward, not
+          for fixing a heavily neglected one on the cheap.
         </p>
       </section>
 
       <div className="card-grid two">
         {maintenancePlans.map((plan, index) => (
-          <article key={plan.id} className={`membership-card reveal ${plan.popular ? 'featured' : ''}`} data-reveal-delay={String(index)}>
+          <article
+            key={plan.id}
+            className={`membership-card reveal ${plan.popular ? 'featured' : ''}`}
+            data-reveal-delay={String(index)}
+          >
             <div className="membership-head">
-              {plan.popular && <div className="badge-popular">Most picked</div>}
-              <h2>{plan.name}</h2>
-              <div className="membership-price">
-                <span className="price-main">{plan.monthlyPrice}</span>
-                <span className="price-suffix">/mo</span>
-              </div>
-            </div>
-
-            <div className="membership-billing">
-              <span className="eyebrow">Monthly equivalent</span>
-              <p>{plan.monthlyEquivalent} for comparison.</p>
-              <span className="eyebrow">How billing works</span>
-              <p>{plan.billingLine}</p>
-              <p>{plan.perksSummary}</p>
+              {plan.popular && <div className="badge-popular membership-badge">Most picked</div>}
+              <h2>{plan.id === 'quarterly' ? 'Quarterly Plan' : 'Monthly Plan'}</h2>
+              <p className="membership-best-for">{planBestFor[plan.id]}</p>
+              <div className="membership-pricing-line">{planPricingLine[plan.id]}</div>
+              {plan.id === 'monthly' && (
+                <p className="membership-support-line">Monthly billing for one maintenance detail each month.</p>
+              )}
+              {plan.id === 'quarterly' && (
+                <p className="membership-support-line">One maintenance detail every 3 months on a lower-commitment schedule.</p>
+              )}
             </div>
 
             <ul className="package-bullets">
@@ -43,6 +62,11 @@ const MembershipsPage = () => {
               ))}
             </ul>
 
+            <div className="plan-terms-inline">
+              <p>Plans assume a clean baseline from a recent Deep Reset or New Car Protection service.</p>
+              <p>Minimum commitment: 3 months. Cancel anytime after that.</p>
+            </div>
+
             <Link to="/booking" className={`btn w-full ${plan.popular ? 'primary' : 'secondary'}`}>
               {plan.ctaLabel}
             </Link>
@@ -51,33 +75,57 @@ const MembershipsPage = () => {
       </div>
 
       <section className="content-card reveal">
-        <div className="support-pill"><CalendarClock size={16} /> Who should join</div>
-        <h2 className="section-title">Smarter than ad-hoc booking once you already have a clean baseline.</h2>
+        <div className="support-pill"><ClipboardList size={16} /> Plan details</div>
+        <h2 className="section-title">How it works.</h2>
+        <ul className="package-bullets compact-list">
+          <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Baseline: we start after a Deep Reset or New Car Protection service.</span></li>
+          <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Billing: subscriptions run through secure online billing with reminders.</span></li>
+          <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Cancel: minimum commitment is 3 months, then cancel anytime.</span></li>
+          <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Scope: heavy neglect or long gaps may require a separate reset service.</span></li>
+        </ul>
+      </section>
+
+      <section className="content-card reveal cta-block">
+        <span className="eyebrow">Next Step</span>
+        <h2 className="section-title">Ready to keep your vehicle dialed in?</h2>
         <p className="section-copy">
-          Plans make sense for drivers who want guaranteed spots, easier upkeep, and less
-          mental load. If you keep waiting until the vehicle feels trashed again, you end up
-          paying for bigger resets instead of lighter maintenance.
+          Plans are joined after a baseline service, so start there if the vehicle still needs its first reset.
         </p>
-        <div className="fine-print mt-1">
-          <p><em>* Maintenance plans assume a clean starting baseline, usually after a Deep Reset or New Car Protection service.</em></p>
-          <p><em>* Cancel anytime after 3 months. Minimum commitment required.</em></p>
+        <div className="hero-actions">
+          <Link to="/booking" className="btn primary btn-lg">Join Monthly Plan</Link>
+          <Link to="/pricing" className="btn secondary">See Detailing Tiers</Link>
         </div>
       </section>
 
       <style>{`
         .memberships-page {
           display: grid;
-          gap: 3rem;
+          gap: 2.75rem;
+        }
+
+        .compact-hero {
+          max-width: 820px;
+          margin: 0 auto;
+        }
+
+        .baseline-callout,
+        .cta-block {
+          display: grid;
+          gap: 1rem;
         }
 
         .membership-card {
           display: grid;
-          gap: 1.25rem;
-          padding: 1.75rem;
+          gap: 1.2rem;
+          padding: 1.6rem;
           background: var(--color-background-surface);
           border: 1px solid var(--color-border-default);
-          border-radius: 20px;
-          transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+          border-radius: 14px;
+          transition:
+            transform var(--transition-base),
+            border-color var(--transition-base),
+            box-shadow var(--transition-base),
+            background-color var(--transition-base);
         }
 
         .membership-card:hover {
@@ -88,49 +136,61 @@ const MembershipsPage = () => {
 
         .membership-card.featured {
           border-color: var(--color-accent-primary);
+          background: color-mix(in srgb, var(--color-background-surface) 92%, var(--color-accent-primary) 8%);
         }
 
         .membership-head {
           display: grid;
-          gap: 0.8rem;
+          gap: 0.6rem;
+        }
+
+        .membership-badge {
+          width: fit-content;
         }
 
         .membership-head h2 {
-          font-size: 1.6rem;
+          font-size: 1.7rem;
+          line-height: 1.2;
         }
 
-        .membership-price {
-          display: flex;
-          align-items: baseline;
-          gap: 0.35rem;
-        }
-
-        .price-main {
-          font-size: 3rem;
-          line-height: 1;
-          font-weight: 800;
-          letter-spacing: -0.05em;
-        }
-
-        .price-suffix {
+        .membership-best-for,
+        .membership-support-line,
+        .plan-terms-inline p {
           color: var(--color-text-secondary);
-          font-size: 1.1rem;
-          font-weight: 700;
-        }
-
-        .membership-billing {
-          display: grid;
-          gap: 0.5rem;
-          color: var(--color-text-secondary);
-        }
-
-        .membership-billing p {
           line-height: 1.6;
         }
 
-        .fine-print p {
-          color: var(--color-text-secondary);
-          margin-bottom: 0.4rem;
+        .membership-best-for {
+          font-size: 0.96rem;
+        }
+
+        .membership-pricing-line {
+          font-size: 1.2rem;
+          font-weight: 800;
+          line-height: 1.3;
+          color: var(--color-text-primary);
+        }
+
+        .membership-support-line {
+          font-size: 0.88rem;
+        }
+
+        .plan-terms-inline {
+          display: grid;
+          gap: 0.45rem;
+          padding-top: 0.15rem;
+          border-top: 1px solid var(--color-border-default);
+          font-size: 0.86rem;
+        }
+
+        .compact-list {
+          gap: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+          .membership-card {
+            padding: 1.5rem 1.25rem;
+          }
         }
       `}</style>
     </div>
