@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { FormEvent, ChangeEvent, RefObject } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   UploadCloud,
   CalendarCheck,
@@ -7,8 +8,9 @@ import {
   ShieldCheck,
   AlertCircle,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
 import { BookingCalendar } from '../components/BookingCalendar';
 import { fetchBookedDates } from '../api/availability';
 import { createDepositCheckout } from '../api/stripe';
@@ -19,6 +21,17 @@ import { detailAddOns } from '../data/addOns';
 const recaptchaEnv = import.meta.env as ImportMetaEnv & Record<string, string | undefined>;
 const recaptchaSiteKey = (recaptchaEnv.VITE_RECAPTCHA_SITE_KEY ?? recaptchaEnv.RECAPTCHA_SITE_KEY)?.trim();
 const RECAPTCHA_SCRIPT_ID = 'google-recaptcha-v3';
+
+const packageBestFor: Record<string, string> = {
+  maintenance: 'Best for weekly drivers and routine upkeep.',
+  'deep-reset': 'Best for neglected vehicles and full reset work.',
+  'new-car': 'Best for newer vehicles or recently detailed cars needing gloss and protection.',
+};
+
+const planChoiceLabels: Record<string, string> = {
+  quarterly: 'Interested in Quarterly Plan',
+  monthly: 'Interested in Monthly Plan',
+};
 
 const loadRecaptchaScript = async (siteKey: string) => {
   if (window.grecaptcha) return;
@@ -154,7 +167,6 @@ const AddressAutocomplete = ({
         placeholder="123 Oak St, Oak Harbor, WA"
         className={hasError ? 'input-error' : ''}
         autoComplete="off"
-        id="address-field"
       />
       {open && (
         <ul className="autocomplete-dropdown">
@@ -187,6 +199,9 @@ const BookingPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [systemError, setSystemError] = useState<string | null>(null);
   const [bookedDates, setBookedDates] = useState<string[]>([]);
+  const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(false);
 
   const [fieldErrors, setFieldErrors] = useState({
     fullName: '',
@@ -215,9 +230,6 @@ const BookingPage = () => {
     notes: '',
     maintenancePlanId: 'none',
   });
-
-  const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>([]);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fullNameRef = useRef<HTMLDivElement>(null);
@@ -262,9 +274,7 @@ const BookingPage = () => {
   const selectedPackage = servicePackages.find((pkg) => pkg.id === formData.package);
   const selectedAddOns = detailAddOns.filter((addOn) => selectedAddOnIds.includes(addOn.id));
   const selectedPlan = maintenancePlans.find((plan) => plan.id === formData.maintenancePlanId);
-  const basePrice = selectedPackage ? Number(selectedPackage.price) : 0;
-  const addOnTotal = selectedAddOns.reduce((total, addOn) => total + addOn.price, 0);
-  const estimatedTotal = basePrice + addOnTotal;
+  const estimatedTotal = (selectedPackage ? Number(selectedPackage.price) : 0) + selectedAddOns.reduce((sum, addOn) => sum + addOn.price, 0);
   const depositAmount = Number((estimatedTotal * 0.2).toFixed(2));
   const remainingBalance = Number((estimatedTotal - depositAmount).toFixed(2));
 
@@ -280,7 +290,6 @@ const BookingPage = () => {
 
   const toggleAddOn = (addOnId: string) => {
     if (addOnId === 'mobile-convenience' && formData.locationType === 'mobile') return;
-
     setSelectedAddOnIds((current) =>
       current.includes(addOnId) ? current.filter((id) => id !== addOnId) : [...current, addOnId]
     );
@@ -350,16 +359,15 @@ const BookingPage = () => {
 
   return (
     <div className="page-shell booking-page">
-      <section className="page-hero text-center reveal">
+      <section className="page-hero text-center reveal compact-hero">
         <div className="capacity-banner inline-block">
           <CalendarCheck size={16} /> Currently accepting one vehicle per day, Monday–Saturday.
         </div>
         <span className="eyebrow">Configure Your Detail</span>
         <h1 className="hero-title">Build the appointment in four short steps.</h1>
         <p className="hero-subtitle">
-          Your deposit secures the appointment and goes toward the final total. Remove
-          important items, cash, documents, and heavy loose items before service day so we
-          can work efficiently and avoid anything getting missed.
+          Your 20% deposit secures the appointment and goes toward the final total. If scope
+          or vehicle condition changes significantly, we confirm the updated price before work begins.
         </p>
       </section>
 
@@ -375,7 +383,7 @@ const BookingPage = () => {
           <section className="booking-step" ref={packageRef}>
             <span className="eyebrow">1. Choose Your Package</span>
             <h2>Start with the baseline your vehicle actually needs.</h2>
-            <p className="field-help">You can add upgrades in the next step.</p>
+            <p className="field-help">Pick the closest fit now. You can add optional upgrades in the next step.</p>
             <div className="booking-package-grid">
               {servicePackages.map((pkg) => (
                 <button
@@ -388,11 +396,9 @@ const BookingPage = () => {
                     <h3>{pkg.title}</h3>
                     {formData.package === pkg.id && <span className="selected-chip">Selected</span>}
                   </div>
-                  <p className="section-copy">{pkg.id === 'maintenance' ? 'Best for weekly drivers and routine upkeep.' : pkg.id === 'deep-reset' ? 'Best for neglected vehicles and full reset work.' : 'Best for newer vehicles or recently detailed cars needing gloss and protection.'}</p>
-                  <div className="price-line">
-                    <span className="price-prefix">From</span>
-                    <span>${pkg.price}</span>
-                  </div>
+                  <p className="section-copy">{packageBestFor[pkg.id]}</p>
+                  <div className="package-card-price">From ${pkg.price}</div>
+                  <p className="package-card-note">{pkg.priceNote}</p>
                 </button>
               ))}
             </div>
@@ -416,12 +422,20 @@ const BookingPage = () => {
                     onClick={() => toggleAddOn(addOn.id)}
                     disabled={lockedByLocation}
                   >
-                    <div>
-                      <div className="addon-selector-title">
-                        <span>{addOn.name}</span>
-                        {selected && <CheckCircle2 size={16} className="icon-lime" />}
+                    <div className="addon-selector-left">
+                      <span className={`addon-check ${selected ? 'selected' : ''}`} aria-hidden="true">
+                        {selected ? <CheckCircle2 size={15} className="icon-lime" /> : null}
+                      </span>
+                      <div className="addon-copy">
+                        <div className="addon-selector-title">
+                          <span>{addOn.name}</span>
+                        </div>
+                        <p className="field-help">
+                          {addOn.id === 'mobile-convenience'
+                            ? 'Optional convenience upgrade for mobile service, not part of the base price.'
+                            : addOn.description}
+                        </p>
                       </div>
-                      <p className="field-help">{addOn.description}</p>
                     </div>
                     <span className="addon-selector-price">+${addOn.price}</span>
                   </button>
@@ -433,6 +447,10 @@ const BookingPage = () => {
           <section className="booking-step">
             <span className="eyebrow">3. Vehicle &amp; Schedule Details</span>
             <h2>Tell us what we are working on and when.</h2>
+            <div className="capacity-inline-note">
+              <CalendarCheck size={15} />
+              One vehicle per day means your selected date is held once the deposit is paid.
+            </div>
             <div className="form-grid">
               <div className="input-group full-width" ref={vehicleMakeRef}>
                 <label>Vehicle make and model</label>
@@ -445,6 +463,7 @@ const BookingPage = () => {
                 />
                 <FieldError msg={fieldErrors.vehicleMake} />
               </div>
+
               <div className="input-group">
                 <label>Vehicle year</label>
                 <select value={formData.vehicleYear} onChange={(e) => setFormData({ ...formData, vehicleYear: e.target.value })}>
@@ -454,6 +473,7 @@ const BookingPage = () => {
                   ))}
                 </select>
               </div>
+
               <div className="input-group">
                 <label>Vehicle color</label>
                 <input
@@ -463,8 +483,10 @@ const BookingPage = () => {
                   placeholder="White / Gray / Black"
                 />
               </div>
+
               <div className="input-group full-width" ref={addressRef}>
                 <label>Address / service location</label>
+                <p className="field-help">Needed for mobile bookings or service access notes.</p>
                 <AddressAutocomplete
                   value={formData.address}
                   onChange={(value) => setFormData({ ...formData, address: value })}
@@ -472,9 +494,10 @@ const BookingPage = () => {
                 />
                 <FieldError msg={fieldErrors.address} />
               </div>
+
               <div className="input-group full-width" ref={locationTypeRef}>
                 <label>Garage Studio or On-Island Mobile</label>
-                <p className="field-help">Studio is best for heavier work. Mobile is an optional convenience upgrade for Whidbey Island customers who want us to come to them.</p>
+                <p className="field-help">Studio is best for heavier work. Mobile is an optional convenience upgrade on Whidbey.</p>
                 <div className="location-toggle">
                   <button
                     type="button"
@@ -493,11 +516,13 @@ const BookingPage = () => {
                 </div>
                 <FieldError msg={fieldErrors.locationType} />
               </div>
+
               <div className="input-group full-width" ref={dateRef}>
                 <label>Preferred day</label>
                 <BookingCalendar selectedDate={formData.date} onChange={(date) => setFormData({ ...formData, date })} bookedDates={bookedDates} />
                 <FieldError msg={fieldErrors.date} />
               </div>
+
               <div className="input-group" ref={timeRef}>
                 <label>Preferred time range</label>
                 <select value={formData.time} onChange={(e) => setFormData({ ...formData, time: e.target.value })} className={fieldErrors.time ? 'input-error' : ''}>
@@ -513,10 +538,7 @@ const BookingPage = () => {
           <section className="booking-step">
             <span className="eyebrow">4. Notes &amp; Confirmation</span>
             <h2>Anything we should know before service day?</h2>
-            <p className="field-help">
-              Tell us about pet hair, stains, odors, child seats, access notes, or anything
-              that could affect time and scope.
-            </p>
+            <p className="field-help">Pet hair, stains, child seats, access notes, or anything that could affect time and scope.</p>
 
             <div className="form-grid">
               <div className="input-group full-width" ref={fullNameRef}>
@@ -530,6 +552,7 @@ const BookingPage = () => {
                 />
                 <FieldError msg={fieldErrors.fullName} />
               </div>
+
               <div className="input-group" ref={phoneRef}>
                 <label>Phone number</label>
                 <input
@@ -541,6 +564,7 @@ const BookingPage = () => {
                 />
                 <FieldError msg={fieldErrors.phone} />
               </div>
+
               <div className="input-group" ref={emailRef}>
                 <label>Email address</label>
                 <input
@@ -552,8 +576,9 @@ const BookingPage = () => {
                 />
                 <FieldError msg={fieldErrors.email} />
               </div>
+
               <div className="input-group full-width">
-                <label>Anything we should know before service day?</label>
+                <label>Notes</label>
                 <textarea
                   rows={4}
                   value={formData.notes}
@@ -561,17 +586,23 @@ const BookingPage = () => {
                   placeholder="Pet hair, stains, odors, child seats, access notes, or anything else that could affect time and scope."
                 />
               </div>
+
               <div className="input-group full-width">
-                <label>Maintenance plan interest</label>
-                <p className="field-help">Leave this on “No plan right now” if you only want to book today’s detail.</p>
-                <div className="plan-choice-list">
+                <label>Plan interest (optional)</label>
+                <p className="field-help">
+                  Maintenance plans are for after a Deep Reset or New Car Protection.{' '}
+                  <Link to="/memberships" className="inline-text-link">
+                    See Maintenance Plans
+                  </Link>{' '}
+                  for full details.
+                </p>
+                <div className="plan-choice-list compact">
                   <button
                     type="button"
                     className={`plan-choice ${formData.maintenancePlanId === 'none' ? 'selected' : ''}`}
                     onClick={() => setFormData({ ...formData, maintenancePlanId: 'none' })}
                   >
                     <strong>No plan right now</strong>
-                    <span className="field-help">Book the detail now and decide later.</span>
                   </button>
                   {maintenancePlans.map((plan) => (
                     <button
@@ -580,13 +611,12 @@ const BookingPage = () => {
                       key={plan.id}
                       onClick={() => setFormData({ ...formData, maintenancePlanId: plan.id })}
                     >
-                      <strong>{plan.name}</strong>
-                      <span className="field-help">{plan.bookingDescription}</span>
-                      <span className="field-help">{plan.perksSummary}</span>
+                      <strong>{planChoiceLabels[plan.id]}</strong>
                     </button>
                   ))}
                 </div>
               </div>
+
               <div className="input-group full-width file-upload">
                 <label>Upload photos (optional)</label>
                 <input
@@ -619,13 +649,10 @@ const BookingPage = () => {
 
             <div className="notice-list">
               <div className="policy-text">
-                Please remove important items, cash, documents, and heavy loose items before
-                your appointment so we can work efficiently and avoid anything getting missed.
+                Remove valuables, cash, documents, and heavy loose items before your appointment so we can work efficiently and avoid missing anything.
               </div>
               <div className="policy-text">
-                If your selected scope changes significantly close to the appointment,
-                required time and final price may change as well. We will confirm any changes
-                before work starts.
+                If scope or vehicle condition changes significantly close to the appointment, time and final price may change. We&apos;ll confirm any changes before work starts.
               </div>
             </div>
           </section>
@@ -635,55 +662,73 @@ const BookingPage = () => {
               {isSubmitting ? 'Processing...' : 'Pay 20% Deposit & Book'}
             </button>
             <div className="stripe-secure-text">
-              <ShieldCheck size={14} /> Your deposit secures the appointment and goes toward the final total.
+              <ShieldCheck size={14} /> Your deposit goes toward the final total and is not an extra fee.
             </div>
           </div>
         </form>
 
         <aside className="booking-sidebar reveal" data-reveal-delay="1">
           <div className="summary-card">
-            <span className="eyebrow">Your Detail Summary</span>
-            <div className="summary-row">
-              <span>Package</span>
-              <strong>{selectedPackage ? selectedPackage.title : 'Choose a package'}</strong>
+            <div className="summary-header-desktop">
+              <span className="eyebrow">Your Detail Summary</span>
             </div>
-            <div className="summary-block">
-              <span>Add-ons</span>
-              {selectedAddOns.length > 0 ? (
-                <ul className="summary-addon-list">
-                  {selectedAddOns.map((addOn) => (
-                    <li key={addOn.id}>
-                      <span>{addOn.name}</span>
-                      <strong>+{formatCurrency(addOn.price)}</strong>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="section-note">None selected</p>
-              )}
-            </div>
-            {selectedPlan && (
-              <div className="summary-block">
-                <span>Maintenance plan interest</span>
-                <p className="section-note">{selectedPlan.name}</p>
+            <button
+              type="button"
+              className="summary-toggle-mobile"
+              onClick={() => setIsMobileSummaryOpen((current) => !current)}
+            >
+              <span className="eyebrow">Your Detail Summary</span>
+              {isMobileSummaryOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+            </button>
+
+            <div className={`summary-content ${isMobileSummaryOpen ? 'open' : ''}`}>
+              <div className="summary-row">
+                <span>Package</span>
+                <strong>{selectedPackage ? selectedPackage.title : 'Choose a package'}</strong>
               </div>
-            )}
-            <div className="summary-row">
-              <span>Estimated total</span>
-              <strong>{formatCurrency(estimatedTotal)}</strong>
+
+              <div className="summary-block">
+                <span>Add-ons</span>
+                {selectedAddOns.length > 0 ? (
+                  <ul className="summary-addon-list">
+                    {selectedAddOns.map((addOn) => (
+                      <li key={addOn.id}>
+                        <span>{addOn.name}</span>
+                        <strong>+{formatCurrency(addOn.price)}</strong>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="section-note">None selected</p>
+                )}
+              </div>
+
+              {selectedPlan && (
+                <div className="summary-block">
+                  <span>Plan interest</span>
+                  <p className="section-note">{planChoiceLabels[selectedPlan.id]}</p>
+                </div>
+              )}
+
+              <div className="summary-row">
+                <span>Estimated total</span>
+                <strong>{formatCurrency(estimatedTotal)}</strong>
+              </div>
+
+              <div className="summary-row highlight">
+                <span>Today&apos;s deposit (20%)</span>
+                <strong>{formatCurrency(depositAmount)}</strong>
+              </div>
+
+              <div className="summary-row">
+                <span>Remaining after service</span>
+                <strong>{formatCurrency(remainingBalance)}</strong>
+              </div>
+
+              <p className="section-note">
+                Final total is confirmed before work begins if vehicle condition or selected scope changes.
+              </p>
             </div>
-            <div className="summary-row highlight">
-              <span>Today&apos;s deposit (20%)</span>
-              <strong>{formatCurrency(depositAmount)}</strong>
-            </div>
-            <div className="summary-row">
-              <span>Remaining balance after service</span>
-              <strong>{formatCurrency(remainingBalance)}</strong>
-            </div>
-            <p className="section-note">
-              Final total is confirmed before work begins if vehicle condition or selected
-              scope changes.
-            </p>
           </div>
 
           <div className="sidebar-card">
@@ -700,26 +745,31 @@ const BookingPage = () => {
       <style>{`
         .booking-page {
           display: grid;
-          gap: 2.5rem;
+          gap: 2.25rem;
+        }
+
+        .compact-hero {
+          max-width: 860px;
+          margin: 0 auto;
         }
 
         .booking-layout {
           display: grid;
-          grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.8fr);
+          grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.8fr);
           gap: 1.5rem;
           align-items: start;
         }
 
         .booking-form {
           display: grid;
-          gap: 2rem;
+          gap: 1.75rem;
           padding: 1.5rem;
         }
 
         .booking-step {
           display: grid;
-          gap: 1rem;
-          padding-bottom: 2rem;
+          gap: 0.95rem;
+          padding-bottom: 1.75rem;
           border-bottom: 1px solid var(--color-border-default);
         }
 
@@ -729,14 +779,14 @@ const BookingPage = () => {
         }
 
         .booking-step h2 {
-          font-size: 1.4rem;
+          font-size: 1.35rem;
         }
 
         .booking-package-grid,
         .plan-choice-list,
         .addon-selector-list {
           display: grid;
-          gap: 0.9rem;
+          gap: 0.85rem;
         }
 
         .booking-package-grid {
@@ -745,27 +795,23 @@ const BookingPage = () => {
 
         .booking-package-card,
         .plan-choice,
-        .addon-selector-row,
-        .summary-card,
-        .sidebar-card {
-          background: var(--color-background-surface);
-          border: 1px solid var(--color-border-default);
-          border-radius: var(--radius-card);
-        }
-
-        .booking-package-card,
-        .plan-choice,
         .addon-selector-row {
           padding: 1rem;
           text-align: left;
-          transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base), background-color var(--transition-base);
+          background: var(--color-background-surface);
+          border: 1px solid var(--color-border-default);
+          border-radius: var(--radius-card);
+          transition:
+            transform var(--transition-base),
+            border-color var(--transition-base),
+            box-shadow var(--transition-base),
+            background-color var(--transition-base);
         }
 
-        .booking-package-card:hover,
-        .plan-choice:hover,
-        .addon-selector-row:hover {
-          transform: translateY(-2px);
+        .booking-package-card:hover {
+          transform: translateY(-4px);
           box-shadow: var(--shadow-hover);
+          border-color: var(--color-border-strong);
         }
 
         .booking-package-card.selected,
@@ -780,20 +826,93 @@ const BookingPage = () => {
         .addon-selector-title {
           display: flex;
           justify-content: space-between;
-          align-items: center;
+          align-items: flex-start;
           gap: 0.75rem;
         }
 
         .booking-package-card h3 {
-          font-size: 1.05rem;
+          font-size: 1.08rem;
         }
 
         .selected-chip {
           font-family: var(--font-label);
-          font-size: 0.7rem;
+          font-size: 0.68rem;
           text-transform: uppercase;
           letter-spacing: 0.08em;
           color: var(--color-accent-primary);
+          white-space: nowrap;
+        }
+
+        .package-card-price {
+          font-size: 1.15rem;
+          font-weight: 800;
+          color: var(--color-text-primary);
+        }
+
+        .package-card-note {
+          color: var(--color-text-secondary);
+          font-size: 0.84rem;
+          line-height: 1.55;
+        }
+
+        .addon-selector-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 1rem;
+          width: 100%;
+        }
+
+        .addon-selector-row:hover {
+          border-color: var(--color-accent-primary);
+          background: color-mix(in srgb, var(--color-background-surface) 88%, var(--color-accent-primary) 12%);
+        }
+
+        .addon-selector-row:disabled {
+          cursor: default;
+          opacity: 1;
+        }
+
+        .addon-selector-left {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.85rem;
+          flex: 1;
+        }
+
+        .addon-check {
+          width: 18px;
+          height: 18px;
+          margin-top: 0.1rem;
+          border-radius: 5px;
+          border: 1px solid var(--color-border-strong);
+          background: var(--color-background-surface);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .addon-check.selected {
+          border-color: var(--color-accent-primary);
+          background: var(--color-selection-bg);
+        }
+
+        .addon-copy {
+          display: grid;
+          gap: 0.2rem;
+        }
+
+        .addon-selector-title span {
+          font-weight: 700;
+          color: var(--color-text-primary);
+        }
+
+        .addon-selector-price {
+          font-family: var(--font-label);
+          color: var(--color-accent-primary);
+          font-size: 0.8rem;
+          white-space: nowrap;
         }
 
         .form-grid {
@@ -811,6 +930,20 @@ const BookingPage = () => {
           grid-column: 1 / -1;
         }
 
+        .capacity-inline-note {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
+          padding: 0.45rem 0.8rem;
+          width: fit-content;
+          border-radius: 999px;
+          border: 1px solid var(--color-border-default);
+          background: var(--color-background-soft);
+          color: var(--color-text-secondary);
+          font-size: 0.84rem;
+          font-weight: 700;
+        }
+
         .location-toggle {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -825,7 +958,11 @@ const BookingPage = () => {
           background: var(--color-background-surface);
           color: var(--color-text-primary);
           font-weight: 700;
-          transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base), background-color var(--transition-base);
+          transition:
+            transform var(--transition-base),
+            border-color var(--transition-base),
+            box-shadow var(--transition-base),
+            background-color var(--transition-base);
         }
 
         .toggle-btn:hover {
@@ -833,33 +970,24 @@ const BookingPage = () => {
           box-shadow: var(--shadow-hover);
         }
 
-        .addon-selector-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 1rem;
-        }
-
-        .addon-selector-row:disabled {
-          cursor: default;
-          opacity: 1;
-        }
-
-        .addon-selector-price {
-          font-family: var(--font-label);
-          color: var(--color-accent-primary);
-          font-size: 0.82rem;
-          white-space: nowrap;
+        .plan-choice-list.compact {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
         .plan-choice {
-          display: grid;
-          gap: 0.3rem;
+          min-height: 56px;
+          display: flex;
+          align-items: center;
         }
 
         .plan-choice strong {
-          font-size: 1rem;
+          font-size: 0.94rem;
           color: var(--color-text-primary);
+        }
+
+        .inline-text-link {
+          color: var(--color-accent-primary);
+          font-weight: 700;
         }
 
         .booking-sidebar {
@@ -871,9 +999,25 @@ const BookingPage = () => {
 
         .summary-card,
         .sidebar-card {
-          padding: 1.25rem;
+          padding: 1.1rem 1.2rem;
           display: grid;
-          gap: 1rem;
+          gap: 0.9rem;
+          background: var(--color-background-surface);
+          border: 1px solid var(--color-border-default);
+          border-radius: var(--radius-card);
+        }
+
+        .summary-header-desktop {
+          display: block;
+        }
+
+        .summary-toggle-mobile {
+          display: none;
+        }
+
+        .summary-content {
+          display: grid;
+          gap: 0.9rem;
         }
 
         .summary-row,
@@ -894,7 +1038,7 @@ const BookingPage = () => {
         }
 
         .summary-row.highlight {
-          padding: 0.85rem 0;
+          padding: 0.8rem 0;
           border-top: 1px solid var(--color-border-default);
           border-bottom: 1px solid var(--color-border-default);
         }
@@ -911,36 +1055,36 @@ const BookingPage = () => {
           display: grid;
           grid-template-columns: 1fr auto;
           gap: 0.75rem;
-          font-size: 0.94rem;
+          font-size: 0.92rem;
           color: var(--color-text-secondary);
         }
 
         .sidebar-steps {
           margin: 0;
-          padding-left: 1.2rem;
+          padding-left: 1.1rem;
           color: var(--color-text-secondary);
           display: grid;
-          gap: 0.6rem;
+          gap: 0.55rem;
         }
 
         .notice-list {
           display: grid;
-          gap: 0.85rem;
+          gap: 0.8rem;
         }
 
         .policy-text {
-          padding: 0.95rem 1rem;
+          padding: 0.9rem 1rem;
           border-radius: 14px;
           border: 1px solid var(--color-border-default);
           background: var(--color-background-soft);
           color: var(--color-text-secondary);
-          font-size: 0.92rem;
+          font-size: 0.9rem;
           line-height: 1.6;
         }
 
         .form-footer {
           display: grid;
-          gap: 0.75rem;
+          gap: 0.7rem;
         }
 
         .btn-submit {
@@ -1038,7 +1182,7 @@ const BookingPage = () => {
         .upload-dropzone {
           border: 1px dashed var(--color-border-strong);
           border-radius: var(--radius-input);
-          padding: 2rem 1rem;
+          padding: 1.75rem 1rem;
           text-align: center;
           background: var(--color-background-soft);
           cursor: pointer;
@@ -1088,11 +1232,37 @@ const BookingPage = () => {
           }
         }
 
-        @media (max-width: 820px) {
+        @media (max-width: 920px) {
           .booking-package-grid,
+          .plan-choice-list.compact,
           .form-grid,
           .location-toggle {
             grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 1080px) {
+          .summary-header-desktop {
+            display: none;
+          }
+
+          .summary-toggle-mobile {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 0;
+            color: var(--color-text-primary);
+          }
+
+          .summary-content {
+            display: none;
+          }
+
+          .summary-content.open {
+            display: grid;
           }
         }
       `}</style>
