@@ -34,6 +34,27 @@ const pdfs = [
     description: 'Launch your faceless digital product in 30 days using a simple operating system and content sprint. Turn scattered ideas into a focused offer, build automated DM funnels, and track every sale in one lightweight system—no personal brand or face-on-camera required.',
     icon: <Package size={20} />,
   },
+  {
+    title: '2026 Overwhelm Reset – 7-Day System to Get Your Life Back Under Control',
+    price: '$39',
+    description:
+      'Stop the mental fog and digital clutter with a 7-day system designed to reset your baseline. Built for those who feel constantly behind, this guide walks you through clearing your physical and digital backlog so you can regain focus and control over your daily routines.',
+    icon: <Shield size={20} />,
+  },
+  {
+    title: 'Debt & Bills Dashboard 2026 – A Zero-BS Plan to Stop Drowning',
+    price: '$47',
+    description:
+      'Trying to keep up with debt, bills, and subscriptions in your head is turning into anxiety and avoidance. This guide walks you through building a simple debt and bills snapshot on one page, choosing a pay-down order, and knowing exactly what to pay next—so you can move from panic and guessing to a clear, doable plan.',
+    icon: <CheckCircle size={20} />,
+  },
+  {
+    title: '2026 Work Pivot Blueprint – Go From “Stuck Job” to a Real Plan in 30 Days',
+    price: '$59',
+    description:
+      'AI, layoffs, and burnout are making your current job feel like a trap. This 30-day blueprint helps you pick one realistic pivot direction, map your skills gap, design a tiny proof project, and create a 90-day plan—so you stop doomscrolling “new career” videos and start moving toward work that actually fits your life.',
+    icon: <Package size={20} />,
+  },
 ];
 
 const DigitalAssetsExamples = () => {
