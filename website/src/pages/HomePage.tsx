@@ -3,19 +3,30 @@ import { useEffect, useRef } from 'react';
 import {
   Star,
   ShieldCheck,
-  MessageSquare,
-  Calendar,
-  Bell,
-  Users,
-  TrendingUp,
-  RefreshCw,
   CalendarCheck,
   Gauge,
   MapPinned,
+  MessageSquare,
+  Bell,
+  CheckCircle2,
 } from 'lucide-react';
-import { ServiceCard } from '../components/ServiceCard';
 import { servicePackages } from '../data/packages';
 import { trackEvent } from '../lib/analytics';
+
+const systemsBenefits = [
+  {
+    title: 'Faster replies',
+    text: 'You get clearer answers earlier instead of long back-and-forth before you can even book.',
+  },
+  {
+    title: 'Clear reminders',
+    text: 'Prep instructions and appointment reminders keep service day from turning into guesswork.',
+  },
+  {
+    title: 'Fewer dropped balls',
+    text: 'The process stays tighter so details, follow-up, and payment handoff do not get lost.',
+  },
+];
 
 const HomePage = () => {
   const trackedDepths = useRef(new Set<number>());
@@ -84,90 +95,6 @@ const HomePage = () => {
         <div className="hero-visual reveal" data-reveal-delay="1" aria-hidden="true" />
       </section>
 
-      <section className="section-stack">
-        <div className="section-header reveal">
-          <span className="eyebrow">Choose Your Tier</span>
-          <h2 className="section-title">Three clear detailing tiers for Whidbey Island vehicles.</h2>
-          <p className="section-copy">
-            Choose the level your vehicle actually needs, then add only what solves a real
-            problem.
-          </p>
-        </div>
-        <div className="card-grid three">
-          {servicePackages.map((pkg, index) => (
-            <div className="reveal" data-reveal-delay={String(index)} key={pkg.id}>
-              <ServiceCard
-                title={pkg.title}
-                description={pkg.description}
-                bestFor={pkg.bestFor}
-                price={pkg.price}
-                priceNote={pkg.priceNote}
-                features={pkg.features}
-                packageId={pkg.id}
-                highlight={pkg.highlight}
-                themeStyle={pkg.themeStyle}
-              />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="card-grid two">
-        <article className="detailing-callout content-card reveal">
-          <div className="support-pill">
-            <Gauge size={16} />
-            Garage Studio or Mobile
-          </div>
-          <h3>Heavy work belongs in the garage studio. Mobile is for lighter jobs.</h3>
-          <div className="location-stack">
-            <div>
-              <h4>Garage Studio (Erie St)</h4>
-              <p>
-                Drop-off service near Erie Street in Oak Harbor. Exact address is shared after
-                booking. If the vehicle needs controlled lighting, reliable power, weather
-                protection, or a longer reset, the studio is the better call.
-              </p>
-            </div>
-            <div>
-              <h4>On-Island Mobile</h4>
-              <p>
-                Available within roughly a 25–30 mile radius of Oak Harbor, including NAS
-                Whidbey, Coupeville, Deception Pass, and nearby areas. No heavy machine
-                polishing or multi-day jobs on mobile appointments.
-              </p>
-            </div>
-          </div>
-        </article>
-
-        <article className="detailing-callout content-card reveal" data-reveal-delay="1">
-          <div className="badge-popular">Membership</div>
-          <h3>Keep the vehicle from sliding backward.</h3>
-          <p className="section-copy">
-            Maintenance plans are for customers who already have a clean baseline and want
-            predictable upkeep without re-deciding every month.
-          </p>
-          <p className="membership-punch">
-            Keep it dialed from <span className="accent-text">$60/mo</span> with member-first
-            scheduling and fewer “it&apos;s trashed again” surprises.
-          </p>
-          <ul className="package-bullets">
-            <li className="feature-row"><ShieldCheck size={18} className="icon-lime" /><span className="feature-text">Best for daily drivers after a Deep Reset or New Car Protection service</span></li>
-            <li className="feature-row"><ShieldCheck size={18} className="icon-lime" /><span className="feature-text">Guaranteed spots, easier long-term upkeep, and pricing you do not have to keep renegotiating</span></li>
-          </ul>
-          <Link
-            to="/memberships"
-            className="btn secondary"
-            onClick={() =>
-              trackEvent('Detailing Lead - View Plans', {
-                cta: 'maintenance_plan_view_plans',
-              })
-            }
-          >
-            View Plans
-          </Link>
-        </article>
-      </section>
-
       <section className="review-strip reveal">
         <div className="quote-shell">
           <p className="quote-blurb">“Easy to book, clear on price, and the car looked right when I got it back.”</p>
@@ -180,51 +107,159 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section className="section-stack">
+      <section className="detailing-section">
         <div className="section-header reveal">
-          <span className="eyebrow">Systems In The Background</span>
-          <h2 className="section-title">Busy drivers should not have to chase a detailer for updates.</h2>
+          <span className="eyebrow">Choose Your Tier</span>
+          <h2 className="section-title">Three clear detailing tiers for Whidbey Island vehicles.</h2>
           <p className="section-copy">
-            Automations and AI agents handle intake, scheduling, reminders, and follow-up so
-            you get faster replies, fewer dropped details, and a smoother appointment from
-            first message to final payment.
+            Choose the level your vehicle actually needs, then add only what solves a real
+            problem.
           </p>
         </div>
-        <div className="card-grid three">
-          {[
-            {
-              icon: <MessageSquare size={22} />,
-              title: 'Lead Intake',
-              text: 'Uses webchat and SMS to collect your details fast and help you choose the right package without a long back-and-forth.',
-            },
-            {
-              icon: <Calendar size={22} />,
-              title: 'Scheduling',
-              text: 'Keeps the calendar updated and blocks dates as bookings come in so your spot does not get lost or double-booked.',
-            },
-            {
-              icon: <Bell size={22} />,
-              title: 'Reminders',
-              text: 'Sends prep instructions and appointment reminders so you know what to do before service day and nothing slips through.',
-            },
-            {
-              icon: <Users size={22} />,
-              title: 'Review & Referral',
-              text: 'Follows up after service to request a Google review and make referring friends simple.',
-            },
-            {
-              icon: <TrendingUp size={22} />,
-              title: 'Planned: Membership Upsell',
-              text: 'Will follow up after a Deep Reset or New Car Protection job with maintenance plan options before the vehicle slides backward again.',
-            },
-            {
-              icon: <RefreshCw size={22} />,
-              title: 'Operations',
-              text: 'Deposits are tracked through Stripe, and booking records sync automatically to the database after payment.',
-            },
-          ].map((item, index) => (
-            <article className="info-card reveal" data-reveal-delay={String(index % 3)} key={item.title}>
-              <div className="support-pill">{item.icon}{item.title}</div>
+
+        <div className="tier-grid">
+          {servicePackages.map((pkg, index) => (
+            <article
+              className={`tier-card reveal ${pkg.highlight ? 'featured' : ''}`}
+              data-reveal-delay={String(index)}
+              key={pkg.id}
+            >
+              <div className="tier-card-head">
+                <div>
+                  <h3>{pkg.title}</h3>
+                  <p className="tier-for-line">{pkg.description}</p>
+                </div>
+                {pkg.highlight && <div className="badge-popular tier-badge">Most booked</div>}
+              </div>
+
+              <ul className="tier-inclusions">
+                {pkg.features.map((feature) => (
+                  <li className="feature-row" key={feature}>
+                    <CheckCircle2 size={18} className="icon-lime" />
+                    <span className="feature-text">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="tier-price-wrap">
+                <div className="price-line">
+                  <span className="price-prefix">From</span>
+                  <span>{`$${pkg.price}`}</span>
+                </div>
+                <p className="tier-price-note">{pkg.priceNote}</p>
+              </div>
+
+              <Link
+                to={`/booking?package=${pkg.id}`}
+                className={`btn w-full ${pkg.highlight ? 'primary' : 'secondary'}`}
+                onClick={() =>
+                  trackEvent('Detailing Lead - Booking Page', {
+                    cta: 'tier_book_now',
+                    package_id: pkg.id,
+                  })
+                }
+              >
+                {pkg.highlight ? 'Book Deep Reset' : pkg.title === 'New Car Protection' ? 'Book Protection' : `Book ${pkg.title}`}
+              </Link>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="detailing-section">
+        <div className="section-header reveal">
+          <span className="eyebrow">Service Modes</span>
+          <h2 className="section-title">Garage studio for heavier work. On-Island Mobile for convenience.</h2>
+        </div>
+
+        <div className="section-panel two-up reveal" data-reveal-delay="1">
+          <article className="detailing-callout">
+            <div className="support-pill">
+              <Gauge size={16} />
+              Garage Studio
+            </div>
+            <h3>Better for resets, protection work, and longer jobs.</h3>
+            <p className="section-copy">
+              Drop-off service near Erie Street in Oak Harbor. Exact address is shared after
+              booking. If the vehicle needs controlled lighting, reliable power, weather
+              protection, or a longer reset, the studio is the better call.
+            </p>
+          </article>
+
+          <article className="detailing-callout">
+            <div className="support-pill">
+              <MapPinned size={16} />
+              On-Island Mobile
+            </div>
+            <h3>Better when home or work service makes more sense.</h3>
+            <p className="section-copy">
+              Available within roughly a 25–30 mile radius of Oak Harbor, including NAS
+              Whidbey, Coupeville, Deception Pass, and nearby areas. No heavy machine
+              polishing or multi-day jobs on mobile appointments.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="detailing-section">
+        <div className="section-header reveal">
+          <span className="eyebrow">Maintenance Plans</span>
+          <h2 className="section-title">Keep the vehicle from sliding backward.</h2>
+        </div>
+
+        <div className="section-panel membership-panel reveal" data-reveal-delay="1">
+          <article className="detailing-callout">
+            <div className="badge-popular tier-badge">Membership</div>
+            <p className="section-copy">
+              Maintenance plans are for customers who already have a clean baseline and want
+              predictable upkeep without re-deciding every month.
+            </p>
+            <p className="membership-punch">
+              Keep it dialed from <span className="accent-text">$60/mo</span> with member-first
+              scheduling and fewer “it&apos;s trashed again” surprises.
+            </p>
+            <ul className="tier-inclusions compact">
+              <li className="feature-row">
+                <ShieldCheck size={18} className="icon-lime" />
+                <span className="feature-text">Best for daily drivers after a Deep Reset or New Car Protection service</span>
+              </li>
+              <li className="feature-row">
+                <ShieldCheck size={18} className="icon-lime" />
+                <span className="feature-text">Guaranteed spots, easier upkeep, and less mental load than ad-hoc booking</span>
+              </li>
+            </ul>
+            <Link
+              to="/memberships"
+              className="btn secondary membership-btn"
+              onClick={() =>
+                trackEvent('Detailing Lead - View Plans', {
+                  cta: 'maintenance_plan_view_plans',
+                })
+              }
+            >
+              View Plans
+            </Link>
+          </article>
+        </div>
+      </section>
+
+      <section className="detailing-section">
+        <div className="section-header reveal">
+          <span className="eyebrow">Systems In The Background</span>
+          <h2 className="section-title">A smoother detailing experience because the systems run in the background.</h2>
+          <p className="section-copy">
+            SignalSource uses automation behind the scenes so booking detailing feels cleaner
+            and more predictable for you.
+          </p>
+        </div>
+
+        <div className="section-panel benefits-panel reveal" data-reveal-delay="1">
+          {systemsBenefits.map((item, index) => (
+            <article className="benefit-row" key={item.title} style={{ animationDelay: `${index * 40}ms` }}>
+              <div className="support-pill slim">
+                {index === 0 ? <MessageSquare size={16} /> : index === 1 ? <Bell size={16} /> : <ShieldCheck size={16} />}
+                {item.title}
+              </div>
               <p className="section-copy">{item.text}</p>
             </article>
           ))}
@@ -234,17 +269,17 @@ const HomePage = () => {
       <section className="final-local-cta content-card reveal">
         <div className="support-pill">
           <MapPinned size={16} />
-          Oak Harbor · Whidbey Island
+          Ready To Book
         </div>
-        <h2 className="section-title">Ready to book without the usual back-and-forth?</h2>
+        <h2 className="section-title">Pick your tier, add what fits, and lock in your spot.</h2>
         <p className="section-copy">
-          Pick your tier, add only the upgrades that fit your vehicle, and see today&apos;s 20%
-          deposit before you submit.
+          You&apos;ll see today&apos;s 20% deposit before you submit. If you still need to compare
+          options first, read the service details or pricing before booking.
         </p>
-        <div className="hero-actions">
+        <div className="hero-actions cta-actions">
           <Link
             to="/booking"
-            className="btn primary"
+            className="btn primary btn-lg"
             onClick={() =>
               trackEvent('Detailing Lead - Booking Page', {
                 cta: 'final_configure_detail',
@@ -254,43 +289,19 @@ const HomePage = () => {
             Pay 20% Deposit &amp; Book
           </Link>
           <Link to="/services" className="btn secondary">
-            See Service Details
+            See Service Details &amp; Pricing
           </Link>
         </div>
+        <p className="cta-reassurance">
+          The 20% deposit goes toward your final total, not on top. Final pricing is
+          confirmed before work begins if scope or vehicle condition changes.
+        </p>
       </section>
 
       <style>{`
         .detailing-home {
           display: grid;
-          gap: 3rem;
-        }
-
-        .detailing-callout,
-        .final-local-cta {
-          display: grid;
-          gap: 1rem;
-        }
-
-        .location-stack {
-          display: grid;
-          gap: 1rem;
-        }
-
-        .location-stack h4 {
-          font-size: 1rem;
-          margin-bottom: 0.35rem;
-        }
-
-        .location-stack p,
-        .membership-punch,
-        .quote-blurb,
-        .review-label {
-          color: var(--color-text-secondary);
-        }
-
-        .membership-punch {
-          font-size: 1.02rem;
-          font-weight: 700;
+          gap: 2rem;
         }
 
         .review-strip {
@@ -310,6 +321,7 @@ const HomePage = () => {
         .quote-blurb {
           font-size: 1.05rem;
           max-width: 52ch;
+          color: var(--color-text-secondary);
         }
 
         .stars-row {
@@ -325,6 +337,189 @@ const HomePage = () => {
           font-size: 0.78rem;
           letter-spacing: 0.12em;
           text-transform: uppercase;
+          color: var(--color-text-secondary);
+        }
+
+        .detailing-section {
+          display: grid;
+          gap: 1.5rem;
+          padding-top: 1rem;
+        }
+
+        .tier-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 1.25rem;
+        }
+
+        .tier-card {
+          display: grid;
+          gap: 1.25rem;
+          padding: 1.5rem;
+          background: var(--color-background-surface);
+          border: 1px solid var(--color-border-default);
+          border-radius: 20px;
+          transition:
+            transform var(--transition-base),
+            border-color var(--transition-base),
+            box-shadow var(--transition-base),
+            background-color var(--transition-base);
+          min-height: 100%;
+        }
+
+        .tier-card:hover {
+          transform: translateY(-4px);
+          border-color: var(--color-border-strong);
+          box-shadow: var(--shadow-hover);
+        }
+
+        .tier-card.featured {
+          border-color: var(--color-accent-primary);
+          background: color-mix(in srgb, var(--color-background-surface) 88%, var(--color-accent-primary) 12%);
+        }
+
+        .tier-card-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 1rem;
+        }
+
+        .tier-card h3 {
+          font-size: 1.45rem;
+          margin-bottom: 0.45rem;
+        }
+
+        .tier-for-line {
+          color: var(--color-text-secondary);
+          line-height: 1.6;
+          font-size: 0.96rem;
+        }
+
+        .tier-badge {
+          flex-shrink: 0;
+          white-space: nowrap;
+        }
+
+        .tier-inclusions {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: grid;
+          gap: 0.7rem;
+          padding-top: 0.25rem;
+          border-top: 1px solid var(--color-border-default);
+        }
+
+        .tier-inclusions.compact {
+          gap: 0.85rem;
+        }
+
+        .tier-price-wrap {
+          display: grid;
+          gap: 0.6rem;
+          padding-top: 0.2rem;
+        }
+
+        .tier-price-note {
+          color: var(--color-text-secondary);
+          font-size: 0.84rem;
+          line-height: 1.6;
+        }
+
+        .section-panel {
+          padding: 1.6rem;
+          background: var(--color-background-surface);
+          border: 1px solid var(--color-border-default);
+          border-radius: 20px;
+        }
+
+        .two-up {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 1.25rem;
+        }
+
+        .detailing-callout {
+          display: grid;
+          gap: 0.85rem;
+        }
+
+        .detailing-callout h3 {
+          font-size: 1.2rem;
+          line-height: 1.3;
+        }
+
+        .membership-panel {
+          max-width: 760px;
+        }
+
+        .membership-punch {
+          font-size: 1rem;
+          font-weight: 700;
+          color: var(--color-text-secondary);
+        }
+
+        .membership-btn {
+          width: fit-content;
+        }
+
+        .benefits-panel {
+          display: grid;
+          gap: 1rem;
+        }
+
+        .benefit-row {
+          display: grid;
+          gap: 0.65rem;
+          padding-bottom: 1rem;
+          border-bottom: 1px solid var(--color-border-default);
+        }
+
+        .benefit-row:last-child {
+          border-bottom: none;
+          padding-bottom: 0;
+        }
+
+        .support-pill.slim {
+          width: fit-content;
+        }
+
+        .final-local-cta {
+          display: grid;
+          gap: 1rem;
+          margin-top: 0.5rem;
+          padding: 2rem;
+        }
+
+        .cta-actions {
+          align-items: center;
+        }
+
+        .cta-reassurance {
+          color: var(--color-text-secondary);
+          font-size: 0.92rem;
+          line-height: 1.6;
+          max-width: 60ch;
+        }
+
+        @media (max-width: 1040px) {
+          .tier-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 820px) {
+          .two-up {
+            grid-template-columns: 1fr;
+          }
+
+          .section-panel,
+          .final-local-cta,
+          .tier-card,
+          .review-strip {
+            padding: 1.25rem;
+          }
         }
       `}</style>
     </div>
