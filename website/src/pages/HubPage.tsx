@@ -1,85 +1,102 @@
-import { ArrowRight, MapPin, Search, Cpu } from 'lucide-react';
+import { ArrowRight, MapPin, Search, Cpu, ChevronDown } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const HubPage = () => {
   return (
     <div className="page-shell hub-page">
-      <section className="hero-grid">
-        <div className="hero-copy reveal">
-          <span className="eyebrow">SignalSource</span>
-          <h1 className="hero-title">Car detailing for Oak Harbor. Digital guides and AI-backed systems for anywhere.</h1>
-          <p className="hero-subtitle">
-            For NAS Whidbey families, commuters, and solo operators tired of a dirty vehicle,
-            PCS scramble, or missed follow-ups, SignalSource helps you get the vehicle handled
-            or the process cleaned up without extra guesswork.
-          </p>
-          <p className="section-note">
-            Choose how you want SignalSource to help: local detailing, practical guides, or
-            AI-backed systems.
-          </p>
+      <section className="hub-hero reveal">
+        <span className="eyebrow">SignalSource</span>
+        <h1 className="hero-title">Car detailing for Oak Harbor. Digital guides and AI-backed systems for anywhere.</h1>
+        <p className="hero-subtitle">
+          Choose where you want to go next: local car care, downloadable guides, or custom
+          systems.
+        </p>
+        <div className="hero-actions hub-hero-actions">
+          <a href="#hub-paths" className="btn primary btn-lg">
+            Choose Your Path
+            <ChevronDown size={16} />
+          </a>
         </div>
-        <div className="hero-visual reveal" data-reveal-delay="1" aria-hidden="true" />
       </section>
 
-      <section className="section-stack">
-        <div className="section-header reveal">
-          <span className="eyebrow">Choose Your Path</span>
-          <h2 className="section-title">Start with the offer that matches the problem you need solved.</h2>
-        </div>
-
+      <section id="hub-paths" className="hub-paths">
         <div className="card-grid three">
-          <a href="/detailing" className="content-card surface-card reveal">
-            <div className="support-pill">
-              <MapPin size={16} />
-              Local main offer
+          <Link to="/detailing" className="hub-card hub-card-primary reveal">
+            <div className="hub-card-top">
+              <div className="support-pill">
+                <MapPin size={16} />
+                Local main offer
+              </div>
+              <div className="badge-popular hub-recommended">Recommended for most local visitors</div>
             </div>
-            <h3>Car Detailing &amp; Protection for Oak Harbor Daily Drivers</h3>
-            <p className="section-copy">
-              For military families, commuters, and busy locals tired of a dirty daily driver,
-              this gets the vehicle clean, protected, and easier to stay ahead of without
-              wasting a full day.
-            </p>
-            <ul className="package-bullets mt-1">
-              <li className="feature-row"><span className="icon-lime">•</span><span className="feature-text">Detailing packages</span></li>
-              <li className="feature-row"><span className="icon-lime">•</span><span className="feature-text">Protection prep for upcoming coatings, tint, and PPF</span></li>
-            </ul>
-            <span className="cta-row accent-text mt-2">
-              View local services <ArrowRight size={16} />
+            <div className="hub-card-copy">
+              <h2>Car Detailing &amp; Protection</h2>
+              <p className="section-copy">
+                For Oak Harbor drivers, NAS Whidbey families, and busy commuters who want the
+                vehicle handled right without wasting a day. This is SignalSource’s main local
+                offer: detailing, protection, and upkeep built for real Whidbey schedules.
+              </p>
+            </div>
+            <span className="btn primary hub-card-cta">
+              View Local Services
+              <ArrowRight size={16} />
             </span>
-          </a>
+          </Link>
 
-          <a href="/systems/examples/digital-assets" className="content-card surface-card reveal" data-reveal-delay="1">
-            <div className="support-pill">
-              <Search size={16} />
-              Secondary offer
+          <Link to="/systems/examples/digital-assets" className="hub-card reveal" data-reveal-delay="1">
+            <div className="hub-card-top">
+              <div className="support-pill">
+                <Search size={16} />
+                Secondary offer
+              </div>
             </div>
-            <h3>Digital Guides &amp; Playbooks for PCS, Money, and Daily Friction</h3>
-            <p className="section-copy">
-              For military households and organized operators tired of scattered notes and
-              last-minute scrambling, these guides turn PCS prep, planning, and repeat
-              problems into clear checklists you can actually use.
-            </p>
-            <span className="cta-row accent-text mt-2">
-              Browse PDFs <ArrowRight size={16} />
+            <div className="hub-card-copy">
+              <h2>Digital Guides &amp; Playbooks</h2>
+              <p className="section-copy">
+                Practical guides for PCS prep, money, and transition planning that you can
+                download once and keep using. Built for people who want clearer checklists,
+                less scrambling, and less mental load.
+              </p>
+            </div>
+            <span className="btn secondary hub-card-cta">
+              Browse Guides
+              <ArrowRight size={16} />
             </span>
-          </a>
+          </Link>
 
-          <a href="/systems" className="content-card surface-card reveal" data-reveal-delay="2">
-            <div className="support-pill">
-              <Cpu size={16} />
-              Secondary offer
+          <Link to="/systems" className="hub-card reveal" data-reveal-delay="2">
+            <div className="hub-card-top">
+              <div className="support-pill">
+                <Cpu size={16} />
+                Secondary offer
+              </div>
             </div>
-            <h3>Systems &amp; Digital Products for Operators Losing Time to Missed Calls and Manual Follow-Up</h3>
-            <p className="section-copy">
-              For local businesses and one-person operators tired of dropped leads, forgotten
-              callbacks, and running the day from memory, these AI-backed tools can give you
-              follow-up automations, simple dashboards, and systems that keep work moving.
-            </p>
-            <span className="cta-row accent-text mt-2">
-              Explore systems <ArrowRight size={16} />
+            <div className="hub-card-copy">
+              <h2>Systems &amp; Digital Products</h2>
+              <p className="section-copy">
+                Custom systems for operators who are tired of missed follow-up, manual admin,
+                and running everything from memory. This is for people who want the same
+                organized SignalSource approach applied to automations, dashboards, and
+                workflows.
+              </p>
+            </div>
+            <span className="btn secondary hub-card-cta">
+              Explore Systems
+              <ArrowRight size={16} />
             </span>
-          </a>
+          </Link>
         </div>
       </section>
+
+      <footer className="hub-footer reveal">
+        <div className="hub-footer-copy">
+          <h2>SIGNALSOURCE</h2>
+          <p>Car care for Oak Harbor. Systems thinking for everything else.</p>
+        </div>
+        <Link to="/" className="hub-footer-link">
+          Back to Home
+        </Link>
+      </footer>
 
       <style>{`
         .hub-page {
@@ -87,15 +104,115 @@ const HubPage = () => {
           gap: 3rem;
         }
 
-        .hub-page .content-card {
+        .hub-hero {
           display: grid;
           gap: 1rem;
-          min-height: 100%;
+          max-width: 780px;
+          margin: 0 auto;
+          text-align: center;
         }
 
-        .hub-page .content-card h3 {
-          font-size: 1.35rem;
-          line-height: 1.25;
+        .hub-hero-actions {
+          justify-content: center;
+        }
+
+        .hub-paths {
+          padding-top: 0.5rem;
+        }
+
+        .hub-card {
+          display: flex;
+          flex-direction: column;
+          gap: 1.2rem;
+          min-height: 100%;
+          padding: 1.5rem;
+          background: var(--color-background-surface);
+          border: 1px solid var(--color-border-default);
+          border-radius: 14px;
+          color: inherit;
+          transition:
+            transform var(--transition-base),
+            border-color var(--transition-base),
+            box-shadow var(--transition-base),
+            background-color var(--transition-base);
+        }
+
+        .hub-card:hover {
+          transform: translateY(-4px);
+          border-color: var(--color-border-strong);
+          box-shadow: var(--shadow-hover);
+        }
+
+        .hub-card-primary {
+          border-color: var(--color-accent-primary);
+          background: color-mix(in srgb, var(--color-background-surface) 90%, var(--color-accent-primary) 10%);
+        }
+
+        .hub-card-primary:hover {
+          border-color: var(--color-accent-primary);
+        }
+
+        .hub-card-top {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.75rem;
+        }
+
+        .hub-recommended {
+          white-space: normal;
+          text-align: left;
+        }
+
+        .hub-card-copy {
+          display: grid;
+          gap: 0.8rem;
+          flex: 1;
+        }
+
+        .hub-card-copy h2 {
+          font-size: 1.45rem;
+          line-height: 1.2;
+        }
+
+        .hub-card-cta {
+          width: fit-content;
+          margin-top: auto;
+        }
+
+        .hub-footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          gap: 1rem;
+          padding-top: 1rem;
+          border-top: 1px solid var(--color-border-default);
+        }
+
+        .hub-footer-copy {
+          display: grid;
+          gap: 0.35rem;
+        }
+
+        .hub-footer-copy h2 {
+          font-size: 1.15rem;
+          letter-spacing: 0.12em;
+        }
+
+        .hub-footer-copy p,
+        .hub-footer-link {
+          color: var(--color-text-secondary);
+        }
+
+        .hub-footer-link:hover {
+          color: var(--color-accent-primary);
+        }
+
+        @media (max-width: 960px) {
+          .hub-footer {
+            flex-direction: column;
+            align-items: flex-start;
+          }
         }
       `}</style>
     </div>
