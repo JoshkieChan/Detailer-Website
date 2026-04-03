@@ -14,7 +14,7 @@ export const servicePackages = [
       'Streak-free glass inside and out'
     ],
     priceNote:
-      'Typical price depends on vehicle size, condition, and buildup. Smaller, well-kept vehicles stay closer to the starting point; larger or harder-used vehicles land higher. Final price is confirmed before work begins.'
+      'Typical price depends on vehicle size and buildup. Smaller, well-kept vehicles stay closer to the starting point. Final price is confirmed before work begins.'
   },
   {
     id: 'deep-reset',
@@ -32,7 +32,7 @@ export const servicePackages = [
       'Sealant on paint, plastics, and wheels'
     ],
     priceNote:
-      'Typical price depends on size, condition, pet hair, and stain level. Cleaner sedans stay closer to the starting point; larger vehicles and heavier buildup run higher. Final price is confirmed before work begins.'
+      'Typical price depends on size, condition, and buildup. Cleaner vehicles stay closer to the starting point. Final price is confirmed before work begins.'
   },
   {
     id: 'new-car',
@@ -48,6 +48,6 @@ export const servicePackages = [
       'Wheel faces and glass protected'
     ],
     priceNote:
-      'Typical price depends on vehicle size and how much prep the paint needs before protection goes on. Cleaner, smaller vehicles stay closer to the starting point; larger vehicles or surfaces needing more prep run higher. Final price is confirmed before work begins.'
+      'Typical price depends on vehicle size and paint prep needed. Smaller, cleaner vehicles stay closer to the starting point. Final price is confirmed before work begins.'
   }
 ];

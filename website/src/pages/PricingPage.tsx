@@ -25,22 +25,24 @@ const PricingPage = () => {
           <h2 className="section-title">Start with the baseline your vehicle needs.</h2>
         </div>
 
-        <div className="pricing-tier-grid">
+        <div className="tier-grid">
           {servicePackages.map((pkg, index) => (
             <article
-              className={`pricing-tier-card reveal ${pkg.highlight ? 'featured' : ''}`}
+              className={`tier-card reveal ${pkg.highlight ? 'featured' : ''}`}
               data-reveal-delay={String(index)}
               key={pkg.id}
             >
-              <div className="pricing-tier-top">
+              <div className="tier-card-head">
                 <div>
-                  <h3>{pkg.title}</h3>
-                  <p className="pricing-best-for">{pkg.bestFor}</p>
+                  <div className="tier-title-row">
+                    <h3>{pkg.title}</h3>
+                    {pkg.highlight && <div className="badge-popular tier-badge">Most booked</div>}
+                  </div>
+                  <p className="tier-for-line">{pkg.bestFor}</p>
                 </div>
-                {pkg.highlight && <div className="badge-popular pricing-tier-badge">Most booked</div>}
               </div>
 
-              <ul className="package-bullets">
+              <ul className="tier-inclusions">
                 {pkg.features.map((feature) => (
                   <li className="feature-row" key={feature}>
                     <ShieldCheck size={18} className="icon-lime" />
@@ -49,12 +51,12 @@ const PricingPage = () => {
                 ))}
               </ul>
 
-              <div className="pricing-tier-bottom">
+              <div className="tier-price-wrap">
                 <div className="price-line">
                   <span className="price-prefix">From</span>
-                  <span>${pkg.price}</span>
+                  <span>{`$${pkg.price}`}</span>
                 </div>
-                <p className="pricing-note">{pkg.priceNote}</p>
+                <p className="tier-price-note">{pkg.priceNote}</p>
               </div>
             </article>
           ))}
@@ -82,7 +84,7 @@ const PricingPage = () => {
                     : addOn.description}
                 </p>
               </div>
-              <div className="addon-price">+${addOn.price}</div>
+              <div className="addon-price">{`+$${addOn.price}`}</div>
             </article>
           ))}
         </div>
@@ -162,139 +164,15 @@ const PricingPage = () => {
           justify-content: center;
         }
 
-        .pricing-tier-grid {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 1.25rem;
-        }
-
-        .pricing-tier-card {
-          display: grid;
-          gap: 1rem;
-          min-height: 100%;
-          padding: 1.5rem;
-          background: var(--color-background-surface);
-          border: 1px solid var(--color-border-default);
-          border-radius: 14px;
-          transition:
-            transform var(--transition-base),
-            border-color var(--transition-base),
-            box-shadow var(--transition-base),
-            background-color var(--transition-base);
-        }
-
-        .pricing-tier-card:hover {
-          transform: translateY(-4px);
-          border-color: var(--color-border-strong);
-          box-shadow: var(--shadow-hover);
-        }
-
-        .pricing-tier-card.featured {
-          border-color: var(--color-accent-primary);
-          background: color-mix(in srgb, var(--color-background-surface) 92%, var(--color-accent-primary) 8%);
-        }
-
-        .pricing-tier-top {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 1rem;
-        }
-
-        .pricing-tier-top h3,
-        .addon-menu-copy h3 {
-          font-size: 1.35rem;
-          line-height: 1.2;
-          margin-bottom: 0.45rem;
-        }
-
-        .pricing-best-for {
-          color: var(--color-text-secondary);
-          font-size: 0.95rem;
-          line-height: 1.6;
-        }
-
-        .pricing-tier-badge {
-          flex-shrink: 0;
-          white-space: nowrap;
-        }
-
-        .pricing-tier-bottom {
-          display: grid;
-          gap: 0.55rem;
-        }
-
-        .pricing-note {
-          color: var(--color-text-secondary);
-          font-size: 0.84rem;
-          line-height: 1.6;
-        }
-
-        .addon-menu-grid {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 0.9rem 1rem;
-        }
-
-        .addon-menu-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 1rem;
-          padding: 1rem 1.1rem;
-          background: var(--color-background-surface);
-          border: 1px solid var(--color-border-default);
-          border-radius: 14px;
-          transition:
-            transform var(--transition-base),
-            border-color var(--transition-base),
-            box-shadow var(--transition-base);
-        }
-
-        .addon-menu-row:hover {
-          transform: translateY(-4px);
-          border-color: var(--color-accent-primary);
-          box-shadow: var(--shadow-hover);
-        }
-
-        .addon-menu-copy {
-          display: grid;
-          gap: 0.35rem;
-        }
-
-        .addon-price {
-          font-family: var(--font-label);
-          font-size: 0.82rem;
-          letter-spacing: 0.08em;
-          color: var(--color-accent-primary);
-          white-space: nowrap;
-          padding-top: 0.2rem;
-        }
-
-        .membership-block,
-        .cta-block {
-          display: grid;
-          gap: 1rem;
-        }
-
-        .compact-list {
-          gap: 0.8rem;
-        }
-
         @media (max-width: 960px) {
-          .pricing-tier-grid,
-          .addon-menu-grid {
-            grid-template-columns: 1fr;
+          .pricing-page {
+            gap: 2rem;
           }
         }
 
         @media (max-width: 768px) {
-          .pricing-tier-card {
-            padding: 1.5rem 1.25rem;
-          }
-
-          .pricing-tier-top {
-            flex-direction: column;
+          .pricing-page {
+            gap: 1.5rem;
           }
         }
       `}</style>

@@ -171,46 +171,6 @@ const SystemsPage = () => {
         <h2 className="section-title">Want a custom build? Start with a short intake here.</h2>
         <a href={CUSTOM_BUILD_INTAKE_URL} className="btn primary">Start intake</a>
       </section>
-
-      <style>{`
-        .systems-page {
-          display: grid;
-          gap: 2.75rem;
-        }
-
-        .back-link {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.35rem;
-          color: var(--color-text-secondary);
-          font-weight: 700;
-          width: fit-content;
-        }
-
-        .back-link:hover {
-          color: var(--color-accent-primary);
-        }
-
-        .system-case-card {
-          display: grid;
-          gap: 1rem;
-          padding: 1.5rem;
-          background: var(--color-background-surface);
-          border: 1px solid var(--color-border-default);
-          border-radius: var(--radius-card);
-          transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
-        }
-
-        .system-case-card:hover {
-          transform: translateY(-4px);
-          border-color: var(--color-border-strong);
-          box-shadow: var(--shadow-hover);
-        }
-
-        .case-button {
-          width: fit-content;
-        }
-      `}</style>
     </div>
   );
 };

@@ -126,10 +126,12 @@ const HomePage = () => {
             >
               <div className="tier-card-head">
                 <div>
-                  <h3>{pkg.title}</h3>
+                  <div className="tier-title-row">
+                    <h3>{pkg.title}</h3>
+                    {pkg.highlight && <div className="badge-popular tier-badge">Most booked</div>}
+                  </div>
                   <p className="tier-for-line">{pkg.description}</p>
                 </div>
-                {pkg.highlight && <div className="badge-popular tier-badge">Most booked</div>}
               </div>
 
               <ul className="tier-inclusions">
@@ -347,84 +349,7 @@ const HomePage = () => {
         }
 
         .tier-grid {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 1.25rem;
-        }
-
-        .tier-card {
-          display: grid;
-          gap: 1.25rem;
-          padding: 1.5rem;
-          background: var(--color-background-surface);
-          border: 1px solid var(--color-border-default);
-          border-radius: 20px;
-          transition:
-            transform var(--transition-base),
-            border-color var(--transition-base),
-            box-shadow var(--transition-base),
-            background-color var(--transition-base);
-          min-height: 100%;
-        }
-
-        .tier-card:hover {
-          transform: translateY(-4px);
-          border-color: var(--color-border-strong);
-          box-shadow: var(--shadow-hover);
-        }
-
-        .tier-card.featured {
-          border-color: var(--color-accent-primary);
-          background: color-mix(in srgb, var(--color-background-surface) 88%, var(--color-accent-primary) 12%);
-        }
-
-        .tier-card-head {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 1rem;
-        }
-
-        .tier-card h3 {
-          font-size: 1.45rem;
-          margin-bottom: 0.45rem;
-        }
-
-        .tier-for-line {
-          color: var(--color-text-secondary);
-          line-height: 1.6;
-          font-size: 0.96rem;
-        }
-
-        .tier-badge {
-          flex-shrink: 0;
-          white-space: nowrap;
-        }
-
-        .tier-inclusions {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-          display: grid;
-          gap: 0.7rem;
-          padding-top: 0.25rem;
-          border-top: 1px solid var(--color-border-default);
-        }
-
-        .tier-inclusions.compact {
-          gap: 0.85rem;
-        }
-
-        .tier-price-wrap {
-          display: grid;
-          gap: 0.6rem;
-          padding-top: 0.2rem;
-        }
-
-        .tier-price-note {
-          color: var(--color-text-secondary);
-          font-size: 0.84rem;
-          line-height: 1.6;
+          margin-bottom: 2rem;
         }
 
         .section-panel {

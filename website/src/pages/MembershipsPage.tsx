@@ -41,8 +41,10 @@ const MembershipsPage = () => {
             data-reveal-delay={String(index)}
           >
             <div className="membership-head">
-              {plan.popular && <div className="badge-popular membership-badge">Most picked</div>}
-              <h2>{plan.id === 'quarterly' ? 'Quarterly Plan' : 'Monthly Plan'}</h2>
+              <div className="tier-title-row">
+                <h2>{plan.id === 'quarterly' ? 'Quarterly Plan' : 'Monthly Plan'}</h2>
+                {plan.popular && <div className="badge-popular membership-badge">Most picked</div>}
+              </div>
               <p className="membership-best-for">{planBestFor[plan.id]}</p>
               <div className="membership-pricing-line">{planPricingLine[plan.id]}</div>
               {plan.id === 'monthly' && (
@@ -61,11 +63,6 @@ const MembershipsPage = () => {
                 </li>
               ))}
             </ul>
-
-            <div className="plan-terms-inline">
-              <p>Plans assume a clean baseline from a recent Deep Reset or New Car Protection service.</p>
-              <p>Minimum commitment: 3 months. Cancel anytime after that.</p>
-            </div>
 
             <Link to="/booking" className={`btn w-full ${plan.popular ? 'primary' : 'secondary'}`}>
               {plan.ctaLabel}
@@ -173,14 +170,6 @@ const MembershipsPage = () => {
 
         .membership-support-line {
           font-size: 0.88rem;
-        }
-
-        .plan-terms-inline {
-          display: grid;
-          gap: 0.45rem;
-          padding-top: 0.15rem;
-          border-top: 1px solid var(--color-border-default);
-          font-size: 0.86rem;
         }
 
         .compact-list {

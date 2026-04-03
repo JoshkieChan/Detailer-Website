@@ -113,10 +113,12 @@ interface NominatimResult {
 }
 
 const AddressAutocomplete = ({
+  inputId,
   value,
   onChange,
   hasError,
 }: {
+  inputId: string;
   value: string;
   onChange: (v: string) => void;
   hasError: boolean;
@@ -157,8 +159,9 @@ const AddressAutocomplete = ({
   };
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div className="address-autocomplete">
       <input
+        id={inputId}
         type="text"
         value={value}
         onChange={handleChange}
@@ -184,7 +187,7 @@ const AddressAutocomplete = ({
 const FieldError = ({ msg }: { msg: string }) =>
   msg ? (
     <span className="field-error-msg">
-      <AlertCircle size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+      <AlertCircle size={13} className="field-error-icon" />
       {msg}
     </span>
   ) : null;
@@ -373,7 +376,7 @@ const BookingPage = () => {
 
       {systemError && (
         <div className="error-banner system-error reveal is-visible">
-          <AlertCircle size={18} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 8 }} />
+          <AlertCircle size={18} className="system-error-icon" />
           {systemError}
         </div>
       )}
@@ -391,6 +394,7 @@ const BookingPage = () => {
                   key={pkg.id}
                   className={`booking-package-card ${formData.package === pkg.id ? 'selected' : ''}`}
                   onClick={() => setFormData({ ...formData, package: pkg.id })}
+                  aria-pressed={formData.package === pkg.id}
                 >
                   <div className="booking-package-head">
                     <h3>{pkg.title}</h3>
@@ -421,6 +425,7 @@ const BookingPage = () => {
                     className={`addon-selector-row ${selected ? 'selected' : ''}`}
                     onClick={() => toggleAddOn(addOn.id)}
                     disabled={lockedByLocation}
+                    aria-pressed={selected}
                   >
                     <div className="addon-selector-left">
                       <span className={`addon-check ${selected ? 'selected' : ''}`} aria-hidden="true">
@@ -453,8 +458,9 @@ const BookingPage = () => {
             </div>
             <div className="form-grid">
               <div className="input-group full-width" ref={vehicleMakeRef}>
-                <label>Vehicle make and model</label>
+                <label htmlFor="vehicle-make-model">Vehicle make and model</label>
                 <input
+                  id="vehicle-make-model"
                   type="text"
                   value={formData.vehicleMake}
                   onChange={(e) => setFormData({ ...formData, vehicleMake: e.target.value })}
@@ -465,8 +471,12 @@ const BookingPage = () => {
               </div>
 
               <div className="input-group">
-                <label>Vehicle year</label>
-                <select value={formData.vehicleYear} onChange={(e) => setFormData({ ...formData, vehicleYear: e.target.value })}>
+                <label htmlFor="vehicle-year">Vehicle year</label>
+                <select
+                  id="vehicle-year"
+                  value={formData.vehicleYear}
+                  onChange={(e) => setFormData({ ...formData, vehicleYear: e.target.value })}
+                >
                   <option value="">Select year</option>
                   {Array.from({ length: 50 }, (_, i) => new Date().getFullYear() + 1 - i).map((year) => (
                     <option key={year} value={year}>{year}</option>
@@ -475,8 +485,9 @@ const BookingPage = () => {
               </div>
 
               <div className="input-group">
-                <label>Vehicle color</label>
+                <label htmlFor="vehicle-color">Vehicle color</label>
                 <input
+                  id="vehicle-color"
                   type="text"
                   value={formData.vehicleColor}
                   onChange={(e) => setFormData({ ...formData, vehicleColor: e.target.value })}
@@ -485,9 +496,10 @@ const BookingPage = () => {
               </div>
 
               <div className="input-group full-width" ref={addressRef}>
-                <label>Address / service location</label>
+                <label htmlFor="service-location">Address / service location</label>
                 <p className="field-help">Needed for mobile bookings or service access notes.</p>
                 <AddressAutocomplete
+                  inputId="service-location"
                   value={formData.address}
                   onChange={(value) => setFormData({ ...formData, address: value })}
                   hasError={!!fieldErrors.address}
@@ -496,13 +508,14 @@ const BookingPage = () => {
               </div>
 
               <div className="input-group full-width" ref={locationTypeRef}>
-                <label>Garage Studio or On-Island Mobile</label>
+                <p className="booking-field-label">Garage Studio or On-Island Mobile</p>
                 <p className="field-help">Studio is best for heavier work. Mobile is an optional convenience upgrade on Whidbey.</p>
                 <div className="location-toggle">
                   <button
                     type="button"
                     className={`toggle-btn ${formData.locationType === 'garage' ? 'active' : ''}`}
                     onClick={() => setFormData({ ...formData, locationType: 'garage' })}
+                    aria-pressed={formData.locationType === 'garage'}
                   >
                     Garage Studio
                   </button>
@@ -510,6 +523,7 @@ const BookingPage = () => {
                     type="button"
                     className={`toggle-btn ${formData.locationType === 'mobile' ? 'active' : ''}`}
                     onClick={() => setFormData({ ...formData, locationType: 'mobile' })}
+                    aria-pressed={formData.locationType === 'mobile'}
                   >
                     On-Island Mobile
                   </button>
@@ -518,14 +532,19 @@ const BookingPage = () => {
               </div>
 
               <div className="input-group full-width" ref={dateRef}>
-                <label>Preferred day</label>
+                <p className="booking-field-label">Preferred day</p>
                 <BookingCalendar selectedDate={formData.date} onChange={(date) => setFormData({ ...formData, date })} bookedDates={bookedDates} />
                 <FieldError msg={fieldErrors.date} />
               </div>
 
               <div className="input-group" ref={timeRef}>
-                <label>Preferred time range</label>
-                <select value={formData.time} onChange={(e) => setFormData({ ...formData, time: e.target.value })} className={fieldErrors.time ? 'input-error' : ''}>
+                <label htmlFor="preferred-time-range">Preferred time range</label>
+                <select
+                  id="preferred-time-range"
+                  value={formData.time}
+                  onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                  className={fieldErrors.time ? 'input-error' : ''}
+                >
                   <option value="">Choose a time range</option>
                   <option value="morning">Morning (8am - 12pm)</option>
                   <option value="afternoon">Afternoon (12pm - 4pm)</option>
@@ -542,8 +561,9 @@ const BookingPage = () => {
 
             <div className="form-grid">
               <div className="input-group full-width" ref={fullNameRef}>
-                <label>Full name</label>
+                <label htmlFor="full-name">Full name</label>
                 <input
+                  id="full-name"
                   type="text"
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
@@ -554,8 +574,9 @@ const BookingPage = () => {
               </div>
 
               <div className="input-group" ref={phoneRef}>
-                <label>Phone number</label>
+                <label htmlFor="phone-number">Phone number</label>
                 <input
+                  id="phone-number"
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -566,8 +587,9 @@ const BookingPage = () => {
               </div>
 
               <div className="input-group" ref={emailRef}>
-                <label>Email address</label>
+                <label htmlFor="email-address">Email address</label>
                 <input
+                  id="email-address"
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -578,8 +600,9 @@ const BookingPage = () => {
               </div>
 
               <div className="input-group full-width">
-                <label>Notes</label>
+                <label htmlFor="booking-notes">Notes</label>
                 <textarea
+                  id="booking-notes"
                   rows={4}
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -588,7 +611,7 @@ const BookingPage = () => {
               </div>
 
               <div className="input-group full-width">
-                <label>Plan interest (optional)</label>
+                <p className="booking-field-label">Plan interest (optional)</p>
                 <p className="field-help">
                   Maintenance plans are for after a Deep Reset or New Car Protection.{' '}
                   <Link to="/memberships" className="inline-text-link">
@@ -601,6 +624,7 @@ const BookingPage = () => {
                     type="button"
                     className={`plan-choice ${formData.maintenancePlanId === 'none' ? 'selected' : ''}`}
                     onClick={() => setFormData({ ...formData, maintenancePlanId: 'none' })}
+                    aria-pressed={formData.maintenancePlanId === 'none'}
                   >
                     <strong>No plan right now</strong>
                   </button>
@@ -610,6 +634,7 @@ const BookingPage = () => {
                       className={`plan-choice ${formData.maintenancePlanId === plan.id ? 'selected' : ''}`}
                       key={plan.id}
                       onClick={() => setFormData({ ...formData, maintenancePlanId: plan.id })}
+                      aria-pressed={formData.maintenancePlanId === plan.id}
                     >
                       <strong>{planChoiceLabels[plan.id]}</strong>
                     </button>
@@ -618,7 +643,7 @@ const BookingPage = () => {
               </div>
 
               <div className="input-group full-width file-upload">
-                <label>Upload photos (optional)</label>
+                <label htmlFor="photo-upload">Upload photos (optional)</label>
                 <input
                   type="file"
                   id="photo-upload"
@@ -628,10 +653,10 @@ const BookingPage = () => {
                   onChange={handleFileChange}
                   ref={fileInputRef}
                 />
-                <div className="upload-dropzone" onClick={() => fileInputRef.current?.click()}>
+                <label htmlFor="photo-upload" className="upload-dropzone">
                   <UploadCloud size={28} className="icon-lime" />
                   <p>Click to browse or drag and drop photos of the vehicle.</p>
-                </div>
+                </label>
                 {selectedFiles.length > 0 && (
                   <div className="file-preview-grid mt-1">
                     {selectedFiles.map((file, idx) => (
@@ -741,531 +766,6 @@ const BookingPage = () => {
           </div>
         </aside>
       </div>
-
-      <style>{`
-        .booking-page {
-          display: grid;
-          gap: 2.25rem;
-        }
-
-        .compact-hero {
-          max-width: 860px;
-          margin: 0 auto;
-        }
-
-        .booking-layout {
-          display: grid;
-          grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.8fr);
-          gap: 1.5rem;
-          align-items: start;
-        }
-
-        .booking-form {
-          display: grid;
-          gap: 1.75rem;
-          padding: 1.5rem;
-        }
-
-        .booking-step {
-          display: grid;
-          gap: 0.95rem;
-          padding-bottom: 1.75rem;
-          border-bottom: 1px solid var(--color-border-default);
-        }
-
-        .booking-step:last-of-type {
-          border-bottom: none;
-          padding-bottom: 0;
-        }
-
-        .booking-step h2 {
-          font-size: 1.35rem;
-        }
-
-        .booking-package-grid,
-        .plan-choice-list,
-        .addon-selector-list {
-          display: grid;
-          gap: 0.85rem;
-        }
-
-        .booking-package-grid {
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        .booking-package-card,
-        .plan-choice,
-        .addon-selector-row {
-          padding: 1rem;
-          text-align: left;
-          background: var(--color-background-surface);
-          border: 1px solid var(--color-border-default);
-          border-radius: var(--radius-card);
-          transition:
-            transform var(--transition-base),
-            border-color var(--transition-base),
-            box-shadow var(--transition-base),
-            background-color var(--transition-base);
-        }
-
-        .booking-package-card:hover {
-          transform: translateY(-4px);
-          box-shadow: var(--shadow-hover);
-          border-color: var(--color-border-strong);
-        }
-
-        .booking-package-card.selected,
-        .plan-choice.selected,
-        .addon-selector-row.selected,
-        .toggle-btn.active {
-          border-color: var(--color-accent-primary);
-          background: var(--color-selection-bg);
-        }
-
-        .booking-package-head,
-        .addon-selector-title {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 0.75rem;
-        }
-
-        .booking-package-card h3 {
-          font-size: 1.08rem;
-        }
-
-        .selected-chip {
-          font-family: var(--font-label);
-          font-size: 0.68rem;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          color: var(--color-accent-primary);
-          white-space: nowrap;
-        }
-
-        .package-card-price {
-          font-size: 1.15rem;
-          font-weight: 800;
-          color: var(--color-text-primary);
-        }
-
-        .package-card-note {
-          color: var(--color-text-secondary);
-          font-size: 0.84rem;
-          line-height: 1.55;
-        }
-
-        .addon-selector-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 1rem;
-          width: 100%;
-        }
-
-        .addon-selector-row:hover {
-          border-color: var(--color-accent-primary);
-          background: color-mix(in srgb, var(--color-background-surface) 88%, var(--color-accent-primary) 12%);
-        }
-
-        .addon-selector-row:disabled {
-          cursor: default;
-          opacity: 1;
-        }
-
-        .addon-selector-left {
-          display: flex;
-          align-items: flex-start;
-          gap: 0.85rem;
-          flex: 1;
-        }
-
-        .addon-check {
-          width: 18px;
-          height: 18px;
-          margin-top: 0.1rem;
-          border-radius: 5px;
-          border: 1px solid var(--color-border-strong);
-          background: var(--color-background-surface);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-
-        .addon-check.selected {
-          border-color: var(--color-accent-primary);
-          background: var(--color-selection-bg);
-        }
-
-        .addon-copy {
-          display: grid;
-          gap: 0.2rem;
-        }
-
-        .addon-selector-title span {
-          font-weight: 700;
-          color: var(--color-text-primary);
-        }
-
-        .addon-selector-price {
-          font-family: var(--font-label);
-          color: var(--color-accent-primary);
-          font-size: 0.8rem;
-          white-space: nowrap;
-        }
-
-        .form-grid {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 1rem;
-        }
-
-        .input-group {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .full-width {
-          grid-column: 1 / -1;
-        }
-
-        .capacity-inline-note {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.45rem;
-          padding: 0.45rem 0.8rem;
-          width: fit-content;
-          border-radius: 999px;
-          border: 1px solid var(--color-border-default);
-          background: var(--color-background-soft);
-          color: var(--color-text-secondary);
-          font-size: 0.84rem;
-          font-weight: 700;
-        }
-
-        .location-toggle {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 0.75rem;
-        }
-
-        .toggle-btn {
-          min-height: 48px;
-          padding: 0.85rem 1rem;
-          border: 1px solid var(--color-border-default);
-          border-radius: var(--radius-input);
-          background: var(--color-background-surface);
-          color: var(--color-text-primary);
-          font-weight: 700;
-          transition:
-            transform var(--transition-base),
-            border-color var(--transition-base),
-            box-shadow var(--transition-base),
-            background-color var(--transition-base);
-        }
-
-        .toggle-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: var(--shadow-hover);
-        }
-
-        .plan-choice-list.compact {
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        .plan-choice {
-          min-height: 56px;
-          display: flex;
-          align-items: center;
-        }
-
-        .plan-choice strong {
-          font-size: 0.94rem;
-          color: var(--color-text-primary);
-        }
-
-        .inline-text-link {
-          color: var(--color-accent-primary);
-          font-weight: 700;
-        }
-
-        .booking-sidebar {
-          position: sticky;
-          top: 92px;
-          display: grid;
-          gap: 1rem;
-        }
-
-        .summary-card,
-        .sidebar-card {
-          padding: 1.1rem 1.2rem;
-          display: grid;
-          gap: 0.9rem;
-          background: var(--color-background-surface);
-          border: 1px solid var(--color-border-default);
-          border-radius: var(--radius-card);
-        }
-
-        .summary-header-desktop {
-          display: block;
-        }
-
-        .summary-toggle-mobile {
-          display: none;
-        }
-
-        .summary-content {
-          display: grid;
-          gap: 0.9rem;
-        }
-
-        .summary-row,
-        .summary-block {
-          display: grid;
-          gap: 0.35rem;
-          color: var(--color-text-secondary);
-        }
-
-        .summary-row {
-          grid-template-columns: 1fr auto;
-          align-items: baseline;
-        }
-
-        .summary-row strong,
-        .summary-block strong {
-          color: var(--color-text-primary);
-        }
-
-        .summary-row.highlight {
-          padding: 0.8rem 0;
-          border-top: 1px solid var(--color-border-default);
-          border-bottom: 1px solid var(--color-border-default);
-        }
-
-        .summary-addon-list {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-          display: grid;
-          gap: 0.5rem;
-        }
-
-        .summary-addon-list li {
-          display: grid;
-          grid-template-columns: 1fr auto;
-          gap: 0.75rem;
-          font-size: 0.92rem;
-          color: var(--color-text-secondary);
-        }
-
-        .sidebar-steps {
-          margin: 0;
-          padding-left: 1.1rem;
-          color: var(--color-text-secondary);
-          display: grid;
-          gap: 0.55rem;
-        }
-
-        .notice-list {
-          display: grid;
-          gap: 0.8rem;
-        }
-
-        .policy-text {
-          padding: 0.9rem 1rem;
-          border-radius: 14px;
-          border: 1px solid var(--color-border-default);
-          background: var(--color-background-soft);
-          color: var(--color-text-secondary);
-          font-size: 0.9rem;
-          line-height: 1.6;
-        }
-
-        .form-footer {
-          display: grid;
-          gap: 0.7rem;
-        }
-
-        .btn-submit {
-          width: 100%;
-          min-height: 54px;
-          font-size: 1rem;
-        }
-
-        .btn-submit:disabled {
-          opacity: 0.7;
-          cursor: not-allowed;
-        }
-
-        .stripe-secure-text {
-          color: var(--color-text-secondary);
-          font-size: 0.88rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.35rem;
-        }
-
-        .error-banner {
-          padding: 1rem 1.2rem;
-          border-radius: 16px;
-          display: flex;
-          align-items: flex-start;
-          gap: 0.5rem;
-          font-weight: 700;
-        }
-
-        .system-error {
-          background: var(--color-danger-soft);
-          border: 1px solid var(--color-danger);
-          color: var(--color-danger);
-        }
-
-        input.input-error,
-        select.input-error {
-          border-color: var(--color-danger) !important;
-        }
-
-        .field-error-msg {
-          display: block;
-          color: var(--color-danger);
-          font-size: 0.82rem;
-          margin-top: 0.4rem;
-        }
-
-        .autocomplete-dropdown {
-          position: absolute;
-          top: calc(100% + 4px);
-          left: 0;
-          right: 0;
-          background: var(--color-background-surface);
-          border: 1px solid var(--color-border-default);
-          border-radius: var(--radius-input);
-          list-style: none;
-          margin: 0;
-          padding: 0;
-          z-index: 9999;
-          max-height: 240px;
-          overflow-y: auto;
-          box-shadow: var(--shadow-hover);
-        }
-
-        .autocomplete-dropdown li {
-          padding: 0.75rem 1rem;
-          cursor: pointer;
-          font-size: 0.9rem;
-          color: var(--color-text-primary);
-          border-bottom: 1px solid var(--color-border-default);
-        }
-
-        .autocomplete-dropdown li:last-child {
-          border-bottom: none;
-        }
-
-        .autocomplete-dropdown li:hover {
-          background: var(--color-selection-bg);
-        }
-
-        .sr-only {
-          position: absolute;
-          width: 1px;
-          height: 1px;
-          padding: 0;
-          margin: -1px;
-          overflow: hidden;
-          clip: rect(0, 0, 0, 0);
-          white-space: nowrap;
-          border-width: 0;
-        }
-
-        .upload-dropzone {
-          border: 1px dashed var(--color-border-strong);
-          border-radius: var(--radius-input);
-          padding: 1.75rem 1rem;
-          text-align: center;
-          background: var(--color-background-soft);
-          cursor: pointer;
-          transition: border-color var(--transition-fast), background-color var(--transition-fast);
-        }
-
-        .upload-dropzone:hover {
-          border-color: var(--color-accent-primary);
-          background: var(--color-selection-bg);
-        }
-
-        .upload-dropzone p {
-          margin-top: 0.75rem;
-          color: var(--color-text-secondary);
-        }
-
-        .file-preview-grid {
-          display: grid;
-          gap: 0.5rem;
-        }
-
-        .file-preview-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 1rem;
-          padding: 0.55rem 0.85rem;
-          background: var(--color-background-soft);
-          border-radius: 12px;
-          color: var(--color-text-primary);
-          font-size: 0.9rem;
-        }
-
-        .file-preview-item button {
-          background: none;
-          border: none;
-          color: var(--color-danger);
-        }
-
-        @media (max-width: 1080px) {
-          .booking-layout {
-            grid-template-columns: 1fr;
-          }
-
-          .booking-sidebar {
-            position: static;
-          }
-        }
-
-        @media (max-width: 920px) {
-          .booking-package-grid,
-          .plan-choice-list.compact,
-          .form-grid,
-          .location-toggle {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        @media (max-width: 1080px) {
-          .summary-header-desktop {
-            display: none;
-          }
-
-          .summary-toggle-mobile {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            background: transparent;
-            border: none;
-            padding: 0;
-            color: var(--color-text-primary);
-          }
-
-          .summary-content {
-            display: none;
-          }
-
-          .summary-content.open {
-            display: grid;
-          }
-        }
-      `}</style>
     </div>
   );
 };

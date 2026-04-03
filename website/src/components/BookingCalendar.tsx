@@ -73,9 +73,25 @@ export const BookingCalendar = ({ selectedDate, onChange, bookedDates }: Booking
   return (
     <div className="calendar-container glass">
       <div className="calendar-header">
-        <button type="button" onClick={prevMonth} className="nav-btn"><ChevronLeft size={20} /></button>
+        <button
+          type="button"
+          onClick={prevMonth}
+          className="nav-btn"
+          aria-label="Go to previous month"
+          title="Previous month"
+        >
+          <ChevronLeft size={20} />
+        </button>
         <span className="month-label">{monthName} {year}</span>
-        <button type="button" onClick={nextMonth} className="nav-btn"><ChevronRight size={20} /></button>
+        <button
+          type="button"
+          onClick={nextMonth}
+          className="nav-btn"
+          aria-label="Go to next month"
+          title="Next month"
+        >
+          <ChevronRight size={20} />
+        </button>
       </div>
       
       <div className="calendar-weekdays">
@@ -96,35 +112,6 @@ export const BookingCalendar = ({ selectedDate, onChange, bookedDates }: Booking
           <div className="legend-item"><span className="swatch booked"></span> Booked</div>
         </div>
       </div>
-
-      <style>{`
-        .calendar-container { padding: 1.5rem; border-radius: var(--radius-md); border-top: 2px solid var(--color-accent-lime); width: 100%; }
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .month-label { font-weight: 700; font-size: 1.2rem; color: var(--color-text-main); }
-        .nav-btn { background: rgba(128,128,128,0.1); border: none; border-radius: 4px; color: var(--color-text-main); display: flex; padding: 0.25rem; transition: background 0.2s; }
-        .nav-btn:hover { background: var(--color-accent-lime); color: #000; }
-        
-        .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 0.5rem; }
-        .weekday { text-align: center; font-size: 0.8rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; }
-        
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-        .calendar-day { display: flex; flex-direction: column; align-items: center; justify-content: center; aspect-ratio: 1; border: 1px solid var(--color-border); background: var(--color-bg-card-dark); color: var(--color-text-main); border-radius: 6px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; position: relative; }
-        .calendar-day:not(.disabled):hover { border-color: var(--color-accent-lime); }
-        .calendar-day.selected { background: var(--color-accent-lime); color: #0f131f; border-color: var(--color-accent-lime); }
-        .calendar-day.disabled { background: rgba(128,128,128,0.05); color: rgba(128,128,128,0.3); border-color: transparent; cursor: not-allowed; }
-        .calendar-day.empty { background: transparent; border: none; pointer-events: none; }
-        
-        .dot { width: 4px; height: 4px; border-radius: 50%; margin-top: 2px; }
-        .dot.booked { background: #ef4444; }
-
-        .calendar-legend { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--color-border); font-size: 0.85rem; color: var(--color-text-muted); text-align: center; }
-        .legend-items { display: flex; justify-content: center; gap: 1rem; margin-top: 0.75rem; }
-        .legend-item { display: flex; align-items: center; gap: 0.25rem; }
-        .swatch { width: 12px; height: 12px; border-radius: 2px; display: inline-block; border: 1px solid var(--color-border); }
-        .swatch.available { background: var(--color-bg-card-dark); }
-        .swatch.selected { background: var(--color-accent-lime); }
-        .swatch.booked { background: rgba(128,128,128,0.05); border-color: transparent; }
-      `}</style>
     </div>
   );
 };
