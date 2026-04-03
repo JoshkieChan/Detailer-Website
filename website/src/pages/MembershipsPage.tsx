@@ -43,7 +43,7 @@ const MembershipsPage = () => {
             <div className="membership-head">
               <div className="tier-title-row">
                 <h2>{plan.id === 'quarterly' ? 'Quarterly Plan' : 'Monthly Plan'}</h2>
-                {plan.popular && <div className="badge-popular membership-badge">Most picked</div>}
+                {plan.popular && <div className="badge-popular tier-badge">Most picked</div>}
               </div>
               <p className="membership-best-for">{planBestFor[plan.id]}</p>
               <div className="membership-pricing-line">{planPricingLine[plan.id]}</div>
@@ -100,6 +100,13 @@ const MembershipsPage = () => {
           gap: 2.75rem;
         }
 
+        .card-grid.two {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 1.25rem;
+          align-items: stretch;
+        }
+
         .compact-hero {
           max-width: 820px;
           margin: 0 auto;
@@ -112,12 +119,13 @@ const MembershipsPage = () => {
         }
 
         .membership-card {
-          display: grid;
-          gap: 1.2rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1.25rem;
           padding: 1.6rem;
           background: var(--color-background-surface);
           border: 1px solid var(--color-border-default);
-          border-radius: 14px;
+          border-radius: 20px;
           transition:
             transform var(--transition-base),
             border-color var(--transition-base),
@@ -133,7 +141,7 @@ const MembershipsPage = () => {
 
         .membership-card.featured {
           border-color: var(--color-accent-primary);
-          background: color-mix(in srgb, var(--color-background-surface) 92%, var(--color-accent-primary) 8%);
+          background: color-mix(in srgb, var(--color-background-surface) 88%, var(--color-accent-primary) 12%);
         }
 
         .membership-head {

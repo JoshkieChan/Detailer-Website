@@ -688,15 +688,46 @@ label {
   line-height: 1.2;
 }
 
+.tier-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  font-family: var(--font-label);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--color-accent-primary);
+  color: var(--color-button-primary-text);
+  border-radius: 999px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.price-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.price-prefix {
+  font-family: var(--font-label);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-secondary);
+}
+
 .tier-for-line {
   color: var(--color-text-secondary);
   line-height: 1.6;
   font-size: 0.95rem;
-}
-
-.tier-badge {
-  flex-shrink: 0;
-  white-space: nowrap;
 }
 
 .tier-inclusions {

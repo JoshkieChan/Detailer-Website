@@ -93,9 +93,6 @@ const HubPage = () => {
           <h2>SIGNALSOURCE</h2>
           <p>Car care for Oak Harbor. Systems thinking for everything else.</p>
         </div>
-        <Link to="/" className="hub-footer-link">
-          Back to Home
-        </Link>
       </footer>
 
       <style>{`
@@ -120,15 +117,22 @@ const HubPage = () => {
           padding-top: 0.5rem;
         }
 
+        .card-grid.three {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 1.25rem;
+          align-items: stretch;
+        }
+
         .hub-card {
           display: flex;
           flex-direction: column;
-          gap: 1.2rem;
-          min-height: 100%;
-          padding: 1.5rem;
+          gap: 1.25rem;
+          height: 100%;
+          padding: 1.6rem;
           background: var(--color-background-surface);
           border: 1px solid var(--color-border-default);
-          border-radius: 14px;
+          border-radius: 20px;
           color: inherit;
           transition:
             transform var(--transition-base),
@@ -145,7 +149,7 @@ const HubPage = () => {
 
         .hub-card-primary {
           border-color: var(--color-accent-primary);
-          background: color-mix(in srgb, var(--color-background-surface) 90%, var(--color-accent-primary) 10%);
+          background: color-mix(in srgb, var(--color-background-surface) 88%, var(--color-accent-primary) 12%);
         }
 
         .hub-card-primary:hover {
