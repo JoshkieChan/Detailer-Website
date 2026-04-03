@@ -109,18 +109,44 @@ const DigitalAssetsExamples = () => {
         </div>
       </section>
 
-      <section className="content-card reveal">
-        <div className="support-pill"><Package size={18} /> Bundles</div>
-        <h2 className="section-title">Full Military Move &amp; Income Pack 2026</h2>
-        <p className="section-copy">
-          All four blueprints together: spouse income, sailor transition, global relocation,
-          and AI-proof resume building. Built so your family can plan moves, money, and
-          civilian life in one place instead of starting from scratch every time.
-        </p>
-        <div className="hero-actions">
-          <a href={GUMROAD_URL} target="_blank" rel="noopener noreferrer" className="btn primary">
-            Buy bundle on Gumroad
-          </a>
+      <section className="section-stack">
+        <div className="section-header reveal">
+          <span className="eyebrow">Bundle & Save</span>
+          <h2 className="section-title">Systems packs for a full restart.</h2>
+        </div>
+        <div className="card-grid two">
+          <article className="content-card reveal">
+            <div className="support-pill"><Package size={18} /> $147</div>
+            <h2 className="section-title">Full Military Move &amp; Income Pack 2026</h2>
+            <p className="section-copy">
+              All four military-focused blueprints together: PCS planning, PCS-proof income,
+              resume builder, and transition playbook. Built for service members and
+              families who want a practical, systems-first way to handle moves, money, and
+              civilian transition without starting from scratch every time.
+            </p>
+            <div className="hero-actions">
+              <a href={GUMROAD_URL} target="_blank" rel="noopener noreferrer" className="btn primary">
+                Buy bundle on Gumroad
+              </a>
+            </div>
+          </article>
+
+          <article className="content-card reveal" data-reveal-delay="1">
+            <div className="support-pill"><Package size={18} /> $147</div>
+            <h2 className="section-title">Digital Life &amp; Income Pack 2026</h2>
+            <p className="section-copy">
+              All four global guides together: 2026 Overwhelm Reset, Debt &amp; Bills
+              Dashboard 2026, 2026 Work Pivot Blueprint, and Faceless Launch OS – Launch
+              System Guide. For people who feel scattered, stuck, or broke and want simple
+              systems to reset their life, see their money clearly, choose a new work
+              direction, and launch a faceless digital product without a personal brand.
+            </p>
+            <div className="hero-actions">
+              <a href={GUMROAD_URL} target="_blank" rel="noopener noreferrer" className="btn primary">
+                Buy bundle on Gumroad
+              </a>
+            </div>
+          </article>
         </div>
       </section>
 
