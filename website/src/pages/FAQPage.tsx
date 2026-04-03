@@ -1,21 +1,37 @@
 import { useState } from 'react';
+import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { ChevronDown, CalendarCheck } from 'lucide-react';
 
-const faqGroups = [
+interface FAQItem {
+  question: string;
+  answer: ReactNode;
+}
+
+const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
   {
     title: 'Packages and pricing',
     items: [
       {
         question: 'How do I know which tier to choose?',
-        answer: 'Maintenance is for routine upkeep, Deep Reset is for vehicles that have slipped backward, and New Car Protection is for newer or already-clean vehicles that need gloss and protection.',
+        answer: (
+          <>
+            Maintenance is for routine upkeep, Deep Reset is for vehicles that have slipped
+            backward, and New Car Protection is for newer or already-clean vehicles that need
+            gloss and protection. You can see the full breakdown of what each tier includes on
+            the <Link to="/services"> Detailing / Services page</Link>.
+          </>
+        ),
       },
       {
         question: 'Are add-ons required?',
-        answer: 'No. Add-ons are optional upgrades for extra labor, extra correction, or extra convenience. The base packages are built to stand on their own.',
+        answer:
+          'No. Add-ons are optional upgrades for extra labor, extra correction, or extra convenience. The base packages are built to stand on their own.',
       },
       {
         question: 'What if my vehicle is worse than I described?',
-        answer: 'If the actual condition changes the scope in a meaningful way, we confirm the updated time and price before work begins.',
+        answer:
+          'If the actual condition changes the scope in a meaningful way, we confirm the updated time and price before work begins.',
       },
     ],
   },
@@ -24,11 +40,18 @@ const faqGroups = [
     items: [
       {
         question: 'Is On-Island Mobile Convenience required?',
-        answer: 'No. It is an optional convenience upgrade for customers who want service at home or work instead of dropping off at the studio.',
+        answer:
+          'No. It is an optional convenience upgrade for customers who want service at home or work instead of dropping off at the studio.',
       },
       {
         question: 'When is the studio a better choice?',
-        answer: 'Garage Studio is better for heavier interior work, longer resets, controlled lighting needs, and anything that should not depend on driveway conditions or weather.',
+        answer:
+          'Garage Studio is better for heavier interior work, longer resets, controlled lighting needs, and anything that should not depend on driveway conditions or weather.',
+      },
+      {
+        question: 'What should I do before my appointment?',
+        answer:
+          'Please remove valuables, documents, cash, and heavy loose items so the team can work efficiently and avoid missing anything. For mobile appointments, a safe parking spot and access to the vehicle are all we need.',
       },
     ],
   },
@@ -37,11 +60,18 @@ const faqGroups = [
     items: [
       {
         question: 'What does the 20% deposit cover?',
-        answer: 'It reserves your appointment time and is applied to the final invoice. It is not an extra fee added on top.',
+        answer: (
+          <>
+            It reserves your appointment time and is applied to the final invoice. It is not
+            an extra fee added on top. The <Link to="/pricing">Pricing page</Link> shows where
+            the deposit fits into the total, including typical ranges by tier.
+          </>
+        ),
       },
       {
         question: 'What happens if the scope changes before the appointment?',
-        answer: 'If the selected scope changes significantly close to the appointment, required time and final price may change as well. Any changes are confirmed before work starts.',
+        answer:
+          'If the selected scope changes significantly close to the appointment, required time and final price may change as well. Any changes are confirmed before work starts.',
       },
     ],
   },
@@ -50,11 +80,19 @@ const faqGroups = [
     items: [
       {
         question: 'Who should join a maintenance plan?',
-        answer: 'Drivers who already have a clean baseline and want guaranteed spots, easier upkeep, and less mental load than ad-hoc booking.',
+        answer: (
+          <>
+            Drivers who already have a clean baseline and want guaranteed spots, easier
+            upkeep, and less mental load than ad-hoc booking. If you&apos;re considering a plan,
+            the <Link to="/memberships">Maintenance Plans page</Link> shows the current options
+            and terms.
+          </>
+        ),
       },
       {
         question: 'Is it smarter than booking one detail at a time?',
-        answer: 'Usually yes, if the vehicle stays in steady use. Membership keeps you from waiting until the car feels trashed again and paying for bigger resets.',
+        answer:
+          'Usually yes, if the vehicle stays in steady use. Membership keeps you from waiting until the car feels trashed again and paying for bigger resets.',
       },
     ],
   },
@@ -63,7 +101,14 @@ const faqGroups = [
     items: [
       {
         question: 'Are the systems and digital guides your main service?',
-        answer: 'No. Car Detailing & Protection is the main local offer. The guides and systems are secondary services for people who want the same systems mindset applied to moves, money, or operations.',
+        answer: (
+          <>
+            No. Car Detailing & Protection is the main local offer. The guides and systems are
+            secondary services for people who want the same systems mindset applied to moves,
+            money, or operations. You can browse those secondary tools from the{' '}
+            <Link to="/hub">Hub</Link>.
+          </>
+        ),
       },
     ],
   },
@@ -99,20 +144,23 @@ const FAQPage = () => {
                 const isOpen = openId === id;
 
                 return (
-                  <button
-                    type="button"
-                    className={`faq-item ${isOpen ? 'active' : ''}`}
-                    onClick={() => setOpenId(isOpen ? '' : id)}
-                    key={item.question}
-                  >
-                    <div className="faq-question">
-                      <h3>{item.question}</h3>
-                      <ChevronDown size={20} className={`faq-chevron ${isOpen ? 'open' : ''}`} />
-                    </div>
+                  <article className={`faq-item ${isOpen ? 'active' : ''}`} key={item.question}>
+                    <button
+                      type="button"
+                      className="faq-trigger"
+                      onClick={() => setOpenId(isOpen ? '' : id)}
+                    >
+                      <div className="faq-question">
+                        <h3>{item.question}</h3>
+                        <ChevronDown size={20} className={`faq-chevron ${isOpen ? 'open' : ''}`} />
+                      </div>
+                    </button>
                     <div className={`faq-answer ${isOpen ? 'open' : ''}`}>
-                      <p>{item.answer}</p>
+                      <div className="faq-answer-inner">
+                        <p>{item.answer}</p>
+                      </div>
                     </div>
-                  </button>
+                  </article>
                 );
               })}
             </div>
@@ -142,12 +190,11 @@ const FAQPage = () => {
         }
 
         .faq-item {
-          text-align: left;
           width: 100%;
           background: var(--color-background-surface);
           border: 1px solid var(--color-border-default);
           border-radius: var(--radius-card);
-          padding: 1.15rem 1.25rem;
+          padding: 0;
           transition: border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
         }
 
@@ -159,6 +206,15 @@ const FAQPage = () => {
 
         .faq-item.active {
           border-color: var(--color-accent-primary);
+        }
+
+        .faq-trigger {
+          width: 100%;
+          background: transparent;
+          border: none;
+          padding: 1.15rem 1.25rem;
+          text-align: left;
+          color: inherit;
         }
 
         .faq-question {
@@ -189,15 +245,29 @@ const FAQPage = () => {
           transition: grid-template-rows var(--transition-base);
         }
 
-        .faq-answer p {
+        .faq-answer-inner {
           overflow: hidden;
+          padding: 0 1.25rem;
+        }
+
+        .faq-answer p {
           color: var(--color-text-secondary);
           line-height: 1.7;
+          margin: 0;
+        }
+
+        .faq-answer p a {
+          color: var(--color-accent-primary);
+          font-weight: 700;
         }
 
         .faq-answer.open {
           grid-template-rows: 1fr;
-          margin-top: 0.9rem;
+          margin-top: -0.1rem;
+        }
+
+        .faq-answer.open .faq-answer-inner {
+          padding-bottom: 1.15rem;
         }
       `}</style>
     </div>
