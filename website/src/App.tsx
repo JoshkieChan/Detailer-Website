@@ -17,6 +17,8 @@ import LocalSystemsExamples from './pages/LocalSystemsExamples';
 import BookingPage from './pages/BookingPage';
 import ConfirmationPage from './pages/ConfirmationPage';
 import TripwirePage from './pages/TripwirePage';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
 import { useState, useEffect } from 'react';
 
 function App() {
@@ -50,6 +52,8 @@ function App() {
               <Route path="/booking" element={<BookingPage />} />
               <Route path="/booking/confirmation" element={<ConfirmationPage />} />
               <Route path="/snapshot/order" element={<TripwirePage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
             </Routes>
           </Layout>
         </Router>

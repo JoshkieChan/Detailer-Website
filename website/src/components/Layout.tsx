@@ -130,6 +130,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <p className="serving-text mt-1">Serving Oak Harbor, NAS Whidbey & surrounding areas.</p>
             <p className="footer-hours">By appointment only • Monday–Saturday</p>
             <p className="footer-legal">Fully Licensed & Insured • Whidbey Island, WA</p>
+            <div className="footer-legal-links mt-1">
+              <Link to="/privacy">Privacy Policy</Link>
+              <span className="separator">•</span>
+              <Link to="/terms">Terms of Service</Link>
+            </div>
             <p className="coming-soon mt-1">Coming Soon: Window Tint, Ceramic Coatings, PPF & Wraps</p>
           </div>
           <div className="footer-right">
