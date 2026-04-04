@@ -10,30 +10,35 @@ const pdfs = [
     price: '$39',
     description: 'A clear income plan for Navy spouses at or near NAS Whidbey. Learn how to keep money coming in before, during, and after PCS moves without shady schemes or burning yourself out.',
     icon: <CheckCircle size={20} />,
+    bundleNote: 'Serious about a full relocation reset? Get this blueprint inside the Full Military Move & Income Pack 2026 and save 20%.',
   },
   {
     title: 'Transitioning Sailor to Civilian Success Blueprint 2026',
     price: '$49',
     description: 'Step-by-step transition map for sailors leaving active duty. Covers timelines, savings targets, networking, and job-hunt routines so you do not drift for 12–18 months after separation.',
     icon: <Shield size={20} />,
+    bundleNote: 'Serious about a full relocation reset? Get this blueprint inside the Full Military Move & Income Pack 2026 and save 20%.',
   },
   {
     title: 'Global Military Family Relocation & Income Blueprint 2026',
     price: '$59',
     description: 'A relocation and income survival plan for military families moving across states or overseas. Housing, schools, budgeting, side-income options, and a repeatable move workflow.',
     icon: <Droplets size={20} />,
+    bundleNote: 'Serious about a full relocation reset? Get this blueprint inside the Full Military Move & Income Pack 2026 and save 20%.',
   },
   {
     title: 'AI-Proof Navy Resume Builder 2026',
     price: '$39',
     description: 'A guided resume and LinkedIn framework that translates ratings, quals, and eval bullets into civilian language recruiters and ATS tools actually understand.',
     icon: <FileText size={20} />,
+    bundleNote: 'Serious about a full relocation reset? Get this blueprint inside the Full Military Move & Income Pack 2026 and save 20%.',
   },
   {
     title: 'Faceless Launch OS – Launch System Guide 2026',
     price: '$67',
     description: 'Launch your faceless digital product in 30 days using a simple operating system and content sprint. Turn scattered ideas into a focused offer, build automated DM funnels, and track every sale in one lightweight system—no personal brand or face-on-camera required.',
     icon: <Package size={20} />,
+    bundleNote: 'Serious about a life reset? Get this system inside the Digital Life & Income Pack 2026 and save 30%.',
   },
   {
     title: '2026 Overwhelm Reset – 7-Day System to Get Your Life Back Under Control',
@@ -41,6 +46,7 @@ const pdfs = [
     description:
       'Stop the mental fog and digital clutter with a 7-day system designed to reset your baseline. Built for those who feel constantly behind, this guide walks you through clearing your physical and digital backlog so you can regain focus and control over your daily routines.',
     icon: <Shield size={20} />,
+    bundleNote: 'Serious about a life reset? Get this system inside the Digital Life & Income Pack 2026 and save 30%.',
   },
   {
     title: 'Debt & Bills Dashboard 2026 – A Zero-BS Plan to Stop Drowning',
@@ -48,6 +54,7 @@ const pdfs = [
     description:
       'Trying to keep up with debt, bills, and subscriptions in your head is turning into anxiety and avoidance. This guide walks you through building a simple debt and bills snapshot on one page, choosing a pay-down order, and knowing exactly what to pay next—so you can move from panic and guessing to a clear, doable plan.',
     icon: <CheckCircle size={20} />,
+    bundleNote: 'Serious about a life reset? Get this system inside the Digital Life & Income Pack 2026 and save 30%.',
   },
   {
     title: '2026 Work Pivot Blueprint – Go From “Stuck Job” to a Real Plan in 30 Days',
@@ -55,6 +62,7 @@ const pdfs = [
     description:
       'AI, layoffs, and burnout are making your current job feel like a trap. This 30-day blueprint helps you pick one realistic pivot direction, map your skills gap, design a tiny proof project, and create a 90-day plan—so you stop doomscrolling “new career” videos and start moving toward work that actually fits your life.',
     icon: <Package size={20} />,
+    bundleNote: 'Serious about a life reset? Get this system inside the Digital Life & Income Pack 2026 and save 30%.',
   },
 ];
 
@@ -89,8 +97,13 @@ const DigitalAssetsExamples = () => {
           <span className="eyebrow">Flagship Guides</span>
           <h2 className="section-title">Downloadable frameworks with a concrete use case.</h2>
         </div>
+        
+        <section className="container reveal flagship-lead-magnet">
+          <LeadMagnet redirectUrl="/snapshot/order" />
+        </section>
+
         <div className="card-grid two">
-          {pdfs.map((pdf, index) => (
+          {pdfs.slice(0, 4).map((pdf, index) => (
             <article className="guide-card reveal" data-reveal-delay={String(index % 2)} key={pdf.title}>
               <div className="guide-card-top">
                 <span className="support-pill">{pdf.icon}{pdf.price}</span>
@@ -105,13 +118,39 @@ const DigitalAssetsExamples = () => {
                   View details
                 </a>
               </div>
+              <p className="bundle-upsell-text">
+                {pdf.bundleNote}
+              </p>
             </article>
           ))}
         </div>
-      </section>
 
-      <section className="container reveal">
-        <LeadMagnet />
+        <section className="container reveal inline-lead-magnet">
+          <LeadMagnet redirectUrl="/snapshot/order" />
+        </section>
+
+        <div className="card-grid two">
+          {pdfs.slice(4).map((pdf, index) => (
+            <article className="guide-card reveal" data-reveal-delay={String(index % 2)} key={pdf.title}>
+              <div className="guide-card-top">
+                <span className="support-pill">{pdf.icon}{pdf.price}</span>
+              </div>
+              <h3>{pdf.title}</h3>
+              <p className="section-copy">{pdf.description}</p>
+              <div className="hero-actions">
+                <a href={GUMROAD_URL} target="_blank" rel="noopener noreferrer" className="btn primary">
+                  Buy on Gumroad
+                </a>
+                <a href={GUMROAD_URL} target="_blank" rel="noopener noreferrer" className="btn secondary">
+                  View details
+                </a>
+              </div>
+              <p className="bundle-upsell-text">
+                {pdf.bundleNote}
+              </p>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section className="section-stack">
@@ -204,6 +243,24 @@ const DigitalAssetsExamples = () => {
 
         .guide-card h3 {
           font-size: 1.2rem;
+        }
+
+        .bundle-upsell-text {
+          margin-top: 1.25rem;
+          padding-top: 1.25rem;
+          border-top: 1px solid var(--color-border-default);
+          font-size: 0.82rem;
+          color: var(--color-text-secondary);
+          line-height: 1.5;
+          font-style: italic;
+        }
+
+        .flagship-lead-magnet {
+          margin-bottom: 2.5rem;
+        }
+
+        .inline-lead-magnet {
+          margin: 3.5rem 0;
         }
       `}</style>
     </div>
