@@ -1,5 +1,6 @@
 import { ChevronLeft, FileText, CheckCircle, Shield, Droplets, Package } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { LeadMagnet } from '../components/LeadMagnet';
 
 const GUMROAD_URL = 'https://signaldatasource.gumroad.com';
 
@@ -107,6 +108,10 @@ const DigitalAssetsExamples = () => {
             </article>
           ))}
         </div>
+      </section>
+
+      <section className="container reveal">
+        <LeadMagnet />
       </section>
 
       <section className="section-stack">

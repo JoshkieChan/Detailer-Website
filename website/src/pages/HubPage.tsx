@@ -1,5 +1,6 @@
 import { ArrowRight, MapPin, Search, Cpu, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { LeadMagnet } from '../components/LeadMagnet';
 
 const HubPage = () => {
   return (
@@ -17,6 +18,10 @@ const HubPage = () => {
             <ChevronDown size={16} />
           </a>
         </div>
+      </section>
+
+      <section className="hub-lead-magnet container">
+        <LeadMagnet />
       </section>
 
       <section id="hub-paths" className="hub-paths">
