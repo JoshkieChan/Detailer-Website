@@ -5,32 +5,31 @@ import { supabase } from '../lib/supabase';
 
 const ConfirmationPage = () => {
   const [searchParams] = useSearchParams();
-  const sessionId = searchParams.get('session_id');
+  const bookingId = searchParams.get('booking_id');
   const [loading, setLoading] = useState(true);
   const [booking, setBooking] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!sessionId) {
-      setError("No session ID found. If you just booked, please check your email for confirmation.");
+    if (!bookingId) {
+      setError("No booking ID found. If you just booked, please check your email for confirmation.");
       setLoading(false);
       return;
     }
 
     const fetchBooking = async () => {
-      // Poll Supabase for the booking where stripe_session_id matches
-      // We poll because the webhook might take a second to update the DB
+      // Poll Supabase for the booking where id matches
       let attempts = 0;
-      const maxAttempts = 10;
+      const maxAttempts = 5;
       
       const poll = async () => {
         const { data } = await supabase
           .from('bookings')
           .select('*')
-          .eq('stripe_session_id', sessionId)
+          .eq('id', bookingId)
           .single();
 
-        if (data && data.deposit_status === 'paid') {
+        if (data) {
           setBooking(data);
           setLoading(false);
         } else if (attempts < maxAttempts) {
@@ -52,7 +51,7 @@ const ConfirmationPage = () => {
     };
 
     fetchBooking();
-  }, [sessionId]);
+  }, [bookingId]);
 
   const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`;
 
@@ -60,8 +59,8 @@ const ConfirmationPage = () => {
     return (
       <div className="confirmation-page container text-center confirmation-state">
         <Loader2 size={60} className="spinner icon-lime confirmation-state-icon" />
-        <h1>Verifying your deposit...</h1>
-        <p className="confirmation-state-copy">Please don't close this page. We're finalizing your reservation.</p>
+        <h1>Finalizing your booking...</h1>
+        <p className="confirmation-state-copy">Please don't close this page. We're securing your reservation.</p>
       </div>
     );
   }
@@ -87,11 +86,9 @@ const ConfirmationPage = () => {
         <div className="success-icon-wrap">
           <CheckCircle size={80} className="icon-lime pulse-animation" />
         </div>
-        <h1>Booking {booking.deposit_status === 'paid' ? 'Confirmed!' : 'Pending Confirmation'}</h1>
+        <h1>Booking Received!</h1>
         <p className="hook-text mt-1">
-          {booking.deposit_status === 'paid' 
-            ? "Your 20% deposit was received successfully. We have locked in your slot! Your appointment has been added to my internal calendar."
-            : "Your request is received. We're just waiting for the final bank confirmation."}
+          Your reservation request has been processed. We have locked in your slot and added it to our internal calendar.
         </p>
       </div>
 
@@ -124,7 +121,7 @@ const ConfirmationPage = () => {
             <span>{formatCurrency(booking.total_amount)}</span>
           </div>
           <div className="payment-row deposit-row">
-            <span>Stripe Deposit {booking.deposit_status === 'paid' ? 'Paid' : 'Pending'} (20%):</span>
+            <span>Booking Deposit (20%):</span>
             <span className="highlight-lime">- {formatCurrency(booking.deposit_amount)}</span>
           </div>
           <div className="payment-row total-row">

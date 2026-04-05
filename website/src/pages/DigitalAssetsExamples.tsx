@@ -1,9 +1,10 @@
 import { ChevronLeft, CheckCircle2, TrendingUp, Package, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const OVERWHELM_LINK = 'https://buy.stripe.com/14A9AT1XMd4U6lC6tE6Vq00';
-const DEBT_DASHBOARD_LINK = 'https://buy.stripe.com/eVq7sL7i6c0QaBS19k6Vq01';
-const LIFE_INCOME_PACK_LINK = 'https://buy.stripe.com/6oU8wP45U2qg8tKf0a6Vq02';
+// TODO: Wire Helcim checkout here
+const OVERWHELM_LINK = '#';
+const DEBT_DASHBOARD_LINK = '#';
+const LIFE_INCOME_PACK_LINK = '#';
 
 const DigitalAssetsExamples = () => {
   return (

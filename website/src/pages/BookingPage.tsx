@@ -24,12 +24,6 @@ const packageBestFor: Record<string, string> = {
   'new-car': 'Best for newer vehicles or recently detailed cars needing gloss and protection.',
 };
 
-const PACKAGE_DEPOSIT_URLS: Record<string, string> = {
-  maintenance: 'https://buy.stripe.com/eVqcN531Qc0Q39qdW66Vq03',
-  'deep-reset': 'https://buy.stripe.com/dRm9AT9qe1mc25m8BM6Vq04',
-  'new-car': 'https://buy.stripe.com/5kQdR91XMc0QcK04lw6Vq05',
-};
-
 const planChoiceLabels: Record<string, string> = {
   quarterly: 'Interested in Quarterly Plan',
   monthly: 'Interested in Monthly Plan',
@@ -279,12 +273,46 @@ const BookingPage = () => {
     setIsSubmitting(true);
 
     try {
-      const depositUrl = PACKAGE_DEPOSIT_URLS[formData.package];
+      // Step 5: Process Booking Submission (Now Processor-Agnostic)
+      // The Edge Function will handle DB inserts, Google Calendar, and reCAPTCHA.
+      // TODO: Once Helcim is ready, inject the redirect or modal call here.
       
-      if (depositUrl) {
-        window.location.href = depositUrl;
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+      
+      if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error('Supabase environment variables are missing.');
+      }
+
+      // We call the generic 'create-booking' function (previously stripe-checkout)
+      const functionUrl = `${supabaseUrl}/functions/v1/create-booking`;
+      
+      const response = await fetch(functionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+          'apikey': supabaseAnonKey
+        },
+        body: JSON.stringify({
+          ...formData,
+          estimatedTotal,
+          selectedAddOns: selectedAddOns.map(a => a.name),
+          packageName: selectedPackage?.title
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Failed to create booking.');
+      }
+
+      if (data.bookingId) {
+        // Stripe removal: Redirect directly to confirmation with the internal booking ID.
+        window.location.href = `/booking/confirmation?booking_id=${data.bookingId}`;
       } else {
-        throw new Error('Please select a valid package to proceed.');
+        throw new Error('Booking ID was not returned from the server.');
       }
     } catch (err: unknown) {
       console.error('Booking submit error details:', err);
@@ -620,7 +648,7 @@ const BookingPage = () => {
             <button type="submit" className="btn primary btn-submit" disabled={isSubmitting}>
               {isSubmitting ? 'Processing...' : 'Pay 20% Deposit & Book'}
             </button>
-            <div className="stripe-secure-text">
+            <div className="payment-secure-text">
               <ShieldCheck size={14} /> Your deposit goes toward the final total and is not an extra fee.
             </div>
           </div>

@@ -1679,7 +1679,7 @@ label {
   cursor: not-allowed;
 }
 
-.stripe-secure-text {
+.payment-secure-text {
   color: var(--color-text-secondary);
   font-size: 0.88rem;
   display: flex;
