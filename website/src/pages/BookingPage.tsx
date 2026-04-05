@@ -13,14 +13,10 @@ import {
 } from 'lucide-react';
 import { BookingCalendar } from '../components/BookingCalendar';
 import { fetchBookedDates } from '../api/availability';
-import { createDepositCheckout } from '../api/stripe';
 import { servicePackages } from '../data/packages';
 import { maintenancePlans } from '../data/maintenancePlans';
 import { detailAddOns } from '../data/addOns';
 
-const recaptchaEnv = import.meta.env as ImportMetaEnv & Record<string, string | undefined>;
-const recaptchaSiteKey = (recaptchaEnv.VITE_RECAPTCHA_SITE_KEY ?? recaptchaEnv.RECAPTCHA_SITE_KEY)?.trim();
-const RECAPTCHA_SCRIPT_ID = 'google-recaptcha-v3';
 
 const packageBestFor: Record<string, string> = {
   maintenance: 'Best for weekly drivers and routine upkeep.',
@@ -28,59 +24,17 @@ const packageBestFor: Record<string, string> = {
   'new-car': 'Best for newer vehicles or recently detailed cars needing gloss and protection.',
 };
 
+const PACKAGE_DEPOSIT_URLS: Record<string, string> = {
+  maintenance: 'https://buy.stripe.com/eVqcN531Qc0Q39qdW66Vq03',
+  'deep-reset': 'https://buy.stripe.com/dRm9AT9qe1mc25m8BM6Vq04',
+  'new-car': 'https://buy.stripe.com/5kQdR91XMc0QcK04lw6Vq05',
+};
+
 const planChoiceLabels: Record<string, string> = {
   quarterly: 'Interested in Quarterly Plan',
   monthly: 'Interested in Monthly Plan',
 };
 
-const loadRecaptchaScript = async (siteKey: string) => {
-  if (window.grecaptcha) return;
-
-  const existingScript = document.getElementById(RECAPTCHA_SCRIPT_ID) as HTMLScriptElement | null;
-  if (existingScript) {
-    await new Promise<void>((resolve, reject) => {
-      if (window.grecaptcha) {
-        resolve();
-        return;
-      }
-      existingScript.addEventListener('load', () => resolve(), { once: true });
-      existingScript.addEventListener('error', () => reject(new Error('Failed to load reCAPTCHA script.')), { once: true });
-    });
-    return;
-  }
-
-  await new Promise<void>((resolve, reject) => {
-    const script = document.createElement('script');
-    script.id = RECAPTCHA_SCRIPT_ID;
-    script.src = `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(siteKey)}`;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Failed to load reCAPTCHA script.'));
-    document.head.appendChild(script);
-  });
-};
-
-const getRecaptchaToken = async () => {
-  if (!recaptchaSiteKey) {
-    throw new Error('reCAPTCHA site key is missing in this environment.');
-  }
-
-  await loadRecaptchaScript(recaptchaSiteKey);
-
-  if (!window.grecaptcha) {
-    throw new Error('reCAPTCHA failed to initialize.');
-  }
-
-  return await new Promise<string>((resolve, reject) => {
-    window.grecaptcha?.ready(() => {
-      window.grecaptcha
-        ?.execute(recaptchaSiteKey, { action: 'booking' })
-        .then(resolve)
-        .catch(() => reject(new Error('Failed to verify reCAPTCHA. Please try again.')));
-    });
-  });
-};
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -308,7 +262,7 @@ const BookingPage = () => {
       email: validateEmail(formData.email),
       address: formData.address.trim() ? '' : 'Address / location is required.',
       vehicleMake: validateVehicle(formData.vehicleMake),
-      package: formData.package ? '' : 'Please choose a package.',
+      package: formData.package ? '' : 'Choose a package first, then pay your 20% deposit.',
       locationType: formData.locationType ? '' : 'Please choose Garage Studio or On-Island Mobile.',
       date: formData.date ? '' : 'Please select a preferred date.',
       time: formData.time ? '' : 'Please select a preferred time range.',
@@ -325,32 +279,12 @@ const BookingPage = () => {
     setIsSubmitting(true);
 
     try {
-      const recaptchaToken = await getRecaptchaToken();
-
-      const session = await createDepositCheckout({
-        packageId: formData.package,
-        packageName: selectedPackage?.title || 'Vehicle Detail',
-        packagePrice: estimatedTotal,
-        estimatedTotal,
-        selectedAddOns: selectedAddOns.map((addOn) => addOn.name),
-        maintenancePlanId: formData.maintenancePlanId !== 'none' ? formData.maintenancePlanId : undefined,
-        notes: formData.notes,
-        vehicleColor: formData.vehicleColor,
-        recaptchaToken,
-        customerEmail: formData.email,
-        fullName: formData.fullName,
-        phone: formData.phone,
-        address: formData.address,
-        vehicleInfo: `${formData.vehicleYear} ${formData.vehicleMake}`.trim(),
-        locationType: formData.locationType,
-        serviceDate: formData.date,
-        serviceTime: formData.time,
-      });
-
-      if (session.sessionUrl) {
-        window.location.href = session.sessionUrl;
+      const depositUrl = PACKAGE_DEPOSIT_URLS[formData.package];
+      
+      if (depositUrl) {
+        window.location.href = depositUrl;
       } else {
-        throw new Error('Failed to generate checkout URL.');
+        throw new Error('Please select a valid package to proceed.');
       }
     } catch (err: unknown) {
       console.error('Booking submit error details:', err);
