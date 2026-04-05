@@ -1,9 +1,9 @@
 import { ChevronLeft, CheckCircle2, TrendingUp, Package, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const OVERWHELM_LINK = '#overwhelm-link';
-const DEBT_DASHBOARD_LINK = '#debt-dashboard-link';
-const LIFE_INCOME_PACK_LINK = '#life-income-pack-link';
+const OVERWHELM_LINK = 'https://buy.stripe.com/14A9AT1XMd4U6lC6tE6Vq00';
+const DEBT_DASHBOARD_LINK = 'https://buy.stripe.com/eVq7sL7i6c0QaBS19k6Vq01';
+const LIFE_INCOME_PACK_LINK = 'https://buy.stripe.com/6oU8wP45U2qg8tKf0a6Vq02';
 
 const DigitalAssetsExamples = () => {
   return (
@@ -23,7 +23,12 @@ const DigitalAssetsExamples = () => {
             and build a better plan for the road ahead.
           </p>
           <div className="hero-actions">
-            <a href={OVERWHELM_LINK} className="btn primary btn-lg">
+            <a 
+              href={OVERWHELM_LINK} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="btn primary btn-lg"
+            >
               Start the 7-Day Overwhelm Reset – $39
             </a>
           </div>
@@ -54,7 +59,12 @@ const DigitalAssetsExamples = () => {
             </div>
           </div>
           <div className="product-footer">
-            <a href={OVERWHELM_LINK} className="btn primary btn-lg">
+            <a 
+              href={OVERWHELM_LINK} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="btn primary btn-lg"
+            >
               Start the 7-Day Overwhelm Reset – $39
             </a>
           </div>
@@ -84,7 +94,12 @@ const DigitalAssetsExamples = () => {
             </div>
           </div>
           <div className="product-footer">
-            <a href={DEBT_DASHBOARD_LINK} className="btn primary btn-lg">
+            <a 
+              href={DEBT_DASHBOARD_LINK} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="btn primary btn-lg"
+            >
               Add the Debt &amp; Bills Dashboard – $47
             </a>
           </div>
@@ -118,7 +133,12 @@ const DigitalAssetsExamples = () => {
             </div>
           </div>
           <div className="product-footer">
-            <a href={LIFE_INCOME_PACK_LINK} className="btn primary btn-lg highlight-btn">
+            <a 
+              href={LIFE_INCOME_PACK_LINK} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="btn primary btn-lg highlight-btn"
+            >
               Get the Digital Life &amp; Income Pack – $147
             </a>
           </div>
@@ -139,8 +159,8 @@ const DigitalAssetsExamples = () => {
             </div>
             <p className="faq-a section-copy">
               Immediately after your purchase is confirmed, you will receive an email from 
-              Stripe/SignalSource with a secure download link. You can save the files to 
-              your own computer or cloud storage for permanent access.
+              Stripe with a secure download link. You can save the files to your computer 
+              or cloud storage for permanent access.
             </p>
           </div>
           <div className="faq-item content-card">
@@ -192,6 +212,17 @@ const DigitalAssetsExamples = () => {
           color: var(--color-text-secondary);
           font-weight: 700;
           width: fit-content;
+          position: relative;
+          z-index: 10;
+        }
+
+        .hero-actions, .product-footer {
+          position: relative;
+          z-index: 20;
+        }
+
+        .hero-visual {
+          pointer-events: none;
         }
 
         .product-section {
