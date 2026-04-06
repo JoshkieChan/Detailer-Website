@@ -113,6 +113,8 @@ const HomePage = () => {
           <h2 className="section-title">Two clear detailing tiers for Whidbey Island vehicles.</h2>
           <p className="section-copy">
             Choose the level your vehicle actually needs. If you need extras like engine bay cleaning, severe pet hair, or headlight work, mention it in your booking notes.
+            <br />
+            We&apos;ll review your photos and confirm total price before your appointment.
           </p>
         </div>
 

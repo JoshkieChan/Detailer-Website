@@ -1390,6 +1390,7 @@ label {
   font-size: 1.15rem;
   font-weight: 800;
   color: var(--color-text-primary);
+  white-space: nowrap;
 }
 
 .package-card-note {

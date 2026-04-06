@@ -27,6 +27,7 @@ const ServicesPage = () => {
           <h2 className="section-title">Start with the baseline your vehicle actually needs.</h2>
           <p className="section-copy">
             Start here. If you need extras like engine bay cleaning or severe pet hair, mention it in your booking notes.
+            We&apos;ll review your photos and confirm any additional cost before we start.
           </p>
         </div>
 

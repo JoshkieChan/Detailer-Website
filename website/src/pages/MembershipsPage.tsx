@@ -30,6 +30,8 @@ const MembershipsPage = () => {
           Maintenance plans assume a clean baseline from a recent Deep Reset
           service. They are for keeping a good vehicle from sliding backward, not
           for fixing a heavily neglected one on the cheap.
+          <br />
+          Membership maintenance visits follow the same scope as our standard Maintenance Detail and are priced for consistency, not one-time discounting.
         </p>
       </section>
 

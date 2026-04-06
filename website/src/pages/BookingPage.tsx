@@ -142,7 +142,8 @@ const formatCurrency = (value: number) =>
 
 const BookingPage = () => {
   const [searchParams] = useSearchParams();
-  const packageIdParam = searchParams.get('package') || '';
+  const rawPackage = searchParams.get('package') || '';
+  const packageIdParam = (rawPackage === 'maintenance' || rawPackage === 'deep-reset') ? rawPackage : '';
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [systemError, setSystemError] = useState<string | null>(null);
@@ -324,7 +325,7 @@ const BookingPage = () => {
           <section className="booking-step" ref={packageRef}>
             <span className="eyebrow">1. Choose Your Package</span>
             <h2>Start with the baseline your vehicle actually needs.</h2>
-            <p className="field-help">Pick the closest fit now. You can add optional upgrades in the next step.</p>
+            <p className="field-help">Pick the closest fit now. Extras are quoted from your notes and photos before the appointment.</p>
             <div className="booking-package-grid">
               {servicePackages.map((pkg) => (
                 <button
@@ -339,7 +340,7 @@ const BookingPage = () => {
                     {formData.package === pkg.id && <span className="selected-chip">Selected</span>}
                   </div>
                   <p className="section-copy">{packageBestFor[pkg.id]}</p>
-                  <div className="package-card-price">From ${pkg.price}</div>
+                  <div className="package-card-price">From {`$${pkg.price}`}</div>
                   <p className="package-card-note">{pkg.priceNote}</p>
                 </button>
               ))}
@@ -646,7 +647,7 @@ const BookingPage = () => {
           <div className="sidebar-card">
             <span className="eyebrow">How booking works</span>
             <ol className="sidebar-steps">
-              <li>Choose the package and any optional upgrades.</li>
+              <li>Choose the package, add notes about any extras, and upload photos.</li>
               <li>Pick the service mode, date, and time range that fit your week.</li>
               <li>Pay the 20% deposit to lock the appointment in.</li>
             </ol>
