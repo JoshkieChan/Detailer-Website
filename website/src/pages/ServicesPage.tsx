@@ -11,7 +11,7 @@ const ServicesPage = () => {
           <CalendarCheck size={16} /> Currently accepting one vehicle per day, Monday–Saturday.
         </div>
         <span className="eyebrow">Detailing / Services</span>
-        <h1 className="hero-title">Three clear detailing tiers for Whidbey Island vehicles.</h1>
+        <h1 className="hero-title">Two clear detailing tiers for Whidbey Island vehicles.</h1>
         <p className="hero-subtitle">
           Here&apos;s the full menu of detailing tiers, add-ons, and how the 20% deposit works.
           Use it to see what fits before you configure your booking.
@@ -31,7 +31,7 @@ const ServicesPage = () => {
           </p>
         </div>
 
-        <div className="card-grid three">
+        <div className="card-grid two">
           {servicePackages.map((pkg, index) => (
             <article
               className={`tier-card reveal ${pkg.highlight ? 'featured' : ''}`}
@@ -66,7 +66,7 @@ const ServicesPage = () => {
               </div>
 
               <Link to={`/booking?package=${pkg.id}`} className={`btn ${pkg.highlight ? 'primary' : 'secondary'} w-full`}>
-                {pkg.title === 'New Car Protection' ? 'Book Protection' : `Book ${pkg.title}`}
+                {`Book ${pkg.title}`}
               </Link>
             </article>
           ))}

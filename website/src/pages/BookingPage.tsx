@@ -21,7 +21,6 @@ import { detailAddOns } from '../data/addOns';
 const packageBestFor: Record<string, string> = {
   maintenance: 'Best for weekly drivers and routine upkeep.',
   'deep-reset': 'Best for neglected vehicles and full reset work.',
-  'new-car': 'Best for newer vehicles or recently detailed cars needing gloss and protection.',
 };
 
 const planChoiceLabels: Record<string, string> = {
@@ -575,7 +574,7 @@ const BookingPage = () => {
               <div className="input-group full-width">
                 <p className="booking-field-label">Plan interest (optional)</p>
                 <p className="field-help">
-                  Maintenance plans are for after a Deep Reset or New Car Protection.{' '}
+                  Maintenance plans are for after a Deep Reset.{' '}
                   <Link to="/memberships" className="inline-text-link">
                     See Maintenance Plans
                   </Link>{' '}

@@ -77,8 +77,7 @@ const ConfirmationPage = () => {
   }
 
   const packageName = booking.package_id === 'maintenance' ? 'Maintenance' 
-                    : booking.package_id === 'deep-reset' ? 'Deep Reset' 
-                    : 'New Car Protection';
+                    : 'Deep Reset';
 
   return (
     <div className="confirmation-page container">

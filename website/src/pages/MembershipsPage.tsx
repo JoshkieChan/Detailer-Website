@@ -3,8 +3,8 @@ import { CheckCircle, CalendarClock, ClipboardList } from 'lucide-react';
 import { maintenancePlans } from '../data/maintenancePlans';
 
 const planBestFor: Record<string, string> = {
-  quarterly: 'Best for families and daily drivers who want predictable upkeep after a Deep Reset or New Car Protection service.',
-  monthly: 'Best for drivers who want the cleanest ongoing cadence after a Deep Reset or New Car Protection service.',
+  quarterly: 'Best for families and daily drivers who want predictable upkeep after a Deep Reset service.',
+  monthly: 'Best for drivers who want the cleanest ongoing cadence after a Deep Reset service.',
 };
 
 const planPricingLine: Record<string, string> = {
@@ -27,8 +27,8 @@ const MembershipsPage = () => {
       <section className="content-card reveal baseline-callout">
         <div className="support-pill"><CalendarClock size={16} /> Baseline required</div>
         <p className="section-copy">
-          Maintenance plans assume a clean baseline from a recent Deep Reset or New Car
-          Protection service. They are for keeping a good vehicle from sliding backward, not
+          Maintenance plans assume a clean baseline from a recent Deep Reset
+          service. They are for keeping a good vehicle from sliding backward, not
           for fixing a heavily neglected one on the cheap.
         </p>
       </section>
@@ -75,7 +75,7 @@ const MembershipsPage = () => {
         <div className="support-pill"><ClipboardList size={16} /> Plan details</div>
         <h2 className="section-title">How it works.</h2>
         <ul className="package-bullets compact-list">
-          <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Baseline: we start after a Deep Reset or New Car Protection service.</span></li>
+          <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Baseline: we start after a Deep Reset service.</span></li>
           <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Billing: subscriptions run through secure online billing with reminders.</span></li>
           <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Cancel: minimum commitment is 3 months, then cancel anytime.</span></li>
           <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Scope: heavy neglect or long gaps may require a separate reset service.</span></li>

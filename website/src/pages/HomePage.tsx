@@ -110,7 +110,7 @@ const HomePage = () => {
       <section className="detailing-section">
         <div className="section-header reveal">
           <span className="eyebrow">Choose Your Tier</span>
-          <h2 className="section-title">Three clear detailing tiers for Whidbey Island vehicles.</h2>
+          <h2 className="section-title">Two clear detailing tiers for Whidbey Island vehicles.</h2>
           <p className="section-copy">
             Choose the level your vehicle actually needs, then add only what solves a real
             problem.
@@ -161,7 +161,7 @@ const HomePage = () => {
                   })
                 }
               >
-                {pkg.highlight ? 'Book Deep Reset' : pkg.title === 'New Car Protection' ? 'Book Protection' : `Book ${pkg.title}`}
+                {pkg.highlight ? 'Book Deep Reset' : `Book ${pkg.title}`}
               </Link>
             </article>
           ))}
@@ -223,7 +223,7 @@ const HomePage = () => {
             <ul className="tier-inclusions compact">
               <li className="feature-row">
                 <ShieldCheck size={18} className="icon-lime" />
-                <span className="feature-text">Best for daily drivers after a Deep Reset or New Car Protection service</span>
+                <span className="feature-text">Best for daily drivers after a Deep Reset service</span>
               </li>
               <li className="feature-row">
                 <ShieldCheck size={18} className="icon-lime" />

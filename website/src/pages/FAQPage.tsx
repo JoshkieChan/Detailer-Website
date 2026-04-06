@@ -16,9 +16,8 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
         question: 'How do I know which tier to choose?',
         answer: (
           <>
-            Maintenance is for routine upkeep, Deep Reset is for vehicles that have slipped
-            backward, and New Car Protection is for newer or already-clean vehicles that need
-            gloss and protection. You can see the full breakdown of what each tier includes on
+            Maintenance is for routine upkeep, and Deep Reset is for vehicles that have slipped
+            backward. You can see the full breakdown of what each tier includes on
             the <Link to="/services"> Detailing / Services page</Link>.
           </>
         ),

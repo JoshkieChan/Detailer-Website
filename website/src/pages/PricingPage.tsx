@@ -122,7 +122,7 @@ const PricingPage = () => {
 
       <section className="content-card reveal membership-block">
         <span className="eyebrow">Maintenance Plans</span>
-        <h2 className="section-title">For after a Deep Reset or New Car Protection.</h2>
+        <h2 className="section-title">For after a Deep Reset.</h2>
         <p className="section-copy">
           For customers who already have a clean baseline and want predictable upkeep without
           re-deciding every month.
