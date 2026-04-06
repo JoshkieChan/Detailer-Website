@@ -209,9 +209,16 @@ const BookingPage = () => {
 
   const selectedPackage = servicePackages.find((pkg) => pkg.id === formData.package);
   const selectedPlan = maintenancePlans.find((plan) => plan.id === formData.maintenancePlanId);
-  const estimatedTotal = selectedPackage ? Number(selectedPackage.price) : 0;
-  const depositAmount = Number((estimatedTotal * 0.2).toFixed(2));
-  const remainingBalance = Number((estimatedTotal - depositAmount).toFixed(2));
+
+  const BASE_PRICES: Record<string, number> = {
+    maintenance: 225,
+    'deep-reset': 400,
+  };
+
+  const basePrice = selectedPackage?.id ? BASE_PRICES[selectedPackage.id] || 0 : 0;
+  const estimatedTotal = basePrice;
+  const depositAmount = Math.round(estimatedTotal * 0.2);
+  const remainingBalance = estimatedTotal - depositAmount;
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
