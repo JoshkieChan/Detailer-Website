@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { servicePackages } from '../data/packages';
-import { detailAddOns } from '../data/addOns';
 import { ShieldCheck, PlusCircle, MapPinned } from 'lucide-react';
 
 const PricingPage = () => {
@@ -8,10 +7,9 @@ const PricingPage = () => {
     <div className="page-shell pricing-page">
       <section className="page-hero text-center reveal compact-hero">
         <span className="eyebrow">Pricing / Memberships</span>
-        <h1 className="hero-title">Clear pricing, optional add-ons, visible deposit.</h1>
+        <h1 className="hero-title">Clear pricing by vehicle size. 20% deposit.</h1>
         <p className="hero-subtitle">
-          Start with the tier your vehicle needs. Add upgrades only when they actually solve
-          a problem.
+          Submit photos with your booking and we&apos;ll confirm your exact price by text/email before your appointment.
         </p>
         <div className="hero-actions hero-actions-center">
           <Link to="/booking" className="btn primary btn-lg">Configure Your Detail</Link>
@@ -65,29 +63,36 @@ const PricingPage = () => {
 
       <section className="section-stack">
         <div className="section-header reveal">
-          <span className="eyebrow">Optional Add-Ons</span>
-          <h2 className="section-title">Optional add-ons.</h2>
+          <span className="eyebrow">Price by Vehicle Size</span>
+          <h2 className="section-title">Estimated ranges by vehicle class.</h2>
           <p className="section-copy">
-            These are upgrades, not hidden fees. Your base package stands on its own; add-ons
-            only apply when extra labor, correction, or convenience is needed.
+            Final price is confirmed after a quick photo review or walk-around. You&apos;ll see your total before work begins.
           </p>
         </div>
 
-        <div className="addon-menu-grid">
-          {detailAddOns.map((addOn, index) => (
-            <article className="addon-menu-row reveal" data-reveal-delay={String(index % 2)} key={addOn.id}>
-              <div className="addon-menu-copy">
-                <h3>{addOn.name}</h3>
-                <p className="section-copy">
-                  {addOn.id === 'mobile-convenience'
-                    ? 'Optional convenience upgrade for customers who want service at home or work instead of dropping off at the studio.'
-                    : addOn.description}
-                </p>
-              </div>
-              <div className="addon-price">{`+$${addOn.price}`}</div>
-            </article>
-          ))}
+        <div className="card-grid two">
+          <article className="content-card reveal">
+            <h3 className="accent-text">Maintenance</h3>
+            <ul className="package-bullets">
+              <li className="feature-row flex justify-between"><span>Sedans</span> <strong>from $225</strong></li>
+              <li className="feature-row flex justify-between"><span>Small SUVs</span> <strong>from $250</strong></li>
+              <li className="feature-row flex justify-between"><span>Large SUVs/Trucks</span> <strong>from $275+</strong></li>
+            </ul>
+          </article>
+
+          <article className="content-card reveal" data-reveal-delay="1">
+            <h3 className="accent-text">Deep Reset</h3>
+            <ul className="package-bullets">
+              <li className="feature-row flex justify-between"><span>Sedans</span> <strong>from $400</strong></li>
+              <li className="feature-row flex justify-between"><span>Small SUVs</span> <strong>from $450</strong></li>
+              <li className="feature-row flex justify-between"><span>Large SUVs/Trucks</span> <strong>from $500+</strong></li>
+            </ul>
+          </article>
         </div>
+
+        <p className="section-note mt-1 reveal">
+          <strong>Need extras?</strong> If you want engine bay cleaning, severe pet hair removal, or headlight work, include it in your booking notes or DM us with your booking number. We&apos;ll confirm any additional cost before your appointment.
+        </p>
       </section>
 
       <section className="section-stack">
@@ -141,7 +146,7 @@ const PricingPage = () => {
         <span className="eyebrow">Ready To Lock In Your Spot?</span>
         <h2 className="section-title">See your estimated total and today&apos;s deposit before you book.</h2>
         <p className="section-copy">
-          The configurator lets you pick a tier, add-ons, and see the 20% deposit before you submit.
+          The configurator lets you pick a tier and see the 20% deposit before you submit.
         </p>
         <div className="hero-actions">
           <Link to="/booking" className="btn primary btn-lg">Configure Your Detail</Link>

@@ -23,9 +23,9 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
         ),
       },
       {
-        question: 'Are add-ons required?',
+        question: 'Need extras like engine bay cleaning or severe pet hair?',
         answer:
-          'No. Add-ons are optional upgrades for extra labor, extra correction, or extra convenience. The base packages are built to stand on their own.',
+          'Mention it in your booking notes. We’ll review your photos and send updated pricing for approval before we start. This keeps the initial booking fast while ensuring you only pay for the specific labor your vehicle needs.',
       },
       {
         question: 'What if my vehicle is worse than I described?',
@@ -38,9 +38,9 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
     title: 'Mobile and studio',
     items: [
       {
-        question: 'Is On-Island Mobile Convenience required?',
+        question: 'How do I choose mobile service?',
         answer:
-          'No. It is an optional convenience upgrade for customers who want service at home or work instead of dropping off at the studio.',
+          'You can select mobile service during the booking process. We serve most of Whidbey Island, including Oak Harbor, NAS Whidbey, and Coupeville. Simply select your location type when configuring your detail.',
       },
       {
         question: 'When is the studio a better choice?',

@@ -637,9 +637,10 @@ label {
 }
 
 /* Detailing Tier Cards - Unified Styles */
-.tier-grid {
+.tier-grid,
+.card-grid.three {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
 }
 
@@ -647,10 +648,11 @@ label {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  padding: 1.5rem;
+  padding: 2.25rem 2rem;
   background: var(--color-background-surface);
   border: 1px solid var(--color-border-default);
   border-radius: 20px;
+  text-align: center;
   transition:
     transform var(--transition-base),
     border-color var(--transition-base),
@@ -678,8 +680,8 @@ label {
 
 .tier-title-row {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  flex-wrap: wrap;
   gap: 0.75rem;
 }
 
@@ -707,6 +709,7 @@ label {
 .price-line {
   display: flex;
   align-items: baseline;
+  justify-content: center;
   gap: 0.35rem;
   font-family: var(--font-heading);
   font-size: 1.6rem;
@@ -733,9 +736,11 @@ label {
 .tier-inclusions {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 auto;
   display: grid;
   gap: 0.7rem;
+  width: fit-content;
+  text-align: left;
   padding-top: 1.25rem;
   border-top: 1px solid var(--color-border-default);
 }
@@ -746,6 +751,7 @@ label {
   padding-top: 1.25rem;
   margin-top: auto;
   border-top: 1px solid var(--color-border-default);
+  text-align: center;
 }
 
 .tier-price-note {
@@ -754,44 +760,6 @@ label {
   line-height: 1.6;
 }
 
-/* Add-On Menu Grid - Unified Styles */
-.addon-menu-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.9rem 1.25rem;
-}
-
-.addon-menu-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.25rem;
-  background: var(--color-background-surface);
-  border: 1px solid var(--color-border-default);
-  border-radius: 14px;
-  transition:
-    transform var(--transition-base),
-    border-color var(--transition-base),
-    box-shadow var(--transition-base);
-}
-
-.addon-menu-row:hover {
-  transform: translateY(-4px);
-  border-color: var(--color-accent-primary);
-  box-shadow: var(--shadow-hover);
-}
-
-.addon-menu-copy {
-  display: grid;
-  gap: 0.35rem;
-}
-
-.addon-menu-copy h3 {
-  font-size: 1.2rem;
-  line-height: 1.2;
-  margin-bottom: 0.25rem;
-}
 
 .addon-price {
   font-family: var(--font-label);
@@ -2292,4 +2260,13 @@ select.input-error {
   .lead-magnet-form {
     max-width: none;
   }
+}
+
+.mb-05 {
+  margin-bottom: 0.5rem;
+}
+
+.reveal-item {
+  animation: reveal var(--transition-base) forwards;
+  opacity: 0;
 }

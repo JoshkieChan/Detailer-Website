@@ -7,7 +7,6 @@ import {
   X,
   ShieldCheck,
   AlertCircle,
-  CheckCircle2,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
@@ -15,7 +14,6 @@ import { BookingCalendar } from '../components/BookingCalendar';
 import { fetchBookedDates } from '../api/availability';
 import { servicePackages } from '../data/packages';
 import { maintenancePlans } from '../data/maintenancePlans';
-import { detailAddOns } from '../data/addOns';
 
 
 const packageBestFor: Record<string, string> = {
@@ -149,7 +147,6 @@ const BookingPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [systemError, setSystemError] = useState<string | null>(null);
   const [bookedDates, setBookedDates] = useState<string[]>([]);
-  const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(false);
 
@@ -208,23 +205,10 @@ const BookingPage = () => {
     fetchBookedDates().then(setBookedDates);
   }, []);
 
-  useEffect(() => {
-    setSelectedAddOnIds((current) => {
-      const hasMobileAddOn = current.includes('mobile-convenience');
-      if (formData.locationType === 'mobile' && !hasMobileAddOn) {
-        return [...current, 'mobile-convenience'];
-      }
-      if (formData.locationType !== 'mobile' && hasMobileAddOn) {
-        return current.filter((id) => id !== 'mobile-convenience');
-      }
-      return current;
-    });
-  }, [formData.locationType]);
 
   const selectedPackage = servicePackages.find((pkg) => pkg.id === formData.package);
-  const selectedAddOns = detailAddOns.filter((addOn) => selectedAddOnIds.includes(addOn.id));
   const selectedPlan = maintenancePlans.find((plan) => plan.id === formData.maintenancePlanId);
-  const estimatedTotal = (selectedPackage ? Number(selectedPackage.price) : 0) + selectedAddOns.reduce((sum, addOn) => sum + addOn.price, 0);
+  const estimatedTotal = selectedPackage ? Number(selectedPackage.price) : 0;
   const depositAmount = Number((estimatedTotal * 0.2).toFixed(2));
   const remainingBalance = Number((estimatedTotal - depositAmount).toFixed(2));
 
@@ -238,12 +222,6 @@ const BookingPage = () => {
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const toggleAddOn = (addOnId: string) => {
-    if (addOnId === 'mobile-convenience' && formData.locationType === 'mobile') return;
-    setSelectedAddOnIds((current) =>
-      current.includes(addOnId) ? current.filter((id) => id !== addOnId) : [...current, addOnId]
-    );
-  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -296,7 +274,6 @@ const BookingPage = () => {
         body: JSON.stringify({
           ...formData,
           estimatedTotal,
-          selectedAddOns: selectedAddOns.map(a => a.name),
           packageName: selectedPackage?.title
         })
       });
@@ -370,48 +347,9 @@ const BookingPage = () => {
             <FieldError msg={fieldErrors.package} />
           </section>
 
-          <section className="booking-step">
-            <span className="eyebrow">2. Add Optional Upgrades</span>
-            <h2>Add only what fits your vehicle.</h2>
-            <p className="field-help">These are optional upgrades, not required extras.</p>
-            <div className="addon-selector-list">
-              {detailAddOns.map((addOn) => {
-                const selected = selectedAddOnIds.includes(addOn.id);
-                const lockedByLocation = addOn.id === 'mobile-convenience' && formData.locationType === 'mobile';
-
-                return (
-                  <button
-                    type="button"
-                    key={addOn.id}
-                    className={`addon-selector-row ${selected ? 'selected' : ''}`}
-                    onClick={() => toggleAddOn(addOn.id)}
-                    disabled={lockedByLocation}
-                    aria-pressed={selected}
-                  >
-                    <div className="addon-selector-left">
-                      <span className={`addon-check ${selected ? 'selected' : ''}`} aria-hidden="true">
-                        {selected ? <CheckCircle2 size={15} className="icon-lime" /> : null}
-                      </span>
-                      <div className="addon-copy">
-                        <div className="addon-selector-title">
-                          <span>{addOn.name}</span>
-                        </div>
-                        <p className="field-help">
-                          {addOn.id === 'mobile-convenience'
-                            ? 'Optional convenience upgrade for mobile service, not part of the base price.'
-                            : addOn.description}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="addon-selector-price">+${addOn.price}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
 
           <section className="booking-step">
-            <span className="eyebrow">3. Vehicle &amp; Schedule Details</span>
+            <span className="eyebrow">2. Vehicle &amp; Schedule Details</span>
             <h2>Tell us what we are working on and when.</h2>
             <div className="capacity-inline-note">
               <CalendarCheck size={15} />
@@ -562,6 +500,9 @@ const BookingPage = () => {
 
               <div className="input-group full-width">
                 <label htmlFor="booking-notes">Notes</label>
+                <p className="field-help mb-05">
+                  If you want extras (engine bay, heavy pet hair, headlight work, etc.), include it in your booking notes or DM us with your booking number. We&apos;ll confirm any additional cost before your appointment.
+                </p>
                 <textarea
                   id="booking-notes"
                   rows={4}
@@ -673,21 +614,6 @@ const BookingPage = () => {
                 <strong>{selectedPackage ? selectedPackage.title : 'Choose a package'}</strong>
               </div>
 
-              <div className="summary-block">
-                <span>Add-ons</span>
-                {selectedAddOns.length > 0 ? (
-                  <ul className="summary-addon-list">
-                    {selectedAddOns.map((addOn) => (
-                      <li key={addOn.id}>
-                        <span>{addOn.name}</span>
-                        <strong>+{formatCurrency(addOn.price)}</strong>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="section-note">None selected</p>
-                )}
-              </div>
 
               {selectedPlan && (
                 <div className="summary-block">

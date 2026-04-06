@@ -112,8 +112,7 @@ const HomePage = () => {
           <span className="eyebrow">Choose Your Tier</span>
           <h2 className="section-title">Two clear detailing tiers for Whidbey Island vehicles.</h2>
           <p className="section-copy">
-            Choose the level your vehicle actually needs, then add only what solves a real
-            problem.
+            Choose the level your vehicle actually needs. If you need extras like engine bay cleaning, severe pet hair, or headlight work, mention it in your booking notes.
           </p>
         </div>
 
@@ -166,6 +165,9 @@ const HomePage = () => {
             </article>
           ))}
         </div>
+        <p className="section-note mt-1 reveal text-center">
+          <strong>Need extras?</strong> Engine bay cleaning, severe pet hair, or headlight work? Mention it in your booking notes. We&apos;ll review your photos and send updated pricing before we start.
+        </p>
       </section>
 
       <section className="detailing-section">
@@ -257,7 +259,7 @@ const HomePage = () => {
 
         <div className="section-panel benefits-panel reveal" data-reveal-delay="1">
           {systemsBenefits.map((item, index) => (
-            <article className="benefit-row" key={item.title} style={{ animationDelay: `${index * 40}ms` }}>
+            <article className="benefit-row reveal-item" key={item.title}>
               <div className="support-pill slim">
                 {index === 0 ? <MessageSquare size={16} /> : index === 1 ? <Bell size={16} /> : <ShieldCheck size={16} />}
                 {item.title}
@@ -273,7 +275,7 @@ const HomePage = () => {
           <MapPinned size={16} />
           Ready To Book
         </div>
-        <h2 className="section-title">Pick your tier, add what fits, and lock in your spot.</h2>
+        <h2 className="section-title">Pick your tier and lock in your spot.</h2>
         <p className="section-copy">
           You&apos;ll see today&apos;s 20% deposit before you submit. If you still need to compare
           options first, read the service details or pricing before booking.
