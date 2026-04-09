@@ -80,6 +80,11 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
         answer:
           'Please remove valuables, documents, cash, and heavy loose items so we can work efficiently and avoid missing anything. For mobile appointments, a safe parking spot and access to the vehicle are all we need.',
       },
+      {
+        question: 'What happens if it’s very hot or sunny the day of my appointment?',
+        answer:
+          'In extreme heat or full sun with no shade, we may adjust or reschedule the decontamination and polishing steps to protect your paint. We’ll always talk this through with you on the day of service.',
+      },
     ],
   },
   {

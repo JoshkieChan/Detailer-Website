@@ -146,6 +146,7 @@ const HomePage = () => {
                 <div className="addon-callout">
                   <p className="addon-label"><strong>Optional add-on</strong></p>
                   <p className="section-note">Light paint correction (machine polishing to reduce swirls and minor scratches) is available on a case-by-case basis after inspection. It does not repair dents or deep damage.</p>
+                  <p className="section-note mt-1">In extreme heat or full sun with no shade, we may adjust or reschedule the decontamination and polishing steps to protect your paint. We&apos;ll always talk this through with you on the day of service.</p>
                 </div>
               )}
 
@@ -172,6 +173,19 @@ const HomePage = () => {
             </article>
           ))}
         </div>
+        
+        <div className="section-panel reveal mt-1 text-center" style={{ maxWidth: '800px', margin: '0 auto 1rem' }}>
+          <h3 className="section-title" style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Products we use (without the chemistry lesson)</h3>
+          <p className="section-copy" style={{ textAlign: 'left', margin: '0 auto' }}>
+            We use modern pH‑balanced wash soaps, dedicated wheel and tire cleaners, interior‑safe cleaners, iron removers, and clay to safely deep‑clean without beating up your clear coat or interior. That means:
+            <br/><br/>
+            – Brake dust and road film broken down instead of just pushed around<br/>
+            – Embedded fallout and roughness removed from the paint so it feels smooth again<br/>
+            – Interiors cleaned with products safe for modern plastics, vinyl, and leather<br/>
+            – Short‑term spray protection and ceramic glass treatment to help water bead and make the next wash easier
+          </p>
+        </div>
+
         <p className="section-note mt-1 reveal text-center">
           <strong>Need extras?</strong> Engine bay tidying (light dusting and wipe-down only), severe pet hair, or headlight work? Mention it in your booking notes. We&apos;ll review your photos and confirm what&apos;s realistic before we start. We do not offer heavy degreasing or deep engine bay detailing.
         </p>
