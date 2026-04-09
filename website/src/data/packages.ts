@@ -7,11 +7,11 @@ export const servicePackages = [
     bestFor: 'Vehicles with light dirt, light interior buildup, and owners who want routine upkeep before crumbs, dust, and road film get out of hand.',
     themeStyle: 'blue' as const,
     features: [
-      'Foam hand wash',
-      'Wheels and tires cleaned',
-      'Door jambs wiped',
-      'Interior vacuum and light wipe-down',
-      'Streak-free glass inside and out'
+      'Foam pre‑wash and two‑bucket contact wash',
+      'Wheels and tires cleaned and dressed',
+      'Door jambs wiped (light level)',
+      'Interior vacuum and light wipe‑down of high‑touch areas',
+      'Streak‑free glass inside and out'
     ],
     priceNote:
       'Typical price depends on vehicle size and buildup. Sedans start at $225. Larger vehicles and SUVs/trucks cost more. Final price is confirmed before work begins.'
@@ -25,11 +25,13 @@ export const servicePackages = [
     themeStyle: 'lime' as const,
     highlight: true,
     features: [
-      'Pre-wash foam and two-bucket contact wash',
+      'Pre‑wash foam and two‑bucket contact wash',
       'Iron remover and clay decontamination on paint',
-      'Full interior vacuum, crevice work, and thorough wipe-down',
+      'Deep wheel and tire cleaning, including inner barrels',
+      'Full interior vacuum, crevice and brush work on plastics and seams',
       'Fabric seat and carpet cleaning with extraction, as safely possible',
-      'Short-term spray protection on paint and wheels for improved gloss and easier washing'
+      'Interior plastic/trim protection',
+      'Glass deep clean plus ceramic glass treatment'
     ],
     priceNote:
       'Typical price depends on size, condition, and buildup. Sedans start at $400. SUVs, trucks, and heavily soiled vehicles are priced higher. Final price is confirmed before work begins.'
