@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts"
-import Stripe from "https://esm.sh/stripe@11.18.0?target=deno"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1"
 import { SignJWT, importPKCS8 } from "https://deno.land/x/jose@v4.14.4/index.ts"
 
@@ -101,33 +100,36 @@ serve(async (req) => {
     const { 
       packageId, 
       packageName, 
-      packagePrice, 
       estimatedTotal,
-      selectedAddOns,
+      depositAmount: depositFromClient,
+      taxAmount,
+      totalToday,
+      remainingBalance,
       maintenancePlanId,
       notes,
       vehicleColor,
+      vehicleYear,
       recaptchaToken,
-      customerEmail, 
+      email: customerEmail, 
       fullName,
       phone,
       address,
-      vehicleInfo,
+      vehicleMake: vehicleInfo,
+      vehicleYear: vehicleYearVal,
       locationType,
-      serviceDate,
-      serviceTime
+      date: serviceDate,
+      time: serviceTime
     } = await req.json()
     
     // Auth & Init
-    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     const googleCalendarId = Deno.env.get('GOOGLE_CALENDAR_ID')
     const serviceAccountRaw = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_JSON')
+    const ownerEmail = Deno.env.get('OWNER_EMAIL') || 'support@signaldatasource.com'
 
     // 1. Diagnostic Check (Secrets)
     const missing = []
-    if (!stripeSecretKey) missing.push('STRIPE_SECRET_KEY')
     if (!supabaseUrl) missing.push('SUPABASE_URL')
     if (!supabaseServiceRoleKey) missing.push('SUPABASE_SERVICE_ROLE_KEY')
     if (missing.length > 0) {
@@ -152,11 +154,6 @@ serve(async (req) => {
       )
     }
 
-    const stripe = new Stripe(stripeSecretKey, {
-      apiVersion: '2022-11-15',
-      httpClient: Stripe.createFetchHttpClient(),
-    })
-    
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
 
     // 2. Diagnostic Check (Database Schema)
@@ -169,14 +166,14 @@ serve(async (req) => {
       )
     }
 
-    // Normalize inputs
-    const numericPrice = typeof (estimatedTotal ?? packagePrice) === 'string'
-      ? parseFloat(estimatedTotal ?? packagePrice)
-      : (estimatedTotal ?? packagePrice)
-    const depositAmount = Math.round(numericPrice * 0.2 * 100)
+    // Normalize inputs — use values passed directly from the frontend calculator
+    const numericPrice = typeof estimatedTotal === 'string' ? parseFloat(estimatedTotal) : (estimatedTotal || 0)
+    const deposit = typeof depositFromClient === 'number' ? depositFromClient : Math.round(numericPrice * 0.2)
+    const tax = typeof taxAmount === 'number' ? taxAmount : Number((deposit * 0.091).toFixed(2))
+    const chargedToday = typeof totalToday === 'number' ? totalToday : Number((deposit + tax).toFixed(2))
+    const remaining = typeof remainingBalance === 'number' ? remainingBalance : numericPrice - deposit
     const bookingId = crypto.randomUUID()
     const requestOrigin = req.headers.get('origin') || 'https://signaldatasource.com'
-    const addOnList = Array.isArray(selectedAddOns) ? selectedAddOns.filter((value) => typeof value === 'string') : []
 
     // CRM: Upsert Customer
     let customerId = null
@@ -199,42 +196,8 @@ serve(async (req) => {
       console.warn('Customer upsert crashed (continuing):', err.message)
     }
 
-    // Create Stripe Session (Redirect Mode)
-    let session;
-    try {
-      session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: [
-          {
-            price_data: {
-              currency: 'usd',
-              product_data: {
-                name: `${packageName} - Deposit`,
-                description: `20% deposit for booking #${bookingId}`,
-              },
-              unit_amount: depositAmount,
-            },
-            quantity: 1,
-          },
-        ],
-        mode: 'payment',
-        success_url: `${requestOrigin}/booking/confirmation?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${requestOrigin}/booking?package=${packageId}`,
-        customer_email: customerEmail,
-        metadata: { 
-          bookingId, 
-          packageId, 
-          customerName: fullName,
-          addOns: addOnList.join(' | ').slice(0, 500),
-          maintenancePlanId: maintenancePlanId ?? '',
-        },
-      })
-    } catch (stripeErr) {
-      return new Response(
-        JSON.stringify({ error: `Stripe API Error: ${stripeErr.message}` }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-      )
-    }
+    // Booking record ID placeholder (Helcim integration pending)
+    const sessionId = "pending_helcim_" + bookingId
 
     // Google Calendar Integration
     let googleEventId = null
@@ -247,12 +210,48 @@ serve(async (req) => {
         const endDate = `${serviceDate}T15:00:00`
         const timeZone = "America/Los_Angeles"
         
+        const financialSummary = [
+          `Estimated Total:   $${numericPrice.toFixed(2)}`,
+          `Deposit (20%):     $${deposit.toFixed(2)}`,
+          `Tax (9.1%):        $${tax.toFixed(2)}`,
+          `---------------------------`,
+          `Total Paid Today:  $${chargedToday.toFixed(2)}`,
+          `Remaining (due at service): $${remaining.toFixed(2)}`,
+        ].join('\n')
+
+        const serviceMode = locationType === 'garage' ? 'Garage Studio' : `On-Island Mobile – ${address}`
+
         const eventBody = {
-          summary: `Detail – ${packageName} – ${fullName}`,
-          location: locationType === 'garage' ? 'Garage Studio' : address,
-          description: `Phone: ${phone}\nEmail: ${customerEmail}\nVehicle: ${vehicleInfo}${vehicleColor ? ` (${vehicleColor})` : ''}\nAdd-ons: ${addOnList.length ? addOnList.join(', ') : 'None'}\nMaintenance Plan: ${maintenancePlanId ?? 'none'}\nNotes: ${notes || 'None'}\nDeposit: $${(depositAmount/100).toFixed(2)}\nStripe: ${session.id}`,
+          summary: `\uD83D\uDE97 ${packageName} – ${fullName}`,
+          location: locationType === 'garage' ? 'Garage Studio, Oak Harbor, WA' : address,
+          description: [
+            `=== BOOKING DETAILS ===`,
+            `Name:    ${fullName}`,
+            `Phone:   ${phone}`,
+            `Email:   ${customerEmail}`,
+            ``,
+            `=== VEHICLE ===`,
+            `Vehicle: ${vehicleInfo}`,
+            `Color:   ${vehicleColor || 'Not specified'}`,
+            ``,
+            `=== SERVICE ===`,
+            `Package:  ${packageName}`,
+            `Mode:     ${serviceMode}`,
+            `Date:     ${serviceDate}  |  Time: ${serviceTime}`,
+            ``,
+            `=== FINANCIALS ===`,
+            financialSummary,
+            ``,
+            `=== NOTES ===`,
+            notes || 'None',
+            ``,
+            `Plan Interest: ${maintenancePlanId || 'none'}`,
+          ].join('\n'),
           start: { dateTime: startDate, timeZone },
-          end: { dateTime: endDate, timeZone }
+          end: { dateTime: endDate, timeZone },
+          attendees: [
+            { email: ownerEmail, displayName: 'SignalSource Owner', responseStatus: 'accepted' }
+          ],
         }
         
         googleEventId = await createGoogleCalendarEvent(googleCalendarId, serviceAccount, eventBody)
@@ -277,10 +276,10 @@ serve(async (req) => {
         service_time: serviceTime,
         location_type: locationType,
         total_amount: numericPrice,
-        deposit_amount: numericPrice * 0.2,
+        deposit_amount: deposit,
         status: 'pending',
         deposit_status: 'unpaid',
-        stripe_session_id: session.id,
+        stripe_session_id: sessionId,
         google_calendar_event_id: googleEventId
       }])
       
@@ -293,7 +292,7 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ url: session.url, depositAmount: depositAmount / 100 }),
+      JSON.stringify({ bookingId: bookingId, depositAmount: deposit, taxAmount: tax, totalToday: chargedToday, remainingBalance: remaining }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
   } catch (error) {
