@@ -215,9 +215,13 @@ const BookingPage = () => {
     'deep-reset': 400,
   };
 
+  const OAK_HARBOR_TAX_RATE = 0.091; // 9.1% sales tax on deposit only
+
   const basePrice = selectedPackage?.id ? BASE_PRICES[selectedPackage.id] || 0 : 0;
   const estimatedTotal = basePrice;
   const depositAmount = Math.round(estimatedTotal * 0.2);
+  const taxAmount = Number((depositAmount * OAK_HARBOR_TAX_RATE).toFixed(2));
+  const totalToday = Number((depositAmount + taxAmount).toFixed(2));
   const remainingBalance = estimatedTotal - depositAmount;
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -282,6 +286,10 @@ const BookingPage = () => {
         body: JSON.stringify({
           ...formData,
           estimatedTotal,
+          depositAmount,
+          taxAmount,
+          totalToday,
+          remainingBalance,
           packageName: selectedPackage?.title
         })
       });
@@ -594,10 +602,10 @@ const BookingPage = () => {
 
           <div className="form-footer">
             <button type="submit" className="btn primary btn-submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Processing...' : 'Pay 20% Deposit & Book'}
+              {isSubmitting ? 'Processing...' : `Pay 20% Deposit + Tax${selectedPackage ? ` (${formatCurrency(totalToday)})` : ''} & Book`}
             </button>
             <div className="payment-secure-text">
-              <ShieldCheck size={14} /> Your deposit goes toward the final total and is not an extra fee.
+              <ShieldCheck size={14} /> Your deposit (plus applicable tax) goes toward the final total.
             </div>
           </div>
         </form>
@@ -635,9 +643,19 @@ const BookingPage = () => {
                 <strong>{formatCurrency(estimatedTotal)}</strong>
               </div>
 
-              <div className="summary-row highlight">
+              <div className="summary-row">
                 <span>Today&apos;s deposit (20%)</span>
                 <strong>{formatCurrency(depositAmount)}</strong>
+              </div>
+
+              <div className="summary-row">
+                <span>Tax on deposit (9.1%)</span>
+                <strong>{formatCurrency(taxAmount)}</strong>
+              </div>
+
+              <div className="summary-row highlight">
+                <span>Today&apos;s total charge</span>
+                <strong>{formatCurrency(totalToday)}</strong>
               </div>
 
               <div className="summary-row">
@@ -646,7 +664,7 @@ const BookingPage = () => {
               </div>
 
               <p className="section-note">
-                Final total is confirmed before work begins if vehicle condition or selected scope changes.
+                Estimated total is for sedans. Final price is confirmed after photo review. Remaining balance is due in person after service.
               </p>
             </div>
           </div>
@@ -656,7 +674,7 @@ const BookingPage = () => {
             <ol className="sidebar-steps">
               <li>Choose the package, add notes about any extras, and upload photos.</li>
               <li>Pick the service mode, date, and time range that fit your week.</li>
-              <li>Pay the 20% deposit to lock the appointment in.</li>
+              <li>Pay the 20% deposit (plus applicable tax) to lock the appointment in. Your deposit is applied toward the final total.</li>
             </ol>
           </div>
         </aside>
