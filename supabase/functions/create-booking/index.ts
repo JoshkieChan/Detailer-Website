@@ -1,6 +1,18 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1"
 import { SignJWT, importPKCS8 } from "https://deno.land/x/jose@v4.14.4/index.ts"
+import {
+  bookingPackages,
+  calculateBookingFinancials,
+  isBookingPackageId,
+  isLocationType,
+  isVehicleTypeId,
+  vehicleTypeLabels,
+} from "../../../website/src/data/bookingPricing.ts"
+import {
+  isMembershipIntent,
+  maintenancePlanById,
+} from "../../../website/src/data/maintenancePlans.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,6 +20,8 @@ const corsHeaders = {
 }
 
 const RECAPTCHA_MIN_SCORE = 0.5
+const PREP_INSTRUCTIONS =
+  "Please remove valuables, cash, documents, and heavy loose items before your appointment. For mobile appointments, a safe parking spot and access to the vehicle are all we need."
 
 async function verifyRecaptchaToken(recaptchaToken: string) {
   const recaptchaSecretKey = Deno.env.get('RECAPTCHA_SECRET_KEY')
@@ -91,6 +105,123 @@ async function createGoogleCalendarEvent(
   return calData.id
 }
 
+const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`
+
+const formatServiceWindow = (serviceTime: string) =>
+  serviceTime === 'morning' ? 'Morning (8am - 12pm)' : 'Afternoon (12pm - 4pm)'
+
+const buildAutomationMessages = ({
+  fullName,
+  customerEmail,
+  phone,
+  serviceDate,
+  serviceTime,
+  packageLabel,
+  vehicleTypeLabel,
+  locationType,
+  address,
+  subtotal,
+  depositAmount,
+  taxAmount,
+  totalToday,
+  membershipIntent,
+}: {
+  fullName: string
+  customerEmail: string
+  phone: string
+  serviceDate: string
+  serviceTime: string
+  packageLabel: string
+  vehicleTypeLabel: string
+  locationType: 'garage' | 'mobile'
+  address: string
+  subtotal: number
+  depositAmount: number
+  taxAmount: number
+  totalToday: number
+  membershipIntent: 'none' | 'quarterly' | 'monthly'
+}) => {
+  const locationLabel =
+    locationType === 'garage' ? 'Garage Studio, Oak Harbor' : `On-Island Mobile at ${address}`
+
+  const commonLines = [
+    `Appointment date: ${serviceDate}`,
+    `Time window: ${formatServiceWindow(serviceTime)}`,
+    `Package: ${packageLabel}`,
+    `Vehicle type: ${vehicleTypeLabel}`,
+    `Location: ${locationLabel}`,
+    `Subtotal: ${formatCurrency(subtotal)}`,
+    `Today's deposit (20%): ${formatCurrency(depositAmount)}`,
+    `Tax on today's deposit: ${formatCurrency(taxAmount)}`,
+    `Today's total due: ${formatCurrency(totalToday)}`,
+    '',
+    'Prep instructions:',
+    PREP_INSTRUCTIONS,
+  ]
+
+  const subject =
+    membershipIntent === 'none'
+      ? `SignalSource booking confirmation for ${serviceDate}`
+      : `SignalSource booking + ${maintenancePlanById[membershipIntent].shortName} plan interest`
+
+  const emailLines = [...commonLines]
+  const smsLines = [
+    `SignalSource booking received for ${serviceDate} (${formatServiceWindow(serviceTime)}).`,
+    `${packageLabel} · ${vehicleTypeLabel}`,
+    `${locationLabel}`,
+    `Deposit today: ${formatCurrency(totalToday)} (${formatCurrency(depositAmount)} deposit + ${formatCurrency(taxAmount)} tax).`,
+    'Prep: remove valuables, documents, cash, and heavy loose items before your appointment.',
+  ]
+
+  if (membershipIntent !== 'none') {
+    const plan = maintenancePlanById[membershipIntent]
+    emailLines.push(
+      '',
+      'Maintenance Plan',
+      plan.emailIntro,
+      plan.billingDetails,
+      `${plan.pricingLine}.`,
+      plan.includedSummary,
+      'No recurring charges are taken today. Only today’s detail is billed now, and recurring membership payments are set up separately after the first visit.'
+    )
+    smsLines.push(
+      `${plan.emailIntro} ${plan.summaryLine}`,
+      plan.includedSummary,
+      'No recurring charges are taken today. Membership billing is set up separately after the first visit.'
+    )
+  }
+
+  return {
+    email: {
+      to: customerEmail,
+      subject,
+      text: emailLines.join('\n'),
+    },
+    sms: {
+      to: phone,
+      text: smsLines.join('\n'),
+    },
+  }
+}
+
+async function sendAutomationPayload(payload: Record<string, unknown>) {
+  const webhookUrl = Deno.env.get('BOOKING_AUTOMATION_WEBHOOK_URL')
+  if (!webhookUrl) {
+    return
+  }
+
+  const res = await fetch(webhookUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(`Automation webhook error: ${res.status} ${text}`)
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -98,25 +229,18 @@ serve(async (req) => {
 
   try {
     const { 
-      packageId, 
-      packageName, 
-      estimatedTotal,
-      depositAmount: depositFromClient,
-      taxAmount,
-      totalToday,
-      remainingBalance,
-      maintenancePlanId,
+      package: packageFromClient,
+      packageId,
+      vehicleType,
+      locationType,
+      mobileFeeApplied,
+      membershipIntent,
       notes,
-      vehicleColor,
-      vehicleYear,
       recaptchaToken,
-      email: customerEmail, 
+      email: customerEmail,
       fullName,
       phone,
       address,
-      vehicleMake: vehicleInfo,
-      vehicleYear: vehicleYearVal,
-      locationType,
       date: serviceDate,
       time: serviceTime
     } = await req.json()
@@ -156,24 +280,45 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
 
-    // 2. Diagnostic Check (Database Schema)
-    const { error: schemaCheck } = await supabase.from('bookings').select('customer_id, google_calendar_event_id').limit(0)
-    if (schemaCheck) {
-      console.error('Schema check failed:', schemaCheck)
+    const normalizedPackage = isBookingPackageId(packageFromClient)
+      ? packageFromClient
+      : isBookingPackageId(packageId)
+        ? packageId
+        : null
+    const normalizedVehicleType = isVehicleTypeId(vehicleType) ? vehicleType : null
+    const normalizedLocationType = isLocationType(locationType) ? locationType : null
+    const normalizedMembershipIntent = isMembershipIntent(membershipIntent)
+      ? membershipIntent
+      : 'none'
+
+    if (!normalizedPackage || !normalizedVehicleType || !normalizedLocationType) {
       return new Response(
-        JSON.stringify({ error: `Database Schema Error: The 'bookings' table is missing required columns. Please run the Safe SQL migration again. Error: ${schemaCheck.message}` }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        JSON.stringify({ error: 'Package, vehicle type, and location are required to create a booking.' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       )
     }
 
-    // Normalize inputs — use values passed directly from the frontend calculator
-    const numericPrice = typeof estimatedTotal === 'string' ? parseFloat(estimatedTotal) : (estimatedTotal || 0)
-    const deposit = typeof depositFromClient === 'number' ? depositFromClient : Math.round(numericPrice * 0.2)
-    const tax = typeof taxAmount === 'number' ? taxAmount : Number((deposit * 0.091).toFixed(2))
-    const chargedToday = typeof totalToday === 'number' ? totalToday : Number((deposit + tax).toFixed(2))
-    const remaining = typeof remainingBalance === 'number' ? remainingBalance : numericPrice - deposit
+    const pricing = calculateBookingFinancials({
+      packageId: normalizedPackage,
+      vehicleType: normalizedVehicleType,
+      locationType: normalizedLocationType,
+    })
+    const packageLabel = bookingPackages[normalizedPackage].label
+    const vehicleTypeLabel = vehicleTypeLabels[normalizedVehicleType]
+
+    // 2. Diagnostic Check (Database Schema)
+    const { error: schemaCheck } = await supabase
+      .from('bookings')
+      .select('customer_id, google_calendar_event_id, package, vehicle_type, mobile_fee_applied, membership_intent, calculated_price, tax_amount')
+      .limit(0)
+    if (schemaCheck) {
+      console.error('Schema check failed:', schemaCheck)
+      return new Response(
+        JSON.stringify({ error: `Database Schema Error: The 'bookings' table is missing required columns for membership intent and pricing persistence. Apply the latest bookings migration, then try again. Error: ${schemaCheck.message}` }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      )
+    }
     const bookingId = crypto.randomUUID()
-    const requestOrigin = req.headers.get('origin') || 'https://signaldatasource.com'
 
     // CRM: Upsert Customer
     let customerId = null
@@ -192,7 +337,7 @@ serve(async (req) => {
       } else {
         customerId = customerData?.id
       }
-    } catch (err) {
+    } catch (err: any) {
       console.warn('Customer upsert crashed (continuing):', err.message)
     }
 
@@ -211,31 +356,43 @@ serve(async (req) => {
         const timeZone = "America/Los_Angeles"
         
         const financialSummary = [
-          `Estimated Total:   $${numericPrice.toFixed(2)}`,
-          `Deposit (20%):     $${deposit.toFixed(2)}`,
-          `Tax (9.1%):        $${tax.toFixed(2)}`,
+          `Subtotal:          $${pricing.subtotal.toFixed(2)}`,
+          `Deposit (20%):     $${pricing.depositAmount.toFixed(2)}`,
+          `Tax:               $${pricing.taxAmount.toFixed(2)}`,
           `---------------------------`,
-          `Total Paid Today:  $${chargedToday.toFixed(2)}`,
-          `Remaining (due at service): $${remaining.toFixed(2)}`,
+          `Total Paid Today:  $${pricing.totalToday.toFixed(2)}`,
+          `Remaining (due at service): $${pricing.remainingBalance.toFixed(2)}`,
         ].join('\n')
 
-        const serviceMode = locationType === 'garage' ? 'Garage Studio' : `On-Island Mobile – ${address}`
+        const serviceMode =
+          normalizedLocationType === 'garage' ? 'Garage Studio' : `On-Island Mobile – ${address}`
+        const membershipTag =
+          normalizedMembershipIntent === 'none'
+            ? ''
+            : `[MEMBERSHIP – ${maintenancePlanById[normalizedMembershipIntent].shortName}] `
+        const membershipNotes =
+          normalizedMembershipIntent === 'none'
+            ? []
+            : [
+                `Client selected Maintenance Plan: ${maintenancePlanById[normalizedMembershipIntent].shortName} on booking. Treat as priority member candidate.`,
+                '',
+              ]
 
         const eventBody = {
-          summary: `\uD83D\uDE97 ${packageName} – ${fullName}`,
-          location: locationType === 'garage' ? 'Garage Studio, Oak Harbor, WA' : address,
+          summary: `${membershipTag}\uD83D\uDE97 ${packageLabel} – ${fullName}`,
+          location: normalizedLocationType === 'garage' ? 'Garage Studio, Oak Harbor, WA' : address,
           description: [
             `=== BOOKING DETAILS ===`,
             `Name:    ${fullName}`,
             `Phone:   ${phone}`,
             `Email:   ${customerEmail}`,
             ``,
+            ...membershipNotes,
             `=== VEHICLE ===`,
-            `Vehicle: ${vehicleInfo}`,
-            `Color:   ${vehicleColor || 'Not specified'}`,
+            `Vehicle Type: ${vehicleTypeLabel}`,
             ``,
             `=== SERVICE ===`,
-            `Package:  ${packageName}`,
+            `Package:  ${packageLabel}`,
             `Mode:     ${serviceMode}`,
             `Date:     ${serviceDate}  |  Time: ${serviceTime}`,
             ``,
@@ -244,8 +401,6 @@ serve(async (req) => {
             ``,
             `=== NOTES ===`,
             notes || 'None',
-            ``,
-            `Plan Interest: ${maintenancePlanId || 'none'}`,
           ].join('\n'),
           start: { dateTime: startDate, timeZone },
           end: { dateTime: endDate, timeZone },
@@ -256,7 +411,7 @@ serve(async (req) => {
         
         googleEventId = await createGoogleCalendarEvent(googleCalendarId, serviceAccount, eventBody)
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Google Calendar failed:", err.message)
     }
 
@@ -270,13 +425,19 @@ serve(async (req) => {
         email: customerEmail,
         phone: phone,
         address: address,
-        vehicle_info: vehicleInfo,
-        package_id: packageId,
+        vehicle_info: vehicleTypeLabel,
+        package: normalizedPackage,
+        package_id: normalizedPackage,
+        vehicle_type: normalizedVehicleType,
         service_date: serviceDate,
         service_time: serviceTime,
-        location_type: locationType,
-        total_amount: numericPrice,
-        deposit_amount: deposit,
+        location_type: normalizedLocationType,
+        mobile_fee_applied: Boolean(mobileFeeApplied) || normalizedLocationType === 'mobile',
+        membership_intent: normalizedMembershipIntent,
+        calculated_price: pricing.subtotal,
+        total_amount: pricing.subtotal,
+        deposit_amount: pricing.depositAmount,
+        tax_amount: pricing.taxAmount,
         status: 'pending',
         deposit_status: 'unpaid',
         stripe_session_id: sessionId,
@@ -291,11 +452,64 @@ serve(async (req) => {
       )
     }
 
+    try {
+      const automationMessages = buildAutomationMessages({
+        fullName,
+        customerEmail,
+        phone,
+        serviceDate,
+        serviceTime,
+        packageLabel,
+        vehicleTypeLabel,
+        locationType: normalizedLocationType,
+        address,
+        subtotal: pricing.subtotal,
+        depositAmount: pricing.depositAmount,
+        taxAmount: pricing.taxAmount,
+        totalToday: pricing.totalToday,
+        membershipIntent: normalizedMembershipIntent,
+      })
+
+      await sendAutomationPayload({
+        booking_id: bookingId,
+        membership_intent: normalizedMembershipIntent,
+        priority_member_candidate: normalizedMembershipIntent !== 'none',
+        booking: {
+          package: normalizedPackage,
+          package_label: packageLabel,
+          vehicle_type: normalizedVehicleType,
+          vehicle_type_label: vehicleTypeLabel,
+          location_type: normalizedLocationType,
+          mobile_fee_applied: normalizedLocationType === 'mobile',
+          calculated_price: pricing.subtotal,
+          deposit_amount: pricing.depositAmount,
+          tax_amount: pricing.taxAmount,
+          total_today: pricing.totalToday,
+          remaining_balance: pricing.remainingBalance,
+          address,
+          notes: notes || '',
+          service_date: serviceDate,
+          service_time: serviceTime,
+        },
+        email: automationMessages.email,
+        sms: automationMessages.sms,
+      })
+    } catch (err: any) {
+      console.error('Automation webhook failed:', err.message)
+    }
+
     return new Response(
-      JSON.stringify({ bookingId: bookingId, depositAmount: deposit, taxAmount: tax, totalToday: chargedToday, remainingBalance: remaining }),
+      JSON.stringify({
+        bookingId,
+        calculatedPrice: pricing.subtotal,
+        depositAmount: pricing.depositAmount,
+        taxAmount: pricing.taxAmount,
+        totalToday: pricing.totalToday,
+        remainingBalance: pricing.remainingBalance,
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
-  } catch (error) {
+  } catch (error: any) {
     console.error('Edge Function Fatal Error:', error.message)
     return new Response(
       JSON.stringify({ error: `Fatal Edge Error: ${error.message}` }),

@@ -12,18 +12,73 @@ import {
 } from 'lucide-react';
 import { BookingCalendar } from '../components/BookingCalendar';
 import { fetchBookedDates } from '../api/availability';
-import { maintenancePlans } from '../data/maintenancePlans';
-
-
-
-
-const planChoiceLabels: Record<string, string> = {
-  quarterly: 'Interested in Quarterly Plan',
-  monthly: 'Interested in Monthly Plan',
-};
-
+import {
+  maintenancePlans,
+  maintenancePlanById,
+  type MembershipIntent,
+} from '../data/maintenancePlans';
+import {
+  bookingPackages,
+  calculateBookingFinancials,
+  isBookingPackageId,
+  isLocationType,
+  isVehicleTypeId,
+  vehicleTypeLabels,
+  type BookingPackageId,
+} from '../data/bookingPricing';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY?.trim();
+const RECAPTCHA_SCRIPT_ID = 'google-recaptcha-v3';
+
+const loadRecaptchaScript = async (siteKey: string) => {
+  if (window.grecaptcha) return;
+
+  const existingScript = document.getElementById(RECAPTCHA_SCRIPT_ID) as HTMLScriptElement | null;
+  if (existingScript) {
+    await new Promise<void>((resolve, reject) => {
+      if (window.grecaptcha) {
+        resolve();
+        return;
+      }
+      existingScript.addEventListener('load', () => resolve(), { once: true });
+      existingScript.addEventListener('error', () => reject(new Error('Failed to load reCAPTCHA script.')), { once: true });
+    });
+    return;
+  }
+
+  await new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script');
+    script.id = RECAPTCHA_SCRIPT_ID;
+    script.src = `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(siteKey)}`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load reCAPTCHA script.'));
+    document.head.appendChild(script);
+  });
+};
+
+const getRecaptchaToken = async () => {
+  if (!recaptchaSiteKey) {
+    throw new Error('reCAPTCHA site key is missing in this environment.');
+  }
+
+  await loadRecaptchaScript(recaptchaSiteKey);
+
+  if (!window.grecaptcha) {
+    throw new Error('reCAPTCHA failed to initialize.');
+  }
+
+  return new Promise<string>((resolve, reject) => {
+    window.grecaptcha?.ready(() => {
+      window.grecaptcha
+        ?.execute(recaptchaSiteKey, { action: 'booking' })
+        .then(resolve)
+        .catch(() => reject(new Error('Failed to verify reCAPTCHA. Please try again.')));
+    });
+  });
+};
 
 function validateFullName(v: string) {
   const trimmed = v.trim();
@@ -137,7 +192,8 @@ const formatCurrency = (value: number) =>
 const BookingPage = () => {
   const [searchParams] = useSearchParams();
   const rawPackage = searchParams.get('package') || '';
-  const packageIdParam = rawPackage === 'maintenance' ? 'maintenance' : rawPackage === 'deep-reset' ? 'deepReset' : '';
+  const packageIdParam: BookingPackageId | '' =
+    rawPackage === 'maintenance' ? 'maintenance' : rawPackage === 'deep-reset' ? 'deepReset' : '';
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [systemError, setSystemError] = useState<string | null>(null);
@@ -149,7 +205,6 @@ const BookingPage = () => {
     fullName: '',
     phone: '',
     email: '',
-    vehicleMake: '',
     vehicleType: '',
     address: '',
     packageType: '',
@@ -169,7 +224,7 @@ const BookingPage = () => {
     date: '',
     time: '',
     notes: '',
-    maintenancePlanId: 'none',
+    membershipIntent: 'none' as MembershipIntent,
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -177,7 +232,6 @@ const BookingPage = () => {
   const phoneRef = useRef<HTMLDivElement>(null);
   const emailRef = useRef<HTMLDivElement>(null);
   const addressRef = useRef<HTMLDivElement>(null);
-  const vehicleMakeRef = useRef<HTMLDivElement>(null);
   const vehicleTypeRef = useRef<HTMLDivElement>(null);
   const packageRef = useRef<HTMLDivElement>(null);
   const locationTypeRef = useRef<HTMLDivElement>(null);
@@ -189,7 +243,6 @@ const BookingPage = () => {
     phone: phoneRef,
     email: emailRef,
     address: addressRef,
-    vehicleMake: vehicleMakeRef,
     vehicleType: vehicleTypeRef,
     packageType: packageRef,
     locationType: locationTypeRef,
@@ -201,42 +254,21 @@ const BookingPage = () => {
     fetchBookedDates().then(setBookedDates);
   }, []);
 
+  const selectedPlan =
+    formData.membershipIntent !== 'none' ? maintenancePlanById[formData.membershipIntent] : null;
 
-  const selectedPlan = maintenancePlans.find((plan) => plan.id === formData.maintenancePlanId);
+  const validPackage = isBookingPackageId(formData.packageType) ? formData.packageType : null;
+  const validVehicle = isVehicleTypeId(formData.vehicleType) ? formData.vehicleType : null;
+  const validLocation = isLocationType(formData.locationType) ? formData.locationType : null;
 
-  const PRICES = {
-    maintenance: { sedan: 225, smallSuv: 250, largeSuvTruck: 275 },
-    deepReset:   { sedan: 400, smallSuv: 450, largeSuvTruck: 500 },
-  } as const;
-
-  type PackageKey = keyof typeof PRICES;
-  type VehicleKey = keyof typeof PRICES['maintenance'];
-
-  const OAK_HARBOR_TAX_RATE = 0.091;
-
-  const validPackage = (formData.packageType === 'maintenance' || formData.packageType === 'deepReset')
-    ? formData.packageType as PackageKey : null;
-  const validVehicle = (['sedan', 'smallSuv', 'largeSuvTruck'].includes(formData.vehicleType))
-    ? formData.vehicleType as VehicleKey : null;
-
-  const basePrice: number | null = validPackage && validVehicle ? PRICES[validPackage][validVehicle] : null;
-  const mobileFee: number | null = (basePrice !== null && formData.locationType === 'mobile') ? 30 : null;
-  const estimatedTotal: number | null = basePrice !== null ? basePrice + (mobileFee || 0) : null;
-  const depositAmount: number | null = estimatedTotal !== null ? Math.round(estimatedTotal * 0.2) : null;
-  const taxAmount: number | null = depositAmount !== null ? Number((depositAmount * OAK_HARBOR_TAX_RATE).toFixed(2)) : null;
-  const totalToday: number | null = (depositAmount !== null && taxAmount !== null) ? Number((depositAmount + taxAmount).toFixed(2)) : null;
-  const remainingBalance: number | null = (estimatedTotal !== null && depositAmount !== null) ? estimatedTotal - depositAmount : null;
-
-  const packageLabels: Record<PackageKey, string> = {
-    maintenance: 'Maintenance',
-    deepReset: 'Deep Reset',
-  };
-
-  const vehicleTypeLabels: Record<VehicleKey, string> = {
-    sedan: 'Sedan',
-    smallSuv: 'Small SUV',
-    largeSuvTruck: 'Large SUV / Truck',
-  };
+  const pricing =
+    validPackage && validVehicle && validLocation
+      ? calculateBookingFinancials({
+          packageId: validPackage,
+          vehicleType: validVehicle,
+          locationType: validLocation,
+        })
+      : null;
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -258,7 +290,6 @@ const BookingPage = () => {
       phone: validatePhone(formData.phone),
       email: validateEmail(formData.email),
       address: formData.address.trim() ? '' : 'Address / location is required.',
-      vehicleMake: '',
       vehicleType: formData.vehicleType ? '' : 'Please select your vehicle type (Sedan, Small SUV, or Large SUV / Truck).',
       packageType: formData.packageType ? '' : 'Choose a package first, then pay your 20% deposit.',
       locationType: formData.locationType ? '' : 'Please choose Garage Studio or On-Island Mobile.',
@@ -277,10 +308,10 @@ const BookingPage = () => {
     setIsSubmitting(true);
 
     try {
-      // Step 5: Process Booking Submission (Now Processor-Agnostic)
-      // The Edge Function will handle DB inserts, Google Calendar, and reCAPTCHA.
-      // TODO: Once Helcim is ready, inject the redirect or modal call here.
-      
+      if (!validPackage || !validVehicle || !validLocation || !pricing) {
+        throw new Error('Please finish the package, vehicle type, and location selections before booking.');
+      }
+
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
       
@@ -288,7 +319,7 @@ const BookingPage = () => {
         throw new Error('Supabase environment variables are missing.');
       }
 
-      // We call the generic 'create-booking' function (previously stripe-checkout)
+      const recaptchaToken = await getRecaptchaToken();
       const functionUrl = `${supabaseUrl}/functions/v1/create-booking`;
       
       const response = await fetch(functionUrl, {
@@ -299,14 +330,28 @@ const BookingPage = () => {
           'apikey': supabaseAnonKey
         },
         body: JSON.stringify({
-          ...formData,
-          estimatedTotal: estimatedTotal ?? 0,
-          depositAmount: depositAmount ?? 0,
-          taxAmount: taxAmount ?? 0,
-          totalToday: totalToday ?? 0,
-          remainingBalance: remainingBalance ?? 0,
-          packageName: validPackage ? packageLabels[validPackage] : '',
-          packageId: formData.packageType,
+          fullName: formData.fullName,
+          phone: formData.phone,
+          email: formData.email,
+          address: formData.address,
+          notes: formData.notes,
+          package: validPackage,
+          packageId: validPackage,
+          packageName: bookingPackages[validPackage].label,
+          vehicleType: validVehicle,
+          vehicleTypeLabel: vehicleTypeLabels[validVehicle],
+          locationType: validLocation,
+          mobileFeeApplied: validLocation === 'mobile',
+          membershipIntent: formData.membershipIntent,
+          calculatedPrice: pricing.subtotal,
+          estimatedTotal: pricing.subtotal,
+          depositAmount: pricing.depositAmount,
+          taxAmount: pricing.taxAmount,
+          totalToday: pricing.totalToday,
+          remainingBalance: pricing.remainingBalance,
+          date: formData.date,
+          time: formData.time,
+          recaptchaToken,
         })
       });
 
@@ -357,14 +402,14 @@ const BookingPage = () => {
             <span className="eyebrow">1. Choose Your Package</span>
             <h2>Start with the baseline your vehicle actually needs.</h2>
             <p className="field-help">Pick the closest fit now. Extras are quoted from your notes and photos before the appointment.</p>
-            <div className="location-toggle" style={{ marginTop: '1rem' }}>
+            <div className="location-toggle booking-package-toggle">
               <button
                 type="button"
                 className={`toggle-btn ${formData.packageType === 'maintenance' ? 'active' : ''}`}
                 onClick={() => setFormData({ ...formData, packageType: 'maintenance' })}
                 aria-pressed={formData.packageType === 'maintenance'}
               >
-                Maintenance
+                {bookingPackages.maintenance.label}
               </button>
               <button
                 type="button"
@@ -372,7 +417,7 @@ const BookingPage = () => {
                 onClick={() => setFormData({ ...formData, packageType: 'deepReset' })}
                 aria-pressed={formData.packageType === 'deepReset'}
               >
-                Deep Reset
+                {bookingPackages.deepReset.label}
               </button>
             </div>
             <FieldError msg={fieldErrors.packageType} />
@@ -524,7 +569,7 @@ const BookingPage = () => {
               <div className="input-group full-width">
                 <p className="booking-field-label">Plan interest (optional)</p>
                 <p className="field-help">
-                  Maintenance plans are for after a Deep Reset.{' '}
+                  Maintenance plans start after your baseline Deep Reset or first maintenance visit.{' '}
                   <Link to="/memberships" className="inline-text-link">
                     See Maintenance Plans
                   </Link>{' '}
@@ -533,21 +578,21 @@ const BookingPage = () => {
                 <div className="plan-choice-list compact">
                   <button
                     type="button"
-                    className={`plan-choice ${formData.maintenancePlanId === 'none' ? 'selected' : ''}`}
-                    onClick={() => setFormData({ ...formData, maintenancePlanId: 'none' })}
-                    aria-pressed={formData.maintenancePlanId === 'none'}
+                    className={`plan-choice ${formData.membershipIntent === 'none' ? 'selected' : ''}`}
+                    onClick={() => setFormData({ ...formData, membershipIntent: 'none' })}
+                    aria-pressed={formData.membershipIntent === 'none'}
                   >
                     <strong>No plan right now</strong>
                   </button>
                   {maintenancePlans.map((plan) => (
                     <button
                       type="button"
-                      className={`plan-choice ${formData.maintenancePlanId === plan.id ? 'selected' : ''}`}
+                      className={`plan-choice ${formData.membershipIntent === plan.id ? 'selected' : ''}`}
                       key={plan.id}
-                      onClick={() => setFormData({ ...formData, maintenancePlanId: plan.id })}
-                      aria-pressed={formData.maintenancePlanId === plan.id}
+                      onClick={() => setFormData({ ...formData, membershipIntent: plan.id })}
+                      aria-pressed={formData.membershipIntent === plan.id}
                     >
-                      <strong>{planChoiceLabels[plan.id]}</strong>
+                      <strong>{plan.bookingChoiceLabel}</strong>
                     </button>
                   ))}
                 </div>
@@ -595,7 +640,7 @@ const BookingPage = () => {
 
           <div className="form-footer">
             <button type="submit" className="btn primary btn-submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Processing...' : `Pay 20% Deposit + Tax${totalToday !== null ? ` (${formatCurrency(totalToday)})` : ''} & Book`}
+              {isSubmitting ? 'Processing...' : `Pay 20% Deposit + Tax${pricing ? ` (${formatCurrency(pricing.totalToday)})` : ''} & Book`}
             </button>
             <div className="payment-secure-text">
               <ShieldCheck size={14} /> Your deposit (plus applicable tax) goes toward the final total.
@@ -619,63 +664,64 @@ const BookingPage = () => {
 
             <div className={`summary-content ${isMobileSummaryOpen ? 'open' : ''}`}>
               <div className="summary-row">
-                <span>Package</span>
-                <strong>{validPackage ? packageLabels[validPackage] : 'Choose a package'}</strong>
-              </div>
-
-              <div className="summary-row">
-                <span>Vehicle type</span>
-                <strong>{validVehicle ? vehicleTypeLabels[validVehicle] : 'Choose your vehicle type'}</strong>
+                <span>Package + vehicle type</span>
+                <strong>
+                  {validPackage && validVehicle
+                    ? `${bookingPackages[validPackage].label} · ${vehicleTypeLabels[validVehicle]}`
+                    : 'Choose a package and vehicle type'}
+                </strong>
               </div>
 
               {selectedPlan && (
                 <div className="summary-block">
-                  <span>Plan interest</span>
-                  <p className="section-note">{planChoiceLabels[selectedPlan.id]}</p>
+                  <span>Maintenance Plan</span>
+                  <p className="section-note">
+                    {selectedPlan.shortName} ({selectedPlan.summaryLine})
+                  </p>
                 </div>
               )}
 
-              {basePrice === null ? (
-                <p className="section-note" style={{ color: 'var(--color-text-primary)' }}>
-                  Select a package and vehicle type to see your estimated total and deposit.
+              {pricing === null || !validPackage || !validVehicle || !validLocation ? (
+                <p className="section-note summary-empty-note">
+                  Select a package, vehicle type, and location to see today&apos;s pricing.
                 </p>
               ) : (
                 <>
                   <div className="summary-row">
-                    <span>Base package total</span>
-                    <strong>{formatCurrency(basePrice as number)}</strong>
+                    <span>{`${bookingPackages[validPackage].label} · ${vehicleTypeLabels[validVehicle]}`}</span>
+                    <strong>{formatCurrency(pricing.packagePrice)}</strong>
                   </div>
 
-                  {mobileFee !== null && (
+                  {pricing.mobileFee > 0 && (
                     <div className="summary-row">
-                      <span>Mobile service fee</span>
-                      <strong>{formatCurrency(mobileFee)}</strong>
+                      <span>On-Island Mobile Fee</span>
+                      <strong>{formatCurrency(pricing.mobileFee)}</strong>
                     </div>
                   )}
 
-                  <div className="summary-row highlight" style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: '0.75rem', marginBottom: '0.75rem' }}>
-                    <span>Estimated Full Total</span>
-                    <strong>{formatCurrency(estimatedTotal as number)}</strong>
+                  <div className="summary-row">
+                    <span>Subtotal</span>
+                    <strong>{formatCurrency(pricing.subtotal)}</strong>
                   </div>
 
                   <div className="summary-row">
-                    <span>Today&apos;s deposit (20% of full total)</span>
-                    <strong>{formatCurrency(depositAmount as number)}</strong>
-                  </div>
-
-                  <div className="summary-row">
-                    <span>Tax on deposit (9.1%)</span>
-                    <strong>{formatCurrency(taxAmount as number)}</strong>
+                    <span>Tax</span>
+                    <strong>{formatCurrency(pricing.taxAmount)}</strong>
                   </div>
 
                   <div className="summary-row highlight">
-                    <span>Today&apos;s total charge</span>
-                    <strong>{formatCurrency(totalToday as number)}</strong>
+                    <span>Today&apos;s deposit (20%)</span>
+                    <strong>{formatCurrency(pricing.depositAmount)}</strong>
+                  </div>
+
+                  <div className="summary-row">
+                    <span>Today&apos;s total due</span>
+                    <strong>{formatCurrency(pricing.totalToday)}</strong>
                   </div>
 
                   <div className="summary-row">
                     <span>Remaining after service</span>
-                    <strong>{formatCurrency(remainingBalance as number)}</strong>
+                    <strong>{formatCurrency(pricing.remainingBalance)}</strong>
                   </div>
                 </>
               )}

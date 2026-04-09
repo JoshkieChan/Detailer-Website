@@ -1,10 +1,12 @@
 import { ChevronLeft, CheckCircle2, TrendingUp, Package, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-// TODO: Wire Helcim checkout here
-const OVERWHELM_LINK = '#';
-const DEBT_DASHBOARD_LINK = '#';
-const LIFE_INCOME_PACK_LINK = '#';
+const OVERWHELM_LINK =
+  'https://signalsource.myhelcim.com/payment/?token=8b50549854ba39e7bf474d';
+const DEBT_DASHBOARD_LINK =
+  'https://signalsource.myhelcim.com/payment/?token=751ddc22005b393b46b3a0';
+const LIFE_INCOME_PACK_LINK =
+  'https://signalsource.myhelcim.com/payment/?token=99682c28e007ecd16dfa6e';
 
 const DigitalAssetsExamples = () => {
   return (
@@ -160,7 +162,7 @@ const DigitalAssetsExamples = () => {
             </div>
             <p className="faq-a section-copy">
               Immediately after your purchase is confirmed, you will receive an email from 
-              Stripe with a secure download link. You can save the files to your computer 
+              the payment processor with a secure download link. You can save the files to your computer 
               or cloud storage for permanent access.
             </p>
           </div>

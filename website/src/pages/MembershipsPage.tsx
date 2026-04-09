@@ -2,16 +2,6 @@ import { Link } from 'react-router-dom';
 import { CheckCircle, CalendarClock, ClipboardList } from 'lucide-react';
 import { maintenancePlans } from '../data/maintenancePlans';
 
-const planBestFor: Record<string, string> = {
-  quarterly: 'Best for families and daily drivers who want predictable upkeep after a Deep Reset service.',
-  monthly: 'Best for drivers who want the cleanest ongoing cadence after a Deep Reset service.',
-};
-
-const planPricingLine: Record<string, string> = {
-  quarterly: 'From $180 every 3 months',
-  monthly: 'From $150 every month',
-};
-
 const MembershipsPage = () => {
   return (
     <div className="page-shell memberships-page">
@@ -28,7 +18,7 @@ const MembershipsPage = () => {
         <div className="support-pill"><CalendarClock size={16} /> Baseline required</div>
         <p className="section-copy">
           Maintenance plans assume a clean baseline from a recent Deep Reset
-          service. They are for keeping a good vehicle from sliding backward, not
+          service or first maintenance visit. They are for keeping a good vehicle from sliding backward, not
           for fixing a heavily neglected one on the cheap.
           <br /><br />
           Each membership visit is the same scope as the standard Maintenance Detail (foam + 2‑bucket wash, wheels/tires, light jambs, interior vacuum/light wipe, glass). Deep Reset details are separate, one‑off services at the standard prices.
@@ -47,14 +37,9 @@ const MembershipsPage = () => {
                 <h2>{plan.id === 'quarterly' ? 'Quarterly Plan' : 'Monthly Plan'}</h2>
                 {plan.popular && <div className="badge-popular tier-badge">Most picked</div>}
               </div>
-              <p className="membership-best-for">{planBestFor[plan.id]}</p>
-              <div className="membership-pricing-line">{planPricingLine[plan.id]}</div>
-              {plan.id === 'monthly' && (
-                <p className="membership-support-line">Monthly billing for one maintenance detail each month.</p>
-              )}
-              {plan.id === 'quarterly' && (
-                <p className="membership-support-line">One maintenance detail every 3 months on a lower-commitment schedule.</p>
-              )}
+              <p className="membership-best-for">{plan.bestFor}</p>
+              <div className="membership-pricing-line">{plan.pricingLine}</div>
+              <p className="membership-support-line">{plan.supportLine}</p>
             </div>
 
             <ul className="package-bullets">

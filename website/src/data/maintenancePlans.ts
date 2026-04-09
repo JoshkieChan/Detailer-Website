@@ -1,12 +1,38 @@
-export const maintenancePlans = [
+export type MembershipIntent = 'none' | 'quarterly' | 'monthly';
+
+export interface MaintenancePlan {
+  id: Exclude<MembershipIntent, 'none'>;
+  name: string;
+  shortName: string;
+  bookingChoiceLabel: string;
+  bestFor: string;
+  pricingLine: string;
+  supportLine: string;
+  summaryLine: string;
+  emailIntro: string;
+  billingDetails: string;
+  includedSummary: string;
+  features: string[];
+  ctaLabel: string;
+  popular: boolean;
+}
+
+export const maintenancePlans: MaintenancePlan[] = [
   {
     id: 'quarterly',
-    name: 'Quarterly Upkeep',
-    monthlyPrice: '$60',
-    monthlyEquivalent: '$60/month',
-    billingLine: 'Billed at $180 each visit (every 3 months).',
-    bookingDescription: 'Equivalent to $60/month. Billed at $180 each visit (every 3 months).',
-    perksSummary: 'Includes 4 Maintenance Details per year, Priority Scheduling, 10% off any extras (engine bay, etc.), and pricing locked in for 12 months.',
+    name: 'Quarterly Plan',
+    shortName: 'Quarterly',
+    bookingChoiceLabel: 'Interested in Quarterly Plan',
+    bestFor:
+      'Best for families and daily drivers who want lower-frequency upkeep after a clean baseline.',
+    pricingLine: 'From $180 every 3 months (equivalent to $60/month)',
+    supportLine: 'Billed separately after your baseline service on a once-every-3-month schedule.',
+    summaryLine: 'From $180 every 3 months, billed separately after baseline.',
+    emailIntro: 'You selected the Quarterly Maintenance Plan.',
+    billingDetails:
+      'This plan starts after your baseline Deep Reset or first maintenance visit. No recurring charges are taken today.',
+    includedSummary:
+      'Includes 4 Maintenance Details per year, Priority Scheduling, 10% off any extras, and pricing locked in for 12 months.',
     features: [
       '4 Maintenance Details per year',
       'Priority Scheduling',
@@ -18,12 +44,19 @@ export const maintenancePlans = [
   },
   {
     id: 'monthly',
-    name: 'Monthly Upkeep',
-    monthlyPrice: '$120',
-    monthlyEquivalent: '$120/month',
-    billingLine: 'Charged as a flat $120 monthly autopay for one maintenance detail every month.',
-    bookingDescription: 'Flat $120/month. Charged monthly for one maintenance detail every month.',
-    perksSummary: 'Includes 12 Maintenance Details per year, VIP Priority Scheduling, 20% off any extras, free minor spot-cleaning between visits, and pricing locked in for 12 months.',
+    name: 'Monthly Plan',
+    shortName: 'Monthly',
+    bookingChoiceLabel: 'Interested in Monthly Plan',
+    bestFor:
+      'Best for drivers who want the cleanest cadence and a predictable monthly upkeep rhythm after baseline.',
+    pricingLine: 'From $150 every month',
+    supportLine: 'Billed separately after your baseline service as a monthly recurring payment.',
+    summaryLine: 'From $150 every month, billed separately after baseline.',
+    emailIntro: 'You selected the Monthly Maintenance Plan.',
+    billingDetails:
+      'This plan starts after your baseline Deep Reset or first maintenance visit. No recurring charges are taken today.',
+    includedSummary:
+      'Includes 12 Maintenance Details per year, VIP Priority Scheduling, 20% off any extras, free minor spot-cleaning between visits, and pricing locked in for 12 months.',
     features: [
       '12 Maintenance Details per year',
       'VIP Priority Scheduling',
@@ -35,3 +68,10 @@ export const maintenancePlans = [
     popular: true,
   },
 ] as const;
+
+export const maintenancePlanById = Object.fromEntries(
+  maintenancePlans.map((plan) => [plan.id, plan])
+) as Record<Exclude<MembershipIntent, 'none'>, MaintenancePlan>;
+
+export const isMembershipIntent = (value: string | null | undefined): value is MembershipIntent =>
+  value === 'none' || value === 'quarterly' || value === 'monthly';
