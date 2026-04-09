@@ -12,14 +12,10 @@ import {
 } from 'lucide-react';
 import { BookingCalendar } from '../components/BookingCalendar';
 import { fetchBookedDates } from '../api/availability';
-import { servicePackages } from '../data/packages';
 import { maintenancePlans } from '../data/maintenancePlans';
 
 
-const packageBestFor: Record<string, string> = {
-  maintenance: 'Best for weekly drivers and routine upkeep.',
-  'deep-reset': 'Best for neglected vehicles and full reset work.',
-};
+
 
 const planChoiceLabels: Record<string, string> = {
   quarterly: 'Interested in Quarterly Plan',
@@ -143,7 +139,7 @@ const formatCurrency = (value: number) =>
 const BookingPage = () => {
   const [searchParams] = useSearchParams();
   const rawPackage = searchParams.get('package') || '';
-  const packageIdParam = (rawPackage === 'maintenance' || rawPackage === 'deep-reset') ? rawPackage : '';
+  const packageIdParam = rawPackage === 'maintenance' ? 'maintenance' : rawPackage === 'deep-reset' ? 'deepReset' : '';
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [systemError, setSystemError] = useState<string | null>(null);
@@ -156,8 +152,9 @@ const BookingPage = () => {
     phone: '',
     email: '',
     vehicleMake: '',
+    vehicleType: '',
     address: '',
-    package: '',
+    packageType: '',
     locationType: '',
     date: '',
     time: '',
@@ -171,7 +168,8 @@ const BookingPage = () => {
     vehicleMake: '',
     vehicleYear: '',
     vehicleColor: '',
-    package: packageIdParam,
+    vehicleType: '',
+    packageType: packageIdParam,
     locationType: '',
     date: '',
     time: '',
@@ -185,6 +183,7 @@ const BookingPage = () => {
   const emailRef = useRef<HTMLDivElement>(null);
   const addressRef = useRef<HTMLDivElement>(null);
   const vehicleMakeRef = useRef<HTMLDivElement>(null);
+  const vehicleTypeRef = useRef<HTMLDivElement>(null);
   const packageRef = useRef<HTMLDivElement>(null);
   const locationTypeRef = useRef<HTMLDivElement>(null);
   const dateRef = useRef<HTMLDivElement>(null);
@@ -196,7 +195,8 @@ const BookingPage = () => {
     email: emailRef,
     address: addressRef,
     vehicleMake: vehicleMakeRef,
-    package: packageRef,
+    vehicleType: vehicleTypeRef,
+    packageType: packageRef,
     locationType: locationTypeRef,
     date: dateRef,
     time: timeRef,
@@ -207,22 +207,40 @@ const BookingPage = () => {
   }, []);
 
 
-  const selectedPackage = servicePackages.find((pkg) => pkg.id === formData.package);
   const selectedPlan = maintenancePlans.find((plan) => plan.id === formData.maintenancePlanId);
 
-  const BASE_PRICES: Record<string, number> = {
-    maintenance: 225,
-    'deep-reset': 400,
+  const PRICES = {
+    maintenance: { sedan: 225, smallSuv: 250, largeSuvTruck: 275 },
+    deepReset:   { sedan: 400, smallSuv: 450, largeSuvTruck: 500 },
+  } as const;
+
+  type PackageKey = keyof typeof PRICES;
+  type VehicleKey = keyof typeof PRICES['maintenance'];
+
+  const OAK_HARBOR_TAX_RATE = 0.091;
+
+  const validPackage = (formData.packageType === 'maintenance' || formData.packageType === 'deepReset')
+    ? formData.packageType as PackageKey : null;
+  const validVehicle = (['sedan', 'smallSuv', 'largeSuvTruck'].includes(formData.vehicleType))
+    ? formData.vehicleType as VehicleKey : null;
+
+  const basePrice: number | null = validPackage && validVehicle ? PRICES[validPackage][validVehicle] : null;
+  const depositAmount: number | null = basePrice !== null ? Math.round(basePrice * 0.2) : null;
+  const taxAmount: number | null = depositAmount !== null ? Number((depositAmount * OAK_HARBOR_TAX_RATE).toFixed(2)) : null;
+  const totalToday: number | null = (depositAmount !== null && taxAmount !== null) ? Number((depositAmount + taxAmount).toFixed(2)) : null;
+  const remainingBalance: number | null = (basePrice !== null && depositAmount !== null) ? basePrice - depositAmount : null;
+  const estimatedTotal: number | null = basePrice;
+
+  const packageLabels: Record<PackageKey, string> = {
+    maintenance: 'Maintenance',
+    deepReset: 'Deep Reset',
   };
 
-  const OAK_HARBOR_TAX_RATE = 0.091; // 9.1% sales tax on deposit only
-
-  const basePrice = selectedPackage?.id ? BASE_PRICES[selectedPackage.id] || 0 : 0;
-  const estimatedTotal = basePrice;
-  const depositAmount = Math.round(estimatedTotal * 0.2);
-  const taxAmount = Number((depositAmount * OAK_HARBOR_TAX_RATE).toFixed(2));
-  const totalToday = Number((depositAmount + taxAmount).toFixed(2));
-  const remainingBalance = estimatedTotal - depositAmount;
+  const vehicleTypeLabels: Record<VehicleKey, string> = {
+    sedan: 'Sedan',
+    smallSuv: 'Small SUV',
+    largeSuvTruck: 'Large SUV / Truck',
+  };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -245,7 +263,8 @@ const BookingPage = () => {
       email: validateEmail(formData.email),
       address: formData.address.trim() ? '' : 'Address / location is required.',
       vehicleMake: validateVehicle(formData.vehicleMake),
-      package: formData.package ? '' : 'Choose a package first, then pay your 20% deposit.',
+      vehicleType: formData.vehicleType ? '' : 'Please select your vehicle type (Sedan, Small SUV, or Large SUV / Truck).',
+      packageType: formData.packageType ? '' : 'Choose a package first, then pay your 20% deposit.',
       locationType: formData.locationType ? '' : 'Please choose Garage Studio or On-Island Mobile.',
       date: formData.date ? '' : 'Please select a preferred date.',
       time: formData.time ? '' : 'Please select a preferred time range.',
@@ -285,12 +304,13 @@ const BookingPage = () => {
         },
         body: JSON.stringify({
           ...formData,
-          estimatedTotal,
-          depositAmount,
-          taxAmount,
-          totalToday,
-          remainingBalance,
-          packageName: selectedPackage?.title
+          estimatedTotal: estimatedTotal ?? 0,
+          depositAmount: depositAmount ?? 0,
+          taxAmount: taxAmount ?? 0,
+          totalToday: totalToday ?? 0,
+          remainingBalance: remainingBalance ?? 0,
+          packageName: validPackage ? packageLabels[validPackage] : '',
+          packageId: formData.packageType,
         })
       });
 
@@ -341,26 +361,25 @@ const BookingPage = () => {
             <span className="eyebrow">1. Choose Your Package</span>
             <h2>Start with the baseline your vehicle actually needs.</h2>
             <p className="field-help">Pick the closest fit now. Extras are quoted from your notes and photos before the appointment.</p>
-            <div className="booking-package-grid">
-              {servicePackages.map((pkg) => (
-                <button
-                  type="button"
-                  key={pkg.id}
-                  className={`booking-package-card ${formData.package === pkg.id ? 'selected' : ''}`}
-                  onClick={() => setFormData({ ...formData, package: pkg.id })}
-                  aria-pressed={formData.package === pkg.id}
-                >
-                  <div className="booking-package-head">
-                    <h3>{pkg.title}</h3>
-                    {formData.package === pkg.id && <span className="selected-chip">Selected</span>}
-                  </div>
-                  <p className="section-copy">{packageBestFor[pkg.id]}</p>
-                  <div className="package-card-price">From {`$${pkg.price}`}</div>
-                  <p className="package-card-note">{pkg.priceNote}</p>
-                </button>
-              ))}
+            <div className="location-toggle" style={{ marginTop: '1rem' }}>
+              <button
+                type="button"
+                className={`toggle-btn ${formData.packageType === 'maintenance' ? 'active' : ''}`}
+                onClick={() => setFormData({ ...formData, packageType: 'maintenance' })}
+                aria-pressed={formData.packageType === 'maintenance'}
+              >
+                Maintenance
+              </button>
+              <button
+                type="button"
+                className={`toggle-btn ${formData.packageType === 'deepReset' ? 'active' : ''}`}
+                onClick={() => setFormData({ ...formData, packageType: 'deepReset' })}
+                aria-pressed={formData.packageType === 'deepReset'}
+              >
+                Deep Reset
+              </button>
             </div>
-            <FieldError msg={fieldErrors.package} />
+            <FieldError msg={fieldErrors.packageType} />
           </section>
 
 
@@ -372,6 +391,22 @@ const BookingPage = () => {
               One vehicle per day means your selected date is held once the deposit is paid.
             </div>
             <div className="form-grid">
+              <div className="input-group full-width" ref={vehicleTypeRef}>
+                <label htmlFor="vehicle-type">Vehicle type</label>
+                <select
+                  id="vehicle-type"
+                  value={formData.vehicleType}
+                  onChange={(e) => setFormData({ ...formData, vehicleType: e.target.value })}
+                  className={fieldErrors.vehicleType ? 'input-error' : ''}
+                >
+                  <option value="">Select vehicle type</option>
+                  <option value="sedan">Sedan</option>
+                  <option value="smallSuv">Small SUV</option>
+                  <option value="largeSuvTruck">Large SUV / Truck</option>
+                </select>
+                <FieldError msg={fieldErrors.vehicleType} />
+              </div>
+
               <div className="input-group full-width" ref={vehicleMakeRef}>
                 <label htmlFor="vehicle-make-model">Vehicle make and model</label>
                 <input
@@ -602,7 +637,7 @@ const BookingPage = () => {
 
           <div className="form-footer">
             <button type="submit" className="btn primary btn-submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Processing...' : `Pay 20% Deposit + Tax${selectedPackage ? ` (${formatCurrency(totalToday)})` : ''} & Book`}
+              {isSubmitting ? 'Processing...' : `Pay 20% Deposit + Tax${totalToday !== null ? ` (${formatCurrency(totalToday)})` : ''} & Book`}
             </button>
             <div className="payment-secure-text">
               <ShieldCheck size={14} /> Your deposit (plus applicable tax) goes toward the final total.
@@ -627,9 +662,13 @@ const BookingPage = () => {
             <div className={`summary-content ${isMobileSummaryOpen ? 'open' : ''}`}>
               <div className="summary-row">
                 <span>Package</span>
-                <strong>{selectedPackage ? selectedPackage.title : 'Choose a package'}</strong>
+                <strong>{validPackage ? packageLabels[validPackage] : 'Choose a package'}</strong>
               </div>
 
+              <div className="summary-row">
+                <span>Vehicle type</span>
+                <strong>{validVehicle ? vehicleTypeLabels[validVehicle] : 'Choose your vehicle type'}</strong>
+              </div>
 
               {selectedPlan && (
                 <div className="summary-block">
@@ -638,33 +677,41 @@ const BookingPage = () => {
                 </div>
               )}
 
-              <div className="summary-row">
-                <span>Estimated total</span>
-                <strong>{formatCurrency(estimatedTotal)}</strong>
-              </div>
+              {basePrice === null ? (
+                <p className="section-note" style={{ color: 'var(--color-text-primary)' }}>
+                  Select a package and vehicle type to see your estimated total and deposit.
+                </p>
+              ) : (
+                <>
+                  <div className="summary-row">
+                    <span>Estimated total</span>
+                    <strong>{formatCurrency(estimatedTotal as number)}</strong>
+                  </div>
 
-              <div className="summary-row">
-                <span>Today&apos;s deposit (20%)</span>
-                <strong>{formatCurrency(depositAmount)}</strong>
-              </div>
+                  <div className="summary-row">
+                    <span>Today&apos;s deposit (20%)</span>
+                    <strong>{formatCurrency(depositAmount as number)}</strong>
+                  </div>
 
-              <div className="summary-row">
-                <span>Tax on deposit (9.1%)</span>
-                <strong>{formatCurrency(taxAmount)}</strong>
-              </div>
+                  <div className="summary-row">
+                    <span>Tax on deposit (9.1%)</span>
+                    <strong>{formatCurrency(taxAmount as number)}</strong>
+                  </div>
 
-              <div className="summary-row highlight">
-                <span>Today&apos;s total charge</span>
-                <strong>{formatCurrency(totalToday)}</strong>
-              </div>
+                  <div className="summary-row highlight">
+                    <span>Today&apos;s total charge</span>
+                    <strong>{formatCurrency(totalToday as number)}</strong>
+                  </div>
 
-              <div className="summary-row">
-                <span>Remaining after service</span>
-                <strong>{formatCurrency(remainingBalance)}</strong>
-              </div>
+                  <div className="summary-row">
+                    <span>Remaining after service</span>
+                    <strong>{formatCurrency(remainingBalance as number)}</strong>
+                  </div>
+                </>
+              )}
 
               <p className="section-note">
-                Estimated total is for sedans. Final price is confirmed after photo review. Remaining balance is due in person after service.
+                Final total is confirmed before work begins if vehicle condition or selected scope changes.
               </p>
             </div>
           </div>
