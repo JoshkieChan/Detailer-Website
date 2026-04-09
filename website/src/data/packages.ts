@@ -4,7 +4,7 @@ export const servicePackages = [
     title: 'Maintenance',
     price: '225 (sedans)',
     description: 'For commuters, base families, and daily drivers that are mostly fine but no longer feel clean, this gets the car back to sharp without turning a small problem into a full reset.',
-    bestFor: 'Regular upkeep: foam wash, wheels and tires cleaned and dressed, door jambs wiped (light level), interior vacuum and high-touch wipe-down, streak-free glass inside and out.',
+    bestFor: 'Regular upkeep: foam wash + two-bucket, wheels and tires cleaned and dressed, light door jamb wipe, interior vacuum and light wipe, streak-free glass.',
     themeStyle: 'blue' as const,
     features: [
       'Foam pre‑wash and two‑bucket contact wash',
@@ -21,15 +21,15 @@ export const servicePackages = [
     title: 'Deep Reset',
     price: '400 (sedans)',
     description: 'For family haulers, commuter cars, and hard-used vehicles that have gotten away from you, this is the full reset that brings the interior and gloss back toward factory-fresh.',
-    bestFor: 'One-time intensive clean: iron and clay decontamination, deep wheel and inner barrel cleaning, full interior brush and crevice work, fabric extraction where safe, interior plastic/trim protection, and ceramic glass treatment.',
+    bestFor: 'One-time intensive detail: iron + clay decontamination, deep wheel and barrel cleaning, full interior vacuum and crevice/brush work, fabric extraction where safe, interior protection, ceramic glass treatment.',
     themeStyle: 'lime' as const,
     highlight: true,
     features: [
       'Pre‑wash foam and two‑bucket contact wash',
       'Iron remover and clay decontamination on paint',
       'Deep wheel and tire cleaning, including inner barrels',
-      'Full interior vacuum, crevice and brush work on plastics and seams',
-      'Fabric seat and carpet cleaning with extraction, as safely possible',
+      'Full interior vacuum plus crevice and brush work on plastics and seams',
+      'Fabric seat and carpet cleaning with extraction, where safely possible',
       'Interior plastic/trim protection',
       'Glass deep clean plus ceramic glass treatment'
     ],

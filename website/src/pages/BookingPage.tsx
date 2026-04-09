@@ -43,10 +43,8 @@ function validateEmail(v: string) {
   return '';
 }
 
-function validateVehicle(v: string) {
-  if (v.trim().length < 3) return "Please enter your vehicle's make and model.";
-  return '';
-}
+
+
 
 interface NominatimResult {
   display_name: string;
@@ -165,9 +163,6 @@ const BookingPage = () => {
     phone: '',
     email: '',
     address: '',
-    vehicleMake: '',
-    vehicleYear: '',
-    vehicleColor: '',
     vehicleType: '',
     packageType: packageIdParam,
     locationType: '',
@@ -225,11 +220,12 @@ const BookingPage = () => {
     ? formData.vehicleType as VehicleKey : null;
 
   const basePrice: number | null = validPackage && validVehicle ? PRICES[validPackage][validVehicle] : null;
-  const depositAmount: number | null = basePrice !== null ? Math.round(basePrice * 0.2) : null;
+  const mobileFee: number | null = (basePrice !== null && formData.locationType === 'mobile') ? 30 : null;
+  const estimatedTotal: number | null = basePrice !== null ? basePrice + (mobileFee || 0) : null;
+  const depositAmount: number | null = estimatedTotal !== null ? Math.round(estimatedTotal * 0.2) : null;
   const taxAmount: number | null = depositAmount !== null ? Number((depositAmount * OAK_HARBOR_TAX_RATE).toFixed(2)) : null;
   const totalToday: number | null = (depositAmount !== null && taxAmount !== null) ? Number((depositAmount + taxAmount).toFixed(2)) : null;
-  const remainingBalance: number | null = (basePrice !== null && depositAmount !== null) ? basePrice - depositAmount : null;
-  const estimatedTotal: number | null = basePrice;
+  const remainingBalance: number | null = (estimatedTotal !== null && depositAmount !== null) ? estimatedTotal - depositAmount : null;
 
   const packageLabels: Record<PackageKey, string> = {
     maintenance: 'Maintenance',
@@ -262,7 +258,7 @@ const BookingPage = () => {
       phone: validatePhone(formData.phone),
       email: validateEmail(formData.email),
       address: formData.address.trim() ? '' : 'Address / location is required.',
-      vehicleMake: validateVehicle(formData.vehicleMake),
+      vehicleMake: '',
       vehicleType: formData.vehicleType ? '' : 'Please select your vehicle type (Sedan, Small SUV, or Large SUV / Truck).',
       packageType: formData.packageType ? '' : 'Choose a package first, then pay your 20% deposit.',
       locationType: formData.locationType ? '' : 'Please choose Garage Studio or On-Island Mobile.',
@@ -405,44 +401,6 @@ const BookingPage = () => {
                   <option value="largeSuvTruck">Large SUV / Truck</option>
                 </select>
                 <FieldError msg={fieldErrors.vehicleType} />
-              </div>
-
-              <div className="input-group full-width" ref={vehicleMakeRef}>
-                <label htmlFor="vehicle-make-model">Vehicle make and model</label>
-                <input
-                  id="vehicle-make-model"
-                  type="text"
-                  value={formData.vehicleMake}
-                  onChange={(e) => setFormData({ ...formData, vehicleMake: e.target.value })}
-                  className={fieldErrors.vehicleMake ? 'input-error' : ''}
-                  placeholder="Toyota RAV4 / Ford F-150 / Tesla Model 3"
-                />
-                <FieldError msg={fieldErrors.vehicleMake} />
-              </div>
-
-              <div className="input-group">
-                <label htmlFor="vehicle-year">Vehicle year</label>
-                <select
-                  id="vehicle-year"
-                  value={formData.vehicleYear}
-                  onChange={(e) => setFormData({ ...formData, vehicleYear: e.target.value })}
-                >
-                  <option value="">Select year</option>
-                  {Array.from({ length: 50 }, (_, i) => new Date().getFullYear() + 1 - i).map((year) => (
-                    <option key={year} value={year}>{year}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="input-group">
-                <label htmlFor="vehicle-color">Vehicle color</label>
-                <input
-                  id="vehicle-color"
-                  type="text"
-                  value={formData.vehicleColor}
-                  onChange={(e) => setFormData({ ...formData, vehicleColor: e.target.value })}
-                  placeholder="White / Gray / Black"
-                />
               </div>
 
               <div className="input-group full-width" ref={addressRef}>
@@ -684,12 +642,24 @@ const BookingPage = () => {
               ) : (
                 <>
                   <div className="summary-row">
-                    <span>Estimated total</span>
+                    <span>Base package total</span>
+                    <strong>{formatCurrency(basePrice as number)}</strong>
+                  </div>
+
+                  {mobileFee !== null && (
+                    <div className="summary-row">
+                      <span>Mobile service fee</span>
+                      <strong>{formatCurrency(mobileFee)}</strong>
+                    </div>
+                  )}
+
+                  <div className="summary-row highlight" style={{ borderBottom: '1px solid var(--color-border)', paddingBottom: '0.75rem', marginBottom: '0.75rem' }}>
+                    <span>Estimated Full Total</span>
                     <strong>{formatCurrency(estimatedTotal as number)}</strong>
                   </div>
 
                   <div className="summary-row">
-                    <span>Today&apos;s deposit (20%)</span>
+                    <span>Today&apos;s deposit (20% of full total)</span>
                     <strong>{formatCurrency(depositAmount as number)}</strong>
                   </div>
 

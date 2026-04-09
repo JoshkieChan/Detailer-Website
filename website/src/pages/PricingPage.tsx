@@ -68,24 +68,27 @@ const PricingPage = () => {
           <p className="section-copy">
             Final price is confirmed after a quick photo review or walk-around. You&apos;ll see your total before work begins.
           </p>
+          <p className="section-note mt-1" style={{color: 'var(--color-primary-light)', fontWeight: 600}}>
+            Prices shown are for our Garage Studio. On‑Island Mobile service adds a flat $30 per visit.
+          </p>
         </div>
 
         <div className="card-grid two">
           <article className="content-card reveal">
             <h3 className="accent-text">Maintenance Detail</h3>
             <ul className="package-bullets">
-              <li className="feature-row flex justify-between"><span>Sedans</span> <strong>from $225</strong></li>
+              <li className="feature-row flex justify-between"><span>Sedan</span> <strong>from $225</strong></li>
               <li className="feature-row flex justify-between"><span>Small SUVs</span> <strong>from $250</strong></li>
-              <li className="feature-row flex justify-between"><span>Large SUVs/Trucks</span> <strong>from $275+</strong></li>
+              <li className="feature-row flex justify-between"><span>Large SUVs/Trucks</span> <strong>from $275</strong></li>
             </ul>
           </article>
 
           <article className="content-card reveal" data-reveal-delay="1">
             <h3 className="accent-text">Deep Reset Detail</h3>
             <ul className="package-bullets">
-              <li className="feature-row flex justify-between"><span>Sedans</span> <strong>from $400</strong></li>
+              <li className="feature-row flex justify-between"><span>Sedan</span> <strong>from $400</strong></li>
               <li className="feature-row flex justify-between"><span>Small SUVs</span> <strong>from $450</strong></li>
-              <li className="feature-row flex justify-between"><span>Large SUVs/Trucks</span> <strong>from $500+</strong></li>
+              <li className="feature-row flex justify-between"><span>Large SUVs/Trucks</span> <strong>from $500</strong></li>
             </ul>
           </article>
         </div>

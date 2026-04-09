@@ -8,8 +8,8 @@ const planBestFor: Record<string, string> = {
 };
 
 const planPricingLine: Record<string, string> = {
-  quarterly: 'From $180 every 3 months (equivalent to $60/month)',
-  monthly: 'From $120 every month',
+  quarterly: 'From $180 every 3 months',
+  monthly: 'From $150 every month',
 };
 
 const MembershipsPage = () => {
@@ -30,8 +30,8 @@ const MembershipsPage = () => {
           Maintenance plans assume a clean baseline from a recent Deep Reset
           service. They are for keeping a good vehicle from sliding backward, not
           for fixing a heavily neglected one on the cheap.
-          <br />
-          Membership maintenance visits follow the same scope as our standard Maintenance Detail and are priced for consistency, not one-time discounting.
+          <br /><br />
+          Each membership visit is the same scope as the standard Maintenance Detail (foam + 2‑bucket wash, wheels/tires, light jambs, interior vacuum/light wipe, glass). Deep Reset details are separate, one‑off services at the standard prices.
         </p>
       </section>
 

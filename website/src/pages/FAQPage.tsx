@@ -24,24 +24,24 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
       {
         question: 'Do you offer ceramic coating?',
         answer:
-          'No full ceramic coating packages yet. The Deep Reset Detail includes spray-on protection products on paint and a ceramic glass treatment on the windows. True multi-year ceramic coatings will be a separate package later.',
+          'We don’t offer multi‑year ceramic coating packages yet. Right now we use spray‑on protection products and ceramic glass treatment as part of the Deep Reset. Long‑term ceramic coatings will come later as separate protection packages.',
       },
       {
         question: 'Do you fix scratches, dents, or paint damage?',
         answer:
-          'Light paint correction (machine polishing to reduce swirls and minor surface scratches in the clear coat) is available as a case-by-case add-on after inspection. We do not repair dents, deep gouges through the paint, or bent metal, and we do not do body or collision work.',
+          'We offer light paint correction as an optional add‑on to reduce swirls and minor surface scratches in the clear coat. We do not repair dents, deep gouges through the paint, or bent metal, and we don’t perform body or collision repair.',
       },
       {
         question: 'Do you detail engine bays?',
         answer:
-          'We offer light engine bay tidying as an add-on only: careful dusting and wipe-down of accessible plastic covers with minimal moisture. We do not do heavy degreasing, pressure-washing, or deep engine bay detailing. If you need this, mention it in your booking notes and we will confirm what is realistic before your appointment.',
+          'We offer light engine bay tidying as an add‑on: careful dusting and wipe‑down of accessible plastic covers with minimal moisture. We do not do heavy degreasing, pressure‑washing, or deep engine bay detailing.',
       },
       {
         question: 'How long does an appointment take?',
         answer: (
           <>
-            <strong>Maintenance Detail:</strong> typically around 3–4 hours, depending on vehicle size and condition.{' '}
-            <strong>Deep Reset Detail:</strong> typically around 4–6 hours, depending on size and condition. Times can vary based on the actual state of the vehicle when we start.
+            <strong>Maintenance:</strong> typically around 3–4 hours depending on vehicle size and condition.{' '}
+            <strong>Deep Reset:</strong> typically around 4–6 hours depending on size and condition. Times vary with how dirty the vehicle is.
           </>
         ),
       },
@@ -71,9 +71,14 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
           'Yes. Garage Studio drop-off is available near Erie Street in Oak Harbor. The exact address is shared after booking. Studio appointments are better for heavier resets, longer jobs, and anything needing controlled lighting or weather protection.',
       },
       {
-        question: 'How do I choose mobile service?',
+        question: 'Do you come to me or do I drop my car off?',
         answer:
-          'Select mobile service during the booking flow. We serve most of Whidbey Island. You will need a safe parking spot and access to the vehicle. Note: no heavy machine polishing or multi-day jobs are available on mobile appointments.',
+          'You can choose between our Garage Studio drop-off or our On‑Island Mobile service (Oak Harbor and nearby areas only). Mobile service adds a flat $30 fee per visit.',
+      },
+      {
+        question: 'What areas do you serve?',
+        answer:
+          'Oak Harbor, NAS Whidbey, and immediately surrounding areas on Whidbey Island only.',
       },
       {
         question: 'What should I do before my appointment?',
@@ -83,7 +88,7 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
       {
         question: 'What happens if it’s very hot or sunny the day of my appointment?',
         answer:
-          'In extreme heat or full sun with no shade, we may adjust or reschedule the decontamination and polishing steps to protect your paint. We’ll always talk this through with you on the day of service.',
+          'In extreme heat or full sun with no shade, certain Deep Reset steps—like iron remover, clay decontamination, and machine polishing—can be unsafe if panels can’t be kept cool and wet. In those cases we may adjust the visit to Maintenance‑level exterior only or reschedule the decontamination and polishing steps for a cooler/shaded day. We’ll always explain this before making changes.',
       },
     ],
   },
@@ -91,18 +96,9 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
     title: 'Deposits and payments',
     items: [
       {
-        question: 'What does the 20% deposit cover?',
-        answer: (
-          <>
-            It reserves your appointment time and is applied directly to your final invoice—not added on top. The{' '}
-            <Link to="/pricing">Pricing page</Link> shows typical ranges by tier and vehicle size.
-          </>
-        ),
-      },
-      {
         question: 'What forms of payment do you accept?',
         answer:
-          'Cards via Helcim. Oak Harbor, WA sales tax (9.1%) is applied to the deposit at booking, and any applicable convenience fees are disclosed before payment. The remaining balance is due in person after the service is complete.',
+          'Cards via Helcim. The booking process takes a 20% deposit (plus tax on the deposit if applicable) to reserve your slot. The remaining balance is due in person after the service is complete.',
       },
       {
         question: 'What happens if the scope changes before my appointment?',

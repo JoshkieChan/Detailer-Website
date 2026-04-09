@@ -144,9 +144,9 @@ const HomePage = () => {
 
               {pkg.id === 'deep-reset' && (
                 <div className="addon-callout">
-                  <p className="addon-label"><strong>Optional add-on</strong></p>
-                  <p className="section-note">Light paint correction (machine polishing to reduce swirls and minor scratches) is available on a case-by-case basis after inspection. It does not repair dents or deep damage.</p>
-                  <p className="section-note mt-1">In extreme heat or full sun with no shade, we may adjust or reschedule the decontamination and polishing steps to protect your paint. We&apos;ll always talk this through with you on the day of service.</p>
+                  <p className="addon-label"><strong>Optional add-ons</strong></p>
+                  <p className="section-note">Light paint correction (machine polishing to reduce swirls and minor surface scratches in the clear coat) is available on a case‑by‑case basis after inspection. It does not repair dents or deep damage.</p>
+                  <p className="section-note mt-1"><strong>Weather and paint safety</strong><br/>In extreme heat or full sun with no shade, we may adjust or reschedule the decontamination and polishing steps to protect your paint. We’ll always talk this through with you on the day of service so you know exactly what will be done.</p>
                 </div>
               )}
 
@@ -179,15 +179,16 @@ const HomePage = () => {
           <p className="section-copy" style={{ textAlign: 'left', margin: '0 auto' }}>
             We use modern pH‑balanced wash soaps, dedicated wheel and tire cleaners, interior‑safe cleaners, iron removers, and clay to safely deep‑clean without beating up your clear coat or interior. That means:
             <br/><br/>
-            – Brake dust and road film broken down instead of just pushed around<br/>
-            – Embedded fallout and roughness removed from the paint so it feels smooth again<br/>
+            – Brake dust and brown, baked-on tire grime broken down instead of just pushed around<br/>
+            – Traffic film, road grime, and fallout removed so the paint feels smooth again<br/>
             – Interiors cleaned with products safe for modern plastics, vinyl, and leather<br/>
-            – Short‑term spray protection and ceramic glass treatment to help water bead and make the next wash easier
+            – Light to moderate fabric staining treated where safely extractable<br/>
+            – Glass haze, fingerprints, and bug residue removed, with ceramic glass treatment to help water bead and make future washes easier
           </p>
         </div>
 
         <p className="section-note mt-1 reveal text-center">
-          <strong>Need extras?</strong> Engine bay tidying (light dusting and wipe-down only), severe pet hair, or headlight work? Mention it in your booking notes. We&apos;ll review your photos and confirm what&apos;s realistic before we start. We do not offer heavy degreasing or deep engine bay detailing.
+          <strong>Need extras?</strong> If you need extras like light engine bay tidying, severe pet hair, or headlight work, mention it in your booking notes. We’ll review your photos and confirm what’s realistic and the total price before your appointment. Engine bay work is limited to light dusting and wipe‑down of accessible areas only; we do not offer deep degreasing or full engine detailing at this time.
         </p>
       </section>
 
