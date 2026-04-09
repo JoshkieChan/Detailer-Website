@@ -26,7 +26,7 @@ const HubPage = () => {
 
       <section id="hub-paths" className="hub-paths">
         <div className="card-grid three">
-          <Link to="/detailing" className="hub-card hub-card-primary reveal">
+          <article className="hub-card hub-card-primary reveal">
             <div className="hub-card-top">
               <div className="support-pill">
                 <MapPin size={16} />
@@ -38,17 +38,17 @@ const HubPage = () => {
               <h2>Car Detailing &amp; Protection</h2>
               <p className="section-copy">
                 For Oak Harbor drivers, NAS Whidbey families, and busy commuters who want the
-                vehicle handled right without wasting a day. This is SignalSource’s main local
+                vehicle handled right without wasting a day. This is SignalSource&apos;s main local
                 offer: detailing, protection, and upkeep built for real Whidbey schedules.
               </p>
             </div>
-            <span className="btn primary hub-card-cta">
+            <Link to="/detailing" className="btn primary hub-card-cta">
               View Local Services
               <ArrowRight size={16} />
-            </span>
-          </Link>
+            </Link>
+          </article>
 
-          <Link to="/systems/examples/digital-assets" className="hub-card reveal" data-reveal-delay="1">
+          <article className="hub-card reveal" data-reveal-delay="1">
             <div className="hub-card-top">
               <div className="support-pill">
                 <Search size={16} />
@@ -63,13 +63,13 @@ const HubPage = () => {
                 less scrambling, and less mental load.
               </p>
             </div>
-            <span className="btn secondary hub-card-cta">
+            <Link to="/systems/examples/digital-assets" className="btn secondary hub-card-cta">
               Browse Guides
               <ArrowRight size={16} />
-            </span>
-          </Link>
+            </Link>
+          </article>
 
-          <Link to="/systems" className="hub-card reveal" data-reveal-delay="2">
+          <article className="hub-card reveal" data-reveal-delay="2">
             <div className="hub-card-top">
               <div className="support-pill">
                 <Cpu size={16} />
@@ -85,11 +85,11 @@ const HubPage = () => {
                 workflows.
               </p>
             </div>
-            <span className="btn secondary hub-card-cta">
+            <Link to="/systems" className="btn secondary hub-card-cta">
               Explore Systems
               <ArrowRight size={16} />
-            </span>
-          </Link>
+            </Link>
+          </article>
         </div>
       </section>
 

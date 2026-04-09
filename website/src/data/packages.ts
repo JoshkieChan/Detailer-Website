@@ -4,7 +4,7 @@ export const servicePackages = [
     title: 'Maintenance',
     price: '225 (sedans)',
     description: 'For commuters, base families, and daily drivers that are mostly fine but no longer feel clean, this gets the car back to sharp without turning a small problem into a full reset.',
-    bestFor: 'Vehicles with light dirt, light interior buildup, and owners who want routine upkeep before crumbs, dust, and road film get out of hand.',
+    bestFor: 'Regular upkeep: foam wash, wheels and tires cleaned and dressed, door jambs wiped (light level), interior vacuum and high-touch wipe-down, streak-free glass inside and out.',
     themeStyle: 'blue' as const,
     features: [
       'Foam pre‑wash and two‑bucket contact wash',
@@ -21,7 +21,7 @@ export const servicePackages = [
     title: 'Deep Reset',
     price: '400 (sedans)',
     description: 'For family haulers, commuter cars, and hard-used vehicles that have gotten away from you, this is the full reset that brings the interior and gloss back toward factory-fresh.',
-    bestFor: 'Vehicles with noticeable grime, neglected cracks and crevices, light stains, or interiors that need a real baseline reset before maintenance makes sense again.',
+    bestFor: 'One-time intensive clean: iron and clay decontamination, deep wheel and inner barrel cleaning, full interior brush and crevice work, fabric extraction where safe, interior plastic/trim protection, and ceramic glass treatment.',
     themeStyle: 'lime' as const,
     highlight: true,
     features: [

@@ -112,9 +112,7 @@ const HomePage = () => {
           <span className="eyebrow">Choose Your Tier</span>
           <h2 className="section-title">Two clear detailing tiers for Whidbey Island vehicles.</h2>
           <p className="section-copy">
-            Choose the level your vehicle actually needs. If you need extras like engine bay cleaning, severe pet hair, or headlight work, mention it in your booking notes.
-            <br />
-            We&apos;ll review your photos and confirm total price before your appointment.
+            Choose the level your vehicle actually needs. If you need extras like light engine bay tidying, severe pet hair, or headlight work, mention it in your booking notes. We&apos;ll review your photos and confirm what&apos;s realistic and the total price before your appointment. Engine bay work is limited to light dusting and wipe-down only; we do not offer deep degreasing or engine detailing at this time.
           </p>
         </div>
 
@@ -144,6 +142,13 @@ const HomePage = () => {
                 ))}
               </ul>
 
+              {pkg.id === 'deep-reset' && (
+                <div className="addon-callout">
+                  <p className="addon-label"><strong>Optional add-on</strong></p>
+                  <p className="section-note">Light paint correction (machine polishing to reduce swirls and minor scratches) is available on a case-by-case basis after inspection. It does not repair dents or deep damage.</p>
+                </div>
+              )}
+
               <div className="tier-price-wrap">
                 <div className="price-line">
                   <span className="price-prefix">From</span>
@@ -168,7 +173,7 @@ const HomePage = () => {
           ))}
         </div>
         <p className="section-note mt-1 reveal text-center">
-          <strong>Need extras?</strong> Engine bay cleaning, severe pet hair, or headlight work? Mention it in your booking notes. We&apos;ll review your photos and send updated pricing before we start.
+          <strong>Need extras?</strong> Engine bay tidying (light dusting and wipe-down only), severe pet hair, or headlight work? Mention it in your booking notes. We&apos;ll review your photos and confirm what&apos;s realistic before we start. We do not offer heavy degreasing or deep engine bay detailing.
         </p>
       </section>
 
@@ -269,6 +274,18 @@ const HomePage = () => {
               <p className="section-copy">{item.text}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="detailing-section reveal">
+        <div className="section-header">
+          <span className="eyebrow">Scope &amp; Boundaries</span>
+          <h2 className="section-title">What we don&apos;t do.</h2>
+        </div>
+        <div className="section-panel reveal" data-reveal-delay="1">
+          <p className="section-copy">
+            SignalSource does not repair dents, deep gouges through the paint, or bent metal, and we don&apos;t offer bodywork or collision repair. We also don&apos;t install PPF, window tint, full ceramic coatings, or wraps yet—those protection services will come later as separate packages.
+          </p>
         </div>
       </section>
 

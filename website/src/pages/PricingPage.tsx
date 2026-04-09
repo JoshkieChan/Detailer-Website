@@ -72,7 +72,7 @@ const PricingPage = () => {
 
         <div className="card-grid two">
           <article className="content-card reveal">
-            <h3 className="accent-text">Maintenance</h3>
+            <h3 className="accent-text">Maintenance Detail</h3>
             <ul className="package-bullets">
               <li className="feature-row flex justify-between"><span>Sedans</span> <strong>from $225</strong></li>
               <li className="feature-row flex justify-between"><span>Small SUVs</span> <strong>from $250</strong></li>
@@ -81,7 +81,7 @@ const PricingPage = () => {
           </article>
 
           <article className="content-card reveal" data-reveal-delay="1">
-            <h3 className="accent-text">Deep Reset</h3>
+            <h3 className="accent-text">Deep Reset Detail</h3>
             <ul className="package-bullets">
               <li className="feature-row flex justify-between"><span>Sedans</span> <strong>from $400</strong></li>
               <li className="feature-row flex justify-between"><span>Small SUVs</span> <strong>from $450</strong></li>
@@ -91,7 +91,7 @@ const PricingPage = () => {
         </div>
 
         <p className="section-note mt-1 reveal">
-          <strong>Need extras?</strong> If you want engine bay cleaning, severe pet hair removal, or headlight work, include it in your booking notes or DM us with your booking number. We&apos;ll confirm any additional cost before your appointment.
+          <strong>Need extras?</strong> Mention light engine bay tidying, severe pet hair removal, or headlight work in your booking notes. Engine bay work is light dusting and wipe-down only—no degreasing or pressure-washing. We will confirm what is realistic and agree on any additional cost before your appointment.
         </p>
       </section>
 

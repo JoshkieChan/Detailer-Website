@@ -13,19 +13,42 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
     title: 'Packages and pricing',
     items: [
       {
-        question: 'How do I know which tier to choose?',
+        question: "What's the difference between the Maintenance Detail and the Deep Reset Detail?",
         answer: (
           <>
-            Maintenance is for routine upkeep, and Deep Reset is for vehicles that have slipped
-            backward. You can see the full breakdown of what each tier includes on
-            the <Link to="/services"> Detailing / Services page</Link>.
+            <strong>Maintenance Detail</strong> is regular upkeep: foam pre-wash and two-bucket contact wash, wheels and tires cleaned and dressed, door jambs wiped (light level), interior vacuum and light wipe-down of high-touch areas, and streak-free glass inside and out.
+            {' '}<strong>Deep Reset Detail</strong> is a one-time intensive clean: iron remover and clay decontamination on paint, deep wheel and tire cleaning including inner barrels, full interior vacuum with crevice and brush work on plastics and seams, fabric seat and carpet cleaning with extraction where safe, interior plastic/trim protection, and glass deep clean plus ceramic glass treatment.
           </>
         ),
       },
       {
-        question: 'Need extras like engine bay cleaning or severe pet hair?',
+        question: 'Do you offer ceramic coating?',
         answer:
-          'Mention it in your booking notes. We’ll review your photos and send updated pricing for approval before we start. This keeps the initial booking fast while ensuring you only pay for the specific labor your vehicle needs.',
+          'No full ceramic coating packages yet. The Deep Reset Detail includes spray-on protection products on paint and a ceramic glass treatment on the windows. True multi-year ceramic coatings will be a separate package later.',
+      },
+      {
+        question: 'Do you fix scratches, dents, or paint damage?',
+        answer:
+          'Light paint correction (machine polishing to reduce swirls and minor surface scratches in the clear coat) is available as a case-by-case add-on after inspection. We do not repair dents, deep gouges through the paint, or bent metal, and we do not do body or collision work.',
+      },
+      {
+        question: 'Do you detail engine bays?',
+        answer:
+          'We offer light engine bay tidying as an add-on only: careful dusting and wipe-down of accessible plastic covers with minimal moisture. We do not do heavy degreasing, pressure-washing, or deep engine bay detailing. If you need this, mention it in your booking notes and we will confirm what is realistic before your appointment.',
+      },
+      {
+        question: 'How long does an appointment take?',
+        answer: (
+          <>
+            <strong>Maintenance Detail:</strong> typically around 3–4 hours, depending on vehicle size and condition.{' '}
+            <strong>Deep Reset Detail:</strong> typically around 4–6 hours, depending on size and condition. Times can vary based on the actual state of the vehicle when we start.
+          </>
+        ),
+      },
+      {
+        question: 'Need extras like severe pet hair or headlight work?',
+        answer:
+          "Mention it in your booking notes. We'll review your photos and send updated pricing for approval before we start. This keeps the initial booking fast while ensuring you only pay for the specific labor your vehicle needs.",
       },
       {
         question: 'What if my vehicle is worse than I described?',
@@ -35,40 +58,49 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
     ],
   },
   {
-    title: 'Mobile and studio',
+    title: 'Service area and location',
     items: [
+      {
+        question: 'What areas do you serve?',
+        answer:
+          'Oak Harbor, NAS Whidbey, and immediately surrounding areas on Whidbey Island only. Mobile service covers roughly a 25–30 mile radius of Oak Harbor, including Coupeville, Deception Pass, and nearby areas.',
+      },
+      {
+        question: 'Can I drop my car off at your location?',
+        answer:
+          'Yes. Garage Studio drop-off is available near Erie Street in Oak Harbor. The exact address is shared after booking. Studio appointments are better for heavier resets, longer jobs, and anything needing controlled lighting or weather protection.',
+      },
       {
         question: 'How do I choose mobile service?',
         answer:
-          'You can select mobile service during the booking process. We serve most of Whidbey Island, including Oak Harbor, NAS Whidbey, and Coupeville. Simply select your location type when configuring your detail.',
-      },
-      {
-        question: 'When is the studio a better choice?',
-        answer:
-          'Garage Studio is better for heavier interior work, longer resets, controlled lighting needs, and anything that should not depend on driveway conditions or weather.',
+          'Select mobile service during the booking flow. We serve most of Whidbey Island. You will need a safe parking spot and access to the vehicle. Note: no heavy machine polishing or multi-day jobs are available on mobile appointments.',
       },
       {
         question: 'What should I do before my appointment?',
         answer:
-          'Please remove valuables, documents, cash, and heavy loose items so the team can work efficiently and avoid missing anything. For mobile appointments, a safe parking spot and access to the vehicle are all we need.',
+          'Please remove valuables, documents, cash, and heavy loose items so we can work efficiently and avoid missing anything. For mobile appointments, a safe parking spot and access to the vehicle are all we need.',
       },
     ],
   },
   {
-    title: 'Deposits and scheduling',
+    title: 'Deposits and payments',
     items: [
       {
         question: 'What does the 20% deposit cover?',
         answer: (
           <>
-            It reserves your appointment time and is applied to the final invoice. It is not
-            an extra fee added on top. The <Link to="/pricing">Pricing page</Link> shows where
-            the deposit fits into the total, including typical ranges by tier.
+            It reserves your appointment time and is applied directly to your final invoice—not added on top. The{' '}
+            <Link to="/pricing">Pricing page</Link> shows typical ranges by tier and vehicle size.
           </>
         ),
       },
       {
-        question: 'What happens if the scope changes before the appointment?',
+        question: 'What forms of payment do you accept?',
+        answer:
+          'Cards via Helcim. Oak Harbor, WA sales tax (9.1%) is applied to the deposit at booking, and any applicable convenience fees are disclosed before payment. The remaining balance is due in person after the service is complete.',
+      },
+      {
+        question: 'What happens if the scope changes before my appointment?',
         answer:
           'If the selected scope changes significantly close to the appointment, required time and final price may change as well. Any changes are confirmed before work starts.',
       },
@@ -81,17 +113,15 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
         question: 'Who should join a maintenance plan?',
         answer: (
           <>
-            Drivers who already have a clean baseline and want guaranteed spots, easier
-            upkeep, and less mental load than ad-hoc booking. If you&apos;re considering a plan,
-            the <Link to="/memberships">Maintenance Plans page</Link> shows the current options
-            and terms.
+            Drivers who already have a clean baseline and want guaranteed spots, predictable upkeep, and less mental load than booking one-off every time. If you are considering a plan, the{' '}
+            <Link to="/memberships">Maintenance Plans page</Link> shows the current options and terms.
           </>
         ),
       },
       {
-        question: 'Is it smarter than booking one detail at a time?',
+        question: 'Is a plan smarter than booking one detail at a time?',
         answer:
-          'Usually yes, if the vehicle stays in steady use. Membership keeps you from waiting until the car feels trashed again and paying for bigger resets.',
+          'Usually yes, if the vehicle stays in steady use. Membership keeps you from waiting until the car feels trashed again and paying for bigger resets more frequently.',
       },
     ],
   },

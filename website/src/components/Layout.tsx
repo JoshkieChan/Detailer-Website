@@ -130,6 +130,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <p className="serving-text mt-1">Serving Oak Harbor, NAS Whidbey & surrounding areas.</p>
             <p className="footer-hours">By appointment only • Monday–Saturday</p>
             <p className="footer-legal">Fully Licensed & Insured • Whidbey Island, WA</p>
+            <p className="footer-copyright mt-1">© 2026 SignalSource. All rights reserved.</p>
             <div className="footer-legal-links mt-1">
               <Link to="/privacy">Privacy Policy</Link>
               <span className="separator">•</span>
