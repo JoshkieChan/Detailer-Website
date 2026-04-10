@@ -268,12 +268,11 @@ const BookingPage = () => {
 
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
-      
-      if (!supabaseUrl || !supabaseAnonKey) {
-        throw new Error('Supabase environment variables are missing.');
+
+      if (!supabaseUrl) {
+        throw new Error('ACTION REQUIRED: VITE_SUPABASE_URL is missing in production. Ensure it is set in Vercel project settings.');
       }
-
-
+      
       const functionUrl = `${supabaseUrl}/functions/v1/create-booking`;
       console.log('Initiating booking fetch to:', functionUrl);
       
@@ -316,9 +315,10 @@ const BookingPage = () => {
         throw new Error(data.error || 'Failed to create booking.');
       }
 
-      if (data.bookingId && data.helcimDepositUrl) {
+      if (data.helcimDepositUrl) {
         console.log('Booking successful! Redirecting to Helcim:', data.helcimDepositUrl);
         window.location.href = data.helcimDepositUrl;
+        return; // Ensure no further code executes
       } else {
         console.error('Missing expected response data:', data);
         throw new Error('Booking record was created, but the payment redirect URL was not returned.');
