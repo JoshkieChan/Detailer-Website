@@ -12,6 +12,9 @@ if (!supabaseAnonKey) {
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Supabase client: One or more environment variables are missing. Direct Supabase calls will fail.');
+} else {
+  const projectId = supabaseUrl.split('.')[0].split('//')[1];
+  console.log('Supabase client initialized for project:', projectId);
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);

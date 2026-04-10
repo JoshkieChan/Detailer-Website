@@ -275,6 +275,12 @@ const BookingPage = () => {
       
       const functionUrl = `${supabaseUrl}/functions/v1/create-booking`;
       console.log('Initiating booking fetch to:', functionUrl);
+      console.log('Payload Data:', {
+        ...formData,
+        package: validPackage,
+        vehicleType: validVehicle,
+        locationType: validLocation,
+      });
       
       const response = await fetch(functionUrl, {
         method: 'POST',
@@ -323,10 +329,14 @@ const BookingPage = () => {
         console.error('Missing expected response data:', data);
         throw new Error('Booking record was created, but the payment redirect URL was not returned.');
       }
-    } catch (err: unknown) {
-      console.error('Booking submit error details:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Possible payment processing error';
-      setSystemError(`Technical issue: ${errorMessage}. Please try again or contact us directly.`);
+    } catch (err: any) {
+      console.error('CRITICAL SUBMISSION ERROR:', err);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const functionUrl = `${supabaseUrl}/functions/v1/create-booking`;
+      
+      setSystemError(`Technical issue while connecting to ${functionUrl}: ${errorMessage}. If you see this, please check your network connection or verify that VITE_SUPABASE_URL is set in Vercel.`);
       setIsSubmitting(false);
     }
   };
