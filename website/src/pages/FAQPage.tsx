@@ -76,11 +76,6 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
           'You can choose between our Garage Studio drop-off or our On‑Island Mobile service (Oak Harbor and nearby areas only). Mobile service adds a flat $30 fee per visit.',
       },
       {
-        question: 'What areas do you serve?',
-        answer:
-          'Oak Harbor, NAS Whidbey, and immediately surrounding areas on Whidbey Island only.',
-      },
-      {
         question: 'What should I do before my appointment?',
         answer:
           'Please remove valuables, documents, cash, and heavy loose items so we can work efficiently and avoid missing anything. For mobile appointments, a safe parking spot and access to the vehicle are all we need.',

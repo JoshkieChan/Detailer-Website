@@ -63,6 +63,7 @@ const MembershipsPage = () => {
         <h2 className="section-title">How it works.</h2>
         <ul className="package-bullets compact-list">
           <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Baseline: we start after a Deep Reset service.</span></li>
+          <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">When you book online, you can choose Quarterly or Monthly so we know to treat you as a maintenance plan client.</span></li>
           <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Billing: subscriptions run through secure online billing with reminders.</span></li>
           <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Cancel: minimum commitment is 3 months, then cancel anytime.</span></li>
           <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Scope: heavy neglect or long gaps may require a separate reset service.</span></li>

@@ -68,6 +68,9 @@ const PricingPage = () => {
           <p className="section-copy">
             Final price is confirmed after a quick photo review or walk-around. You&apos;ll see your total before work begins.
           </p>
+          <p className="section-copy">
+            When you book, your exact total and 20% deposit will be shown in the configurator before you confirm your appointment.
+          </p>
           <p className="section-note mt-1" style={{color: 'var(--color-primary-light)', fontWeight: 600}}>
             Prices shown are for our Garage Studio. On‑Island Mobile service adds a flat $30 per visit.
           </p>
