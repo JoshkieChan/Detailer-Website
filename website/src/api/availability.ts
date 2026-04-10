@@ -1,17 +1,22 @@
 import { supabase } from '../lib/supabase';
 
 export const fetchBookedDates = async (): Promise<string[]> => {
-  const { data, error } = await supabase
-    .from('bookings')
-    .select('service_date')
-    .in('status', ['confirmed', 'pending']); // Block both paid and in-checkout bookings
+  try {
+    const { data, error } = await supabase
+      .from('bookings')
+      .select('service_date')
+      .in('status', ['confirmed', 'pending']); 
 
-  if (error) {
-    console.error('Error fetching booked dates:', error.message);
+    if (error) {
+      console.error('Supabase API Error (fetchBookedDates):', error.message, error.details, error.hint);
+      return [];
+    }
+
+    return data?.map(b => b.service_date) || [];
+  } catch (err) {
+    console.error('Network/Fetch Error (fetchBookedDates):', err);
     return [];
   }
-
-  return data?.map(b => b.service_date) || [];
 };
 
 export const bookDate = async (_dateStr: string): Promise<boolean> => {

@@ -201,7 +201,11 @@ const BookingPage = () => {
   };
 
   useEffect(() => {
-    fetchBookedDates().then(setBookedDates);
+    fetchBookedDates()
+      .then(setBookedDates)
+      .catch((err) => {
+        console.error('Initialization fetch failed:', err);
+      });
   }, []);
 
   const selectedPlan =
@@ -271,9 +275,11 @@ const BookingPage = () => {
 
 
       const functionUrl = `${supabaseUrl}/functions/v1/create-booking`;
+      console.log('Initiating booking fetch to:', functionUrl);
       
       const response = await fetch(functionUrl, {
         method: 'POST',
+        mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${supabaseAnonKey}`,
@@ -311,8 +317,10 @@ const BookingPage = () => {
       }
 
       if (data.bookingId && data.helcimDepositUrl) {
+        console.log('Booking successful! Redirecting to Helcim:', data.helcimDepositUrl);
         window.location.href = data.helcimDepositUrl;
       } else {
+        console.error('Missing expected response data:', data);
         throw new Error('Booking record was created, but the payment redirect URL was not returned.');
       }
     } catch (err: unknown) {
