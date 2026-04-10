@@ -12,11 +12,11 @@ import {
   toHelcimPackageKey,
   toHelcimVehicleSizeKey,
   vehicleTypeLabels,
-} from "../../../website/src/data/bookingPricing.ts"
+} from "./bookingPricing.ts"
 import {
   isMembershipIntent,
   maintenancePlanById,
-} from "../../../website/src/data/maintenancePlans.ts"
+} from "./maintenancePlans.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -27,37 +27,7 @@ const RECAPTCHA_MIN_SCORE = 0.5
 const PREP_INSTRUCTIONS =
   "Please remove valuables, cash, documents, and heavy loose items before your appointment. For mobile appointments, a safe parking spot and access to the vehicle are all we need."
 
-async function verifyRecaptchaToken(recaptchaToken: string) {
-  const recaptchaSecretKey = Deno.env.get('RECAPTCHA_SECRET_KEY')
 
-  if (!recaptchaSecretKey) {
-    throw new Error('Missing Edge Function secret: RECAPTCHA_SECRET_KEY')
-  }
-
-  const verifyResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      secret: recaptchaSecretKey,
-      response: recaptchaToken,
-    }),
-  })
-
-  const verifyData = await verifyResponse.json()
-
-  if (
-    !verifyResponse.ok ||
-    verifyData.success !== true ||
-    typeof verifyData.score !== 'number' ||
-    verifyData.score < RECAPTCHA_MIN_SCORE ||
-    verifyData.action !== 'booking'
-  ) {
-    console.warn('reCAPTCHA verification failed:', verifyData)
-    return false
-  }
-
-  return true
-}
 
 // Helper to create Google Calendar Event
 async function createGoogleCalendarEvent(
@@ -231,6 +201,15 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  // Early validation of project variables
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    const errObj = { error: 'INTERNAL CONFIG ERROR: Supabase URL or Service Role Key is missing in the Edge Function environment.' }
+    return new Response(JSON.stringify(errObj), { 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+      status: 500 
+    })
+  }
+
   try {
     const { 
       package: packageFromClient,
@@ -240,7 +219,6 @@ serve(async (req) => {
       mobileFeeApplied,
       membershipIntent,
       notes,
-      recaptchaToken,
       email: customerEmail,
       fullName,
       phone,
@@ -267,20 +245,6 @@ serve(async (req) => {
       )
     }
 
-    if (!recaptchaToken || typeof recaptchaToken !== 'string') {
-      return new Response(
-        JSON.stringify({ error: 'reCAPTCHA verification failed. Please try again.' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      )
-    }
-
-    const recaptchaPassed = await verifyRecaptchaToken(recaptchaToken)
-    if (!recaptchaPassed) {
-      return new Response(
-        JSON.stringify({ error: 'reCAPTCHA verification failed. Please try again.' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      )
-    }
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
 
