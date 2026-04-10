@@ -4,9 +4,13 @@ import { SignJWT, importPKCS8 } from "https://deno.land/x/jose@v4.14.4/index.ts"
 import {
   bookingPackages,
   calculateBookingFinancials,
+  getHelcimDepositUrl,
   isBookingPackageId,
   isLocationType,
   isVehicleTypeId,
+  toHelcimLocationTypeKey,
+  toHelcimPackageKey,
+  toHelcimVehicleSizeKey,
   vehicleTypeLabels,
 } from "../../../website/src/data/bookingPricing.ts"
 import {
@@ -303,13 +307,21 @@ serve(async (req) => {
       vehicleType: normalizedVehicleType,
       locationType: normalizedLocationType,
     })
+    const helcimDepositUrl = getHelcimDepositUrl({
+      packageId: normalizedPackage,
+      vehicleType: normalizedVehicleType,
+      locationType: normalizedLocationType,
+    })
+    const storedPackage = toHelcimPackageKey(normalizedPackage)
+    const storedVehicleType = toHelcimVehicleSizeKey(normalizedVehicleType)
+    const storedLocationType = toHelcimLocationTypeKey(normalizedLocationType)
     const packageLabel = bookingPackages[normalizedPackage].label
     const vehicleTypeLabel = vehicleTypeLabels[normalizedVehicleType]
 
     // 2. Diagnostic Check (Database Schema)
     const { error: schemaCheck } = await supabase
       .from('bookings')
-      .select('customer_id, google_calendar_event_id, package, vehicle_type, mobile_fee_applied, membership_intent, calculated_price, tax_amount')
+      .select('customer_id, google_calendar_event_id, package, vehicle_type, mobile_fee_applied, membership_intent, calculated_price, tax_amount, total_today, remaining_balance, helcim_deposit_url, notes')
       .limit(0)
     if (schemaCheck) {
       console.error('Schema check failed:', schemaCheck)
@@ -426,18 +438,22 @@ serve(async (req) => {
         phone: phone,
         address: address,
         vehicle_info: vehicleTypeLabel,
-        package: normalizedPackage,
+        package: storedPackage,
         package_id: normalizedPackage,
-        vehicle_type: normalizedVehicleType,
+        vehicle_type: storedVehicleType,
         service_date: serviceDate,
         service_time: serviceTime,
-        location_type: normalizedLocationType,
+        location_type: storedLocationType,
+        notes: notes || '',
         mobile_fee_applied: Boolean(mobileFeeApplied) || normalizedLocationType === 'mobile',
         membership_intent: normalizedMembershipIntent,
         calculated_price: pricing.subtotal,
         total_amount: pricing.subtotal,
         deposit_amount: pricing.depositAmount,
         tax_amount: pricing.taxAmount,
+        total_today: pricing.totalToday,
+        remaining_balance: pricing.remainingBalance,
+        helcim_deposit_url: helcimDepositUrl,
         status: 'pending',
         deposit_status: 'unpaid',
         stripe_session_id: sessionId,
@@ -475,17 +491,18 @@ serve(async (req) => {
         membership_intent: normalizedMembershipIntent,
         priority_member_candidate: normalizedMembershipIntent !== 'none',
         booking: {
-          package: normalizedPackage,
+          package: storedPackage,
           package_label: packageLabel,
-          vehicle_type: normalizedVehicleType,
+          vehicle_type: storedVehicleType,
           vehicle_type_label: vehicleTypeLabel,
-          location_type: normalizedLocationType,
+          location_type: storedLocationType,
           mobile_fee_applied: normalizedLocationType === 'mobile',
           calculated_price: pricing.subtotal,
           deposit_amount: pricing.depositAmount,
           tax_amount: pricing.taxAmount,
           total_today: pricing.totalToday,
           remaining_balance: pricing.remainingBalance,
+          helcim_deposit_url: helcimDepositUrl,
           address,
           notes: notes || '',
           service_date: serviceDate,
@@ -506,6 +523,7 @@ serve(async (req) => {
         taxAmount: pricing.taxAmount,
         totalToday: pricing.totalToday,
         remainingBalance: pricing.remainingBalance,
+        helcimDepositUrl,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
