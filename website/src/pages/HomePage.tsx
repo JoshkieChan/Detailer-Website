@@ -299,8 +299,17 @@ const HomePage = () => {
         </div>
         <div className="section-panel reveal" data-reveal-delay="1">
           <p className="section-copy">
-            SignalSource does not repair dents, deep gouges through the paint, or bent metal, and we don&apos;t offer bodywork or collision repair. We also don&apos;t install PPF, window tint, full ceramic coatings, or wraps yet—those protection services will come later as separate packages.
+            To keep our quality consistent, we focus on high-end maintenance and resets. We do not offer:
+            <br/><br/>
+            – Full ceramic coatings (we use spray‑on protection and ceramic glass treatments instead)<br/>
+            – Full interior mold remediation<br/>
+            – Deep engine bay degreasing or pressure‑washing (light dusting and wipe‑down only)<br/>
+            – Deep stain or paint damage repair (light correction is available, but deep gouges or failed clear coat require a body shop)<br/>
+            – We also do not repair dents, bent metal, or perform collision repair.
           </p>
+          <div className="mt-2">
+            <Link to="/faq" className="text-link">Have more questions? Read our full FAQ →</Link>
+          </div>
         </div>
       </section>
 
