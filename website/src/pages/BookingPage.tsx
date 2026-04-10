@@ -361,11 +361,10 @@ const BookingPage = () => {
         throw new Error(data.error || 'Failed to create booking.');
       }
 
-      if (data.bookingId) {
-        // Stripe removal: Redirect directly to confirmation with the internal booking ID.
-        window.location.href = `/booking/confirmation?booking_id=${data.bookingId}`;
+      if (data.bookingId && data.helcimDepositUrl) {
+        window.location.href = data.helcimDepositUrl;
       } else {
-        throw new Error('Booking ID was not returned from the server.');
+        throw new Error('Booking record was created, but the payment redirect URL was not returned.');
       }
     } catch (err: unknown) {
       console.error('Booking submit error details:', err);

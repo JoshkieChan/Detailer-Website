@@ -76,8 +76,15 @@ const ConfirmationPage = () => {
     );
   }
 
-  const packageName = booking.package_id === 'maintenance' ? 'Maintenance' 
-                    : 'Deep Reset';
+  const packageName =
+    booking.package_id === 'maintenance' || booking.package === 'maintenance'
+      ? 'Maintenance'
+      : 'Deep Reset';
+  const locationType = booking.location_type === 'studio' ? 'garage' : booking.location_type;
+  const remainingBalance =
+    booking.remaining_balance !== null && booking.remaining_balance !== undefined
+      ? Number(booking.remaining_balance)
+      : Number(booking.total_amount) - Number(booking.deposit_amount);
 
   return (
     <div className="confirmation-page container">
@@ -105,7 +112,7 @@ const ConfirmationPage = () => {
 
           <h3 className="mt-2"><MapPin size={20} className="icon-lime" /> Location specifics</h3>
           <p className="location-desc">
-            {booking.location_type === 'garage' 
+            {locationType === 'garage' 
               ? "Drop-off at Erie St. Studio, Oak Harbor. We will text you the exact drop-off instructions the day before."
               : `Mobile Detail at your driveway: ${booking.address}`
             }
@@ -125,7 +132,7 @@ const ConfirmationPage = () => {
           </div>
           <div className="payment-row total-row">
             <span>Remaining Balance Due:</span>
-            <span>{formatCurrency(booking.total_amount - booking.deposit_amount)}</span>
+            <span>{formatCurrency(remainingBalance)}</span>
           </div>
           
           <div className="payment-methods mt-2">

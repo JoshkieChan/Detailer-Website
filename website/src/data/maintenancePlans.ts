@@ -25,7 +25,7 @@ export const maintenancePlans: MaintenancePlan[] = [
     bookingChoiceLabel: 'Interested in Quarterly Plan',
     bestFor:
       'Best for families and daily drivers who want lower-frequency upkeep after a clean baseline.',
-    pricingLine: 'From $180 every 3 months (equivalent to $60/month)',
+    pricingLine: 'From $180 every 3 months',
     supportLine: 'Billed separately after your baseline service on a once-every-3-month schedule.',
     summaryLine: 'From $180 every 3 months, billed separately after baseline.',
     emailIntro: 'You selected the Quarterly Maintenance Plan.',
