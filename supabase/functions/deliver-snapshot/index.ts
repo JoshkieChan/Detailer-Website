@@ -13,7 +13,9 @@ Deno.serve(async (req) => {
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  const automationWebhookUrl = Deno.env.get('BOOKING_AUTOMATION_WEBHOOK_URL');
+  const resendApiKey = Deno.env.get('RESEND_API_KEY');
+  const snapshotFromEmail = Deno.env.get('SNAPSHOT_FROM_EMAIL');
+  const snapshotPdfUrl = Deno.env.get('SNAPSHOT_PDF_URL');
 
   // Health Check
   if (req.method === 'GET') {
@@ -26,12 +28,16 @@ Deno.serve(async (req) => {
   try {
     const { email } = await req.json();
 
-    if (!email || !email.includes('@')) {
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
       throw new Error('Valid email address is required.');
     }
 
     if (!supabaseUrl || !supabaseServiceRoleKey) {
       throw new Error('Supabase project secrets are missing.');
+    }
+
+    if (!resendApiKey || !snapshotFromEmail || !snapshotPdfUrl) {
+      throw new Error('Snapshot delivery is not configured yet. Please contact us directly.');
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
@@ -48,20 +54,31 @@ Deno.serve(async (req) => {
       throw new Error(`Database Error: ${dbError.message}`);
     }
 
-    // 2. Trigger Automation Webhook (n8n/Email Delivery)
-    if (automationWebhookUrl) {
-      await fetch(automationWebhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lead_source: 'life_money_snapshot',
-          lead_id: lead.id,
-          customer_email: email,
-          type: 'lead_magnet_delivery',
-          pdf_name: 'Life & Money Snapshot',
-          message_body: 'Delivering the Life & Money Snapshot PDF 1-pager.'
-        })
-      }).catch(e => console.warn("Lead magnet automation payload failed:", e.message));
+    // 2. Send email (Resend)
+    const resendRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: snapshotFromEmail,
+        to: email,
+        subject: 'Life & Money Snapshot PDF',
+        html: `
+          <div style="font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; line-height: 1.5; color: #0f1720;">
+            <p>Here’s your <strong>Life &amp; Money Snapshot</strong> PDF.</p>
+            <p><a href="${snapshotPdfUrl}" target="_blank" rel="noopener noreferrer">Download the PDF</a></p>
+            <p style="color:#5e6875; font-size: 12px;">If the link doesn’t work, copy/paste this URL: ${snapshotPdfUrl}</p>
+          </div>
+        `.trim(),
+      })
+    });
+
+    if (!resendRes.ok) {
+      const text = await resendRes.text().catch(() => '');
+      console.error('Resend error:', resendRes.status, text);
+      throw new Error('We could not send the Snapshot email. Please try again or contact us directly.');
     }
 
     return new Response(

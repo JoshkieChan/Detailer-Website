@@ -10,13 +10,25 @@ interface LeadMagnetProps {
 export const LeadMagnet = ({ redirectUrl, className = '' }: LeadMagnetProps) => {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (status === 'submitting') return;
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) return;
+
+    if (!isValidEmail(trimmedEmail)) {
+      setStatus('error');
+      setErrorMessage('Please enter a valid email address.');
+      return;
+    }
 
     setStatus('submitting');
+    setErrorMessage(null);
 
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
@@ -34,22 +46,34 @@ export const LeadMagnet = ({ redirectUrl, className = '' }: LeadMagnetProps) => 
           'Authorization': `Bearer ${supabaseAnonKey}`,
           'apikey': supabaseAnonKey
         },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email: trimmedEmail })
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit.');
+        let serverMessage = 'Something went wrong. Please try again or contact us directly.';
+        try {
+          const data = await response.json();
+          if (data?.error && typeof data.error === 'string') {
+            serverMessage = data.error;
+          }
+        } catch {
+          // ignore JSON parsing issues
+        }
+        throw new Error(serverMessage);
       }
 
       setStatus('success');
+      setEmail('');
 
       if (redirectUrl) {
         setTimeout(() => {
           navigate(redirectUrl);
         }, 1200);
       }
-    } catch {
+    } catch (err) {
       setStatus('error');
+      const message = err instanceof Error ? err.message : null;
+      setErrorMessage(message || 'Something went wrong. Please try again or contact us directly.');
     }
   };
 
@@ -110,7 +134,7 @@ export const LeadMagnet = ({ redirectUrl, className = '' }: LeadMagnetProps) => 
           )}
         </button>
         {status === 'error' && (
-          <p className="error-text">Something went wrong. Please try again or contact us directly.</p>
+          <p className="error-text">{errorMessage || 'Something went wrong. Please try again or contact us directly.'}</p>
         )}
       </form>
     </div>

@@ -7,8 +7,6 @@ const DEBT_DASHBOARD_LINK =
   'https://signalsource.myhelcim.com/order/?token=938a103bf675b0a8db87ee';
 const LIFE_INCOME_PACK_LINK =
   'https://signalsource.myhelcim.com/order/?token=76d31ebcabd2e38e28e54a';
-const SNAPSHOT_DIRECT_LINK = 
-  'https://signalsource.myhelcim.com/order/?token=a752eb337d8c94c320cf15';
 
 const DigitalAssetsExamples = () => {
   return (
@@ -18,8 +16,8 @@ const DigitalAssetsExamples = () => {
         Back to More
       </Link>
 
-      {/* A. Hero Section */}
-      <section className="hero-grid reveal">
+      {/* A. Hero Section - Card Layout Cleanup */}
+      <section className="product-section reveal hero-card section-stack">
         <div className="hero-copy">
           <span className="eyebrow">SignalSource Systems</span>
           <h1 className="hero-title">Digital Guides &amp; Playbooks for When Life Feels Like Too Much</h1>
@@ -38,7 +36,6 @@ const DigitalAssetsExamples = () => {
             </a>
           </div>
         </div>
-        <div className="hero-visual" aria-hidden="true" />
       </section>
 
       {/* B. Product Section 1 – Overwhelm Reset */}
@@ -150,41 +147,6 @@ const DigitalAssetsExamples = () => {
         </div>
       </section>
 
-      {/* F. Product Section 4 – Snapshot Premium Setup (Newly Added per request) */}
-      <section className="product-section reveal section-stack darker-bg">
-        <div className="product-header">
-          <span className="step-label">Bonus Option – Personal Setup</span>
-          <h2 className="section-title">Life &amp; Money Snapshot – Personal Setup &amp; Review</h2>
-          <div className="price-tag">$27 – One-time</div>
-        </div>
-        <div className="product-content-grid">
-          <div className="outcome-list">
-            <div className="outcome-item">
-              <TrendingUp size={24} className="accent-icon" />
-              <p>Don&apos;t just download the PDF—get a 15-minute screen-recorded review of your specific situation.</p>
-            </div>
-            <div className="outcome-item">
-              <TrendingUp size={24} className="accent-icon" />
-              <p>Quick turnaround: I&apos;ll look at your snapshot and send back 3 specific moves to make first.</p>
-            </div>
-            <div className="outcome-item">
-              <TrendingUp size={24} className="accent-icon" />
-              <p>Perfect for when you have the data but aren&apos;t sure where the path starts.</p>
-            </div>
-          </div>
-          <div className="product-footer">
-            <a 
-              href={SNAPSHOT_DIRECT_LINK} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="btn primary btn-lg"
-            >
-              Get Snapshot Peer Review – $27
-            </a>
-          </div>
-        </div>
-      </section>
-
       {/* E. FAQ Section */}
       <section className="section-stack reveal">
         <div className="section-header">
@@ -258,15 +220,34 @@ const DigitalAssetsExamples = () => {
 
         .hero-actions, .product-footer {
           position: relative;
-          z-index: 1000;
+          z-index: 10;
           pointer-events: auto;
+          margin-top: 1rem;
         }
 
-        .hero-visual {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          z-index: -1;
+        .hero-card {
+          height: auto !important;
+          min-height: 0 !important;
+          padding: 3.5rem 2.5rem !important;
+          /* Keep neon CTA + any effects inside the rounded card */
+          overflow: hidden !important;
+        }
+
+        .hero-card .hero-actions {
+          margin-top: 1.5rem;
+        }
+
+        .hero-title {
+          font-size: clamp(2.2rem, 5vw, 3.8rem);
+          line-height: 1.1;
+          margin-bottom: 0.5rem;
+        }
+
+        .hero-subtitle {
+          font-size: 1.15rem;
+          color: var(--color-text-secondary);
+          max-width: 65ch;
+          margin-bottom: 1.5rem;
         }
 
         .product-section {
@@ -374,7 +355,9 @@ const DigitalAssetsExamples = () => {
           font-size: 1.1rem;
           pointer-events: auto;
           position: relative;
-          z-index: 1001;
+          z-index: 20;
+          max-width: 100%;
+          text-align: center;
         }
 
         .highlight-btn:hover {
