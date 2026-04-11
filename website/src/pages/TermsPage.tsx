@@ -26,7 +26,11 @@ const TermsPage = () => {
         <div className="hero-visual reveal" data-reveal-delay="1" aria-hidden="true" />
       </section>
 
-      <section className="section-stack legal-content reveal">
+      {/*
+        Safety: ensure the legal body is visible even if the IntersectionObserver-based
+        reveal logic is blocked by the browser / extensions / CSP.
+      */}
+      <section className="section-stack legal-content reveal is-visible">
         <div className="legal-section">
           <h2>1. ACCEPTANCE OF TERMS</h2>
           <p>
