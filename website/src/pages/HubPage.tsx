@@ -129,6 +129,12 @@ const HubPage = () => {
           align-items: stretch;
         }
 
+        @media (max-width: 850px) {
+          .card-grid.three {
+            grid-template-columns: 1fr;
+          }
+        }
+
         .hub-card {
           display: flex;
           flex-direction: column;

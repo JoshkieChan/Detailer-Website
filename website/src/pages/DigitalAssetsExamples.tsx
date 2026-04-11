@@ -221,11 +221,14 @@ const DigitalAssetsExamples = () => {
 
         .hero-actions, .product-footer {
           position: relative;
-          z-index: 20;
+          z-index: 50;
         }
 
         .hero-visual {
+          position: absolute;
+          inset: 0;
           pointer-events: none;
+          z-index: 1;
         }
 
         .product-section {

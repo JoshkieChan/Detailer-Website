@@ -240,13 +240,30 @@ const TermsPage = () => {
         <div className="legal-section">
           <h2>22. REFUNDS</h2>
           <p>
-            Subscriptions are non-refundable. If we terminate your subscription without cause, 
-            we may provide a pro-rated refund for the current billing period.
+            Subscriptions and digital product downloads are non-refundable. 
           </p>
         </div>
 
         <div className="legal-section">
-          <h2>23. CONTACT US</h2>
+          <h2>23. CANCELLATIONS, RESCHEDULING, AND WEATHER</h2>
+          <p>
+            23.1. Deposits are reserved for your specific slot and represent a commitment of time.
+          </p>
+          <p>
+            23.2. Bad Weather Policy: Deposits are never forfeited due to weather conditions. If severe 
+            weather (heavy rain, high winds, extreme temperatures) makes a quality service or safe mobile 
+            operation impossible, we will reschedule your appointment to the next available slot. Your 
+            deposit remains valid and carries forward to the rescheduled date.
+          </p>
+          <p>
+            23.3. Personal Rescheduling: We appreciate at least 48 hours' notice for personal reschedules. 
+            Deposits are carried forward to the new date; they are not lost due to reasonable notice 
+            conflicts.
+          </p>
+        </div>
+
+        <div className="legal-section">
+          <h2>24. CONTACT US</h2>
           <p>
             SignalSource<br />
             <a href="https://www.signaldatasource.com">https://www.signaldatasource.com</a>

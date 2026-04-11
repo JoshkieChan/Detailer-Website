@@ -137,6 +137,26 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
       },
     ],
   },
+  {
+    title: 'Weather and service policies',
+    items: [
+      {
+        question: 'What happens if it rains the day of my appointment?',
+        answer: (
+          <>
+            <strong>Garage Studio:</strong> Light rain is okay. We’ll wash your vehicle in the driveway, then move it to a more sheltered position for drying and interior work. In severe weather (heavy rain, high winds, storms), we may reschedule your appointment; your deposit simply moves with your booking.
+            <br /><br />
+            <strong>On-Island Mobile:</strong> If weather makes a quality wash or safe drying impossible, we’ll reschedule your visit to the next dry slot. We don’t work mobile in storms or extreme conditions; your deposit is carried forward, not lost.
+          </>
+        ),
+      },
+      {
+        question: 'What is your cancellation or rescheduling policy?',
+        answer:
+          'Deposits are carried forward to your rescheduled date, never lost due to weather or reasonable scheduling conflicts. We appreciate as much notice as possible for personal reschedules so we can open the slot for someone else.',
+      },
+    ],
+  },
 ];
 
 const FAQPage = () => {

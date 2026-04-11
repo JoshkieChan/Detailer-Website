@@ -68,6 +68,11 @@ const vehicleTypeLabels: Record<VehicleTypeId, string> = {
   largeSuvTruck: 'Large SUV / Truck',
 };
 
+const maintenancePlanById = {
+  quarterly: { shortName: 'Quarterly', emailIntro: 'You selected the Quarterly Maintenance Plan.' },
+  monthly: { shortName: 'Monthly', emailIntro: 'You selected the Monthly Maintenance Plan.' },
+};
+
 // --- UTILS ---
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -99,7 +104,42 @@ function calculateBookingFinancials({ packageId, vehicleType, locationType }: { 
     packageLabel: BOOKING_COMBINATIONS[packageKey].label, 
     vehicleTypeLabel: vehicleTypeLabels[vehicleType] 
   };
+// --- HELPERS (Calendar & Automation) ---
+async function createGoogleCalendarEvent(calendarId: string, serviceAccount: any, eventDetails: any) {
+  const iat = Math.floor(Date.now() / 1000);
+  const exp = iat + 3600;
+  const privateKey = await importPKCS8(serviceAccount.private_key, "RS256");
+  const jwt = await new SignJWT({
+    iss: serviceAccount.client_email,
+    scope: "https://www.googleapis.com/auth/calendar.events",
+    aud: "https://oauth2.googleapis.com/token"
+  })
+    .setProtectedHeader({ alg: "RS256", typ: "JWT" })
+    .setIssuedAt(iat)
+    .setExpirationTime(exp)
+    .sign(privateKey);
+    
+  const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion: jwt
+    })
+  });
+  const tokenData = await tokenRes.json();
+  if (!tokenRes.ok || !tokenData.access_token) throw new Error("Google access token failed");
+  
+  const calRes = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`, {
+    method: "POST",
+    headers: { "Authorization": `Bearer ${tokenData.access_token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(eventDetails)
+  });
+  if (!calRes.ok) throw new Error("Google Calendar API Error");
+  return (await calRes.json()).id;
 }
+
+const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`;
 
 Deno.serve(async (req) => {
   // 1. Universal CORS Preflight (Must be first)
@@ -109,6 +149,9 @@ Deno.serve(async (req) => {
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  const googleCalendarId = Deno.env.get('GOOGLE_CALENDAR_ID');
+  const serviceAccountRaw = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_JSON');
+  const automationWebhookUrl = Deno.env.get('BOOKING_AUTOMATION_WEBHOOK_URL');
 
   // 2. Health Check (GET)
   if (req.method === 'GET') {
@@ -124,17 +167,9 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json();
     const { 
-      packageId, 
-      vehicleType, 
-      locationType, 
-      membershipIntent, 
-      email: customerEmail, 
-      fullName, 
-      phone, 
-      address, 
-      date: serviceDate, 
-      time: serviceTime,
-      notes 
+      packageId, vehicleType, locationType, membershipIntent, 
+      email: customerEmail, fullName, phone, address, 
+      date: serviceDate, time: serviceTime, notes 
     } = body;
 
     // Validation
@@ -144,8 +179,38 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
     const pricing = calculateBookingFinancials({ packageId, vehicleType, locationType });
+    const normalizedMembershipIntent = (membershipIntent === 'quarterly' || membershipIntent === 'monthly') ? membershipIntent : 'none';
 
-    // 3. Database Insert
+    // 3. Google Calendar Integration
+    let googleEventId = null;
+    try {
+      if (googleCalendarId && serviceAccountRaw) {
+        const serviceAccount = JSON.parse(serviceAccountRaw);
+        const plan = normalizedMembershipIntent !== 'none' ? maintenancePlanById[normalizedMembershipIntent] : null;
+        const membershipTag = plan ? `[MEMBERSHIP – ${plan.shortName}] ` : '';
+        
+        const eventBody = {
+          summary: `${membershipTag}🚗 ${pricing.packageLabel} – ${fullName}`,
+          location: locationType === 'garage' ? 'Garage Studio, Oak Harbor, WA' : address,
+          description: [
+            `Name: ${fullName}`,
+            `Phone: ${phone}`,
+            `Service: ${pricing.packageLabel} (${pricing.vehicleTypeLabel})`,
+            `Mode: ${locationType === 'garage' ? 'Garage Studio' : `Mobile – ${address}`}`,
+            `Total: ${formatCurrency(pricing.subtotal)} | Deposit: ${formatCurrency(pricing.totalToday)}`,
+            normalizedMembershipIntent !== 'none' ? `Interested in ${plan?.shortName} Plan` : '',
+            `Notes: ${notes || 'None'}`
+          ].filter(Boolean).join('\n'),
+          start: { dateTime: `${serviceDate}T09:00:00`, timeZone: "America/Los_Angeles" },
+          end: { dateTime: `${serviceDate}T15:00:00`, timeZone: "America/Los_Angeles" },
+        };
+        googleEventId = await createGoogleCalendarEvent(googleCalendarId, serviceAccount, eventBody);
+      }
+    } catch (e) {
+      console.warn("Calendar integration failed:", e.message);
+    }
+
+    // 4. Database Insert
     const { data: booking, error: dbError } = await supabase
       .from('bookings')
       .insert([{
@@ -159,13 +224,14 @@ Deno.serve(async (req) => {
         service_time: serviceTime,
         location_type: locationType,
         notes: notes || '',
-        membership_intent: membershipIntent || 'none',
+        membership_intent: normalizedMembershipIntent,
         calculated_price: pricing.subtotal,
         deposit_amount: pricing.depositAmount,
         tax_amount: pricing.taxAmount,
         total_today: pricing.totalToday,
         remaining_balance: pricing.remainingBalance,
         helcim_deposit_url: pricing.helcimDepositUrl,
+        google_calendar_event_id: googleEventId,
         status: 'pending'
       }])
       .select('id')
@@ -176,7 +242,31 @@ Deno.serve(async (req) => {
       throw new Error(`Database Error: ${dbError.message}`);
     }
 
-    // 4. Return Success with Redirect URL
+    // 5. Automation Logic (Email/SMS Payload)
+    if (automationWebhookUrl) {
+      const plan = normalizedMembershipIntent !== 'none' ? maintenancePlanById[normalizedMembershipIntent] : null;
+      const membershipText = plan ? [
+        '',
+        '--- MAINTENANCE PLAN INTEREST ---',
+        plan.emailIntro,
+        'Plan starts after your baseline visit. Billed separately.',
+        'No recurring charges are taken today.'
+      ].join('\n') : '';
+
+      await fetch(automationWebhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          booking_id: booking.id,
+          customer: { fullName, customerEmail, phone },
+          booking: { ...pricing, serviceDate, serviceTime, address },
+          membership_intent: normalizedMembershipIntent,
+          message_body: `Your SignalSource booking is confirmed for ${serviceDate}.\nTotal Today: ${formatCurrency(pricing.totalToday)}${membershipText}\n\nPlease remove valuables and documents before your appointment.`
+        })
+      }).catch(e => console.warn("Automation payload failed:", e.message));
+    }
+
+    // 6. Return Success with Redirect URL
     return new Response(
       JSON.stringify({
         bookingId: booking.id,
@@ -192,7 +282,7 @@ Deno.serve(async (req) => {
       JSON.stringify({ error: error.message }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
-        status: 200 // Return 200 with error JSON so the browser can read it (CORS safetly)
+        status: 200 
       }
     );
   }
