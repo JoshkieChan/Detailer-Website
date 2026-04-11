@@ -132,6 +132,12 @@ const HubPage = () => {
         @media (max-width: 850px) {
           .card-grid.three {
             grid-template-columns: 1fr;
+            gap: 1.5rem;
+          }
+
+          .hub-card {
+            height: auto;
+            min-height: 0;
           }
         }
 

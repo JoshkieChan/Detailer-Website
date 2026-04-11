@@ -19,15 +19,31 @@ export const LeadMagnet = ({ redirectUrl, className = '' }: LeadMagnetProps) => 
     setStatus('submitting');
 
     try {
-      // In production, this would POST to an n8n webhook or similar automation.
-      // E.g., await fetch(import.meta.env.VITE_LEAD_MAGNET_WEBHOOK || '', { method: 'POST', body: JSON.stringify({ email }) });
-      
-      // Simulate network lag
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+
+      if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error('Supabase configuration is missing.');
+      }
+
+      const response = await fetch(`${supabaseUrl}/functions/v1/deliver-snapshot`, {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+          'apikey': supabaseAnonKey
+        },
+        body: JSON.stringify({ email })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit.');
+      }
+
       setStatus('success');
 
       if (redirectUrl) {
-        // Short delay to show success state before redirecting
         setTimeout(() => {
           navigate(redirectUrl);
         }, 1200);

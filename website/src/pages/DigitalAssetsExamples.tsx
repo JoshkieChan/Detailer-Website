@@ -2,11 +2,13 @@ import { ChevronLeft, CheckCircle2, TrendingUp, Package, HelpCircle } from 'luci
 import { Link } from 'react-router-dom';
 
 const OVERWHELM_LINK =
-  'https://signalsource.myhelcim.com/payment/?token=8b50549854ba39e7bf474d';
+  'https://signalsource.myhelcim.com/order/?token=a9d201f5cc9bd818564cc1';
 const DEBT_DASHBOARD_LINK =
-  'https://signalsource.myhelcim.com/payment/?token=751ddc22005b393b46b3a0';
+  'https://signalsource.myhelcim.com/order/?token=938a103bf675b0a8db87ee';
 const LIFE_INCOME_PACK_LINK =
-  'https://signalsource.myhelcim.com/payment/?token=99682c28e007ecd16dfa6e';
+  'https://signalsource.myhelcim.com/order/?token=76d31ebcabd2e38e28e54a';
+const SNAPSHOT_DIRECT_LINK = 
+  'https://signalsource.myhelcim.com/order/?token=a752eb337d8c94c320cf15';
 
 const DigitalAssetsExamples = () => {
   return (
@@ -148,6 +150,41 @@ const DigitalAssetsExamples = () => {
         </div>
       </section>
 
+      {/* F. Product Section 4 – Snapshot Premium Setup (Newly Added per request) */}
+      <section className="product-section reveal section-stack darker-bg">
+        <div className="product-header">
+          <span className="step-label">Bonus Option – Personal Setup</span>
+          <h2 className="section-title">Life &amp; Money Snapshot – Personal Setup &amp; Review</h2>
+          <div className="price-tag">$27 – One-time</div>
+        </div>
+        <div className="product-content-grid">
+          <div className="outcome-list">
+            <div className="outcome-item">
+              <TrendingUp size={24} className="accent-icon" />
+              <p>Don&apos;t just download the PDF—get a 15-minute screen-recorded review of your specific situation.</p>
+            </div>
+            <div className="outcome-item">
+              <TrendingUp size={24} className="accent-icon" />
+              <p>Quick turnaround: I&apos;ll look at your snapshot and send back 3 specific moves to make first.</p>
+            </div>
+            <div className="outcome-item">
+              <TrendingUp size={24} className="accent-icon" />
+              <p>Perfect for when you have the data but aren&apos;t sure where the path starts.</p>
+            </div>
+          </div>
+          <div className="product-footer">
+            <a 
+              href={SNAPSHOT_DIRECT_LINK} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="btn primary btn-lg"
+            >
+              Get Snapshot Peer Review – $27
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* E. FAQ Section */}
       <section className="section-stack reveal">
         <div className="section-header">
@@ -221,14 +258,15 @@ const DigitalAssetsExamples = () => {
 
         .hero-actions, .product-footer {
           position: relative;
-          z-index: 50;
+          z-index: 1000;
+          pointer-events: auto;
         }
 
         .hero-visual {
           position: absolute;
           inset: 0;
           pointer-events: none;
-          z-index: 1;
+          z-index: -1;
         }
 
         .product-section {
@@ -334,6 +372,9 @@ const DigitalAssetsExamples = () => {
         .btn-lg {
           padding: 1.25rem 2.5rem;
           font-size: 1.1rem;
+          pointer-events: auto;
+          position: relative;
+          z-index: 1001;
         }
 
         .highlight-btn:hover {
@@ -343,6 +384,11 @@ const DigitalAssetsExamples = () => {
         }
 
         @media (max-width: 768px) {
+          .btn-lg {
+            width: 100%;
+            display: flex;
+          }
+          
           .product-section {
             padding: 2.5rem 1.5rem;
           }

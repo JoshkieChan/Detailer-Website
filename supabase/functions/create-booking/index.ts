@@ -104,6 +104,8 @@ function calculateBookingFinancials({ packageId, vehicleType, locationType }: { 
     packageLabel: BOOKING_COMBINATIONS[packageKey].label, 
     vehicleTypeLabel: vehicleTypeLabels[vehicleType] 
   };
+}
+
 // --- HELPERS (Calendar & Automation) ---
 async function createGoogleCalendarEvent(calendarId: string, serviceAccount: any, eventDetails: any) {
   const iat = Math.floor(Date.now() / 1000);

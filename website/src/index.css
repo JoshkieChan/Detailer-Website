@@ -1635,12 +1635,15 @@ label {
 .form-footer {
   display: grid;
   gap: 0.7rem;
+  position: relative;
+  z-index: 100;
 }
 
 .btn-submit {
   width: 100%;
   min-height: 54px;
   font-size: 1rem;
+  cursor: pointer;
 }
 
 .btn-submit:disabled {
@@ -2132,6 +2135,7 @@ select.input-error {
 
   .booking-sidebar {
     position: static;
+    z-index: 1;
   }
 
   .summary-header-desktop {
