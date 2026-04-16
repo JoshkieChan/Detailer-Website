@@ -7,10 +7,9 @@ const HubPage = () => {
     <div className="page-shell hub-page">
       <section className="hub-hero reveal">
         <span className="eyebrow">SignalSource</span>
-        <h1 className="hero-title">Car detailing for Oak Harbor. Digital guides and AI-backed systems for anywhere.</h1>
+        <h1 className="hero-title">Car detailing for Oak Harbor. Digital guides and playbooks for anywhere.</h1>
         <p className="hero-subtitle">
-          Choose where you want to go next: local car care, downloadable guides, or custom
-          systems.
+          Choose where you want to go next: local car care or downloadable guides.
         </p>
         <div className="hero-actions hub-hero-actions">
           <a href="#hub-paths" className="btn primary btn-lg">
@@ -69,26 +68,37 @@ const HubPage = () => {
             </Link>
           </article>
 
-          <article className="hub-card reveal" data-reveal-delay="2">
-            <div className="hub-card-top">
-              <div className="support-pill">
-                <Cpu size={16} />
-                Secondary offer
+          {false && (
+            <article className="hub-card reveal" data-reveal-delay="2">
+              <div className="hub-card-top">
+                <div className="support-pill">
+                  <Cpu size={16} />
+                  Secondary offer
+                </div>
               </div>
-            </div>
+              <div className="hub-card-copy">
+                <h2>Systems &amp; Digital Products</h2>
+                <p className="section-copy">
+                  Custom systems for operators who are tired of missed follow-up, manual admin,
+                  and running everything from memory. This is for people who want the same
+                  organized SignalSource approach applied to automations, dashboards, and
+                  workflows.
+                </p>
+              </div>
+              <Link to="/systems" className="btn secondary hub-card-cta">
+                Explore Systems
+                <ArrowRight size={16} />
+              </Link>
+            </article>
+          )}
+
+          <article className="hub-card reveal" data-reveal-delay="2">
             <div className="hub-card-copy">
-              <h2>Systems &amp; Digital Products</h2>
+              <h2>Coming Soon: Window Tint, Ceramic Coatings, PPF &amp; Wraps</h2>
               <p className="section-copy">
-                Custom systems for operators who are tired of missed follow-up, manual admin,
-                and running everything from memory. This is for people who want the same
-                organized SignalSource approach applied to automations, dashboards, and
-                workflows.
+                We&apos;re building out surface protection and styling services. Check back soon.
               </p>
             </div>
-            <Link to="/systems" className="btn secondary hub-card-cta">
-              Explore Systems
-              <ArrowRight size={16} />
-            </Link>
           </article>
         </div>
       </section>
@@ -96,7 +106,7 @@ const HubPage = () => {
       <footer className="hub-footer reveal">
         <div className="hub-footer-copy">
           <h2>SIGNALSOURCE</h2>
-          <p>Car care for Oak Harbor. Systems thinking for everything else.</p>
+          <p>Systems-driven car care based in Oak Harbor, WA.</p>
         </div>
       </footer>
 

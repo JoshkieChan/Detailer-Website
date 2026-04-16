@@ -38,22 +38,18 @@ const AboutPage = () => {
       </section>
 
       <section className="content-card reveal" data-reveal-delay="1">
-        <span className="eyebrow">Why the systems side exists</span>
+        <span className="eyebrow">Digital Guides &amp; Playbooks</span>
         <h2 className="section-title">The same structure that keeps a detailing shop tight helps other parts of life too.</h2>
         <p className="section-copy">
-          Digital Guides &amp; Playbooks and Systems &amp; Digital Products are secondary
-          offers for people who want the same systems mindset applied to moves, money,
-          follow-up, and day-to-day admin. If that is what you need, start from the{' '}
+          Digital Guides &amp; Playbooks are downloadable PDFs for people who want the same
+          clear, organized approach applied to moves, money, and day-to-day planning. If
+          that is what you need, start from the{' '}
           <Link to="/hub" className="accent-text">
             Hub
           </Link>
-          , browse the{' '}
+          {' '}or browse the{' '}
           <Link to="/systems/examples/digital-assets" className="accent-text">
             Guides
-          </Link>
-          , or go straight to{' '}
-          <Link to="/systems" className="accent-text">
-            Systems
           </Link>
           .
         </p>
@@ -69,6 +65,18 @@ const AboutPage = () => {
           </p>
         </div>
         <div className="card-grid three">
+          {/* Hidden: Systems & Digital Products — keep for future re-enable */}
+          {false && (
+            <article className="content-card surface-card reveal" data-reveal-delay="2">
+              <div className="support-pill"><Cpu size={24} />Secondary Offer</div>
+              <h3>Systems &amp; Digital Products</h3>
+              <p className="section-copy">For operators who want tighter follow-up, simpler dashboards, and less routine admin holding the day together.</p>
+              <Link to="/systems" className="cta-row accent-text">
+                Explore systems <ArrowRight size={16} />
+              </Link>
+            </article>
+          )}
+
           {[
             {
               icon: <Shield size={24} />,
@@ -86,14 +94,6 @@ const AboutPage = () => {
               href: '/systems/examples/digital-assets',
               label: 'Browse guides',
             },
-            {
-              icon: <Cpu size={24} />,
-              eyebrow: 'Secondary Offer',
-              title: 'Systems & Digital Products',
-              text: 'For operators who want tighter follow-up, simpler dashboards, and less routine admin holding the day together.',
-              href: '/systems',
-              label: 'Explore systems',
-            },
           ].map((item, index) => (
             <article className="content-card surface-card reveal" data-reveal-delay={String(index)} key={item.title}>
               <div className="support-pill">{item.icon}{item.eyebrow}</div>
@@ -104,6 +104,11 @@ const AboutPage = () => {
               </Link>
             </article>
           ))}
+
+          <article className="content-card surface-card reveal" data-reveal-delay="2">
+            <h3>Coming Soon: Window Tint, Ceramic Coatings, PPF &amp; Wraps</h3>
+            <p className="section-copy">We&apos;re building out surface protection and styling services. Check back soon.</p>
+          </article>
         </div>
       </section>
 

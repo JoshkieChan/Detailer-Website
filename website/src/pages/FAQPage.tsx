@@ -153,7 +153,7 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
       {
         question: 'What is your cancellation or rescheduling policy?',
         answer:
-          'Deposits are carried forward to your rescheduled date, never lost due to weather or reasonable scheduling conflicts. We appreciate as much notice as possible for personal reschedules so we can open the slot for someone else.',
+          'We appreciate at least 24\u201348 hours\u2019 notice for reschedules so we\u2019re not left with an empty day. Deposits are carried forward when you give reasonable notice. Same-day cancellations and no-shows may forfeit the deposit at our discretion.',
       },
     ],
   },

@@ -43,10 +43,9 @@ const TermsPage = () => {
         <div className="legal-section">
           <h2>2. DESCRIPTION OF SERVICE</h2>
           <p>
-            SignalSource is a software-as-a-service platform that provides data enrichment, lead
-            intelligence, and AI-powered analytics to help businesses find and qualify prospects through our
-            website. The specific features and functionality of the Service are subject to change without
-            notice.
+            SignalSource provides local car detailing and protection services in Oak Harbor, WA,
+            as well as downloadable digital guides and playbooks through our website. The
+            specific features and offerings are subject to change without notice.
           </p>
         </div>
 
@@ -260,9 +259,10 @@ const TermsPage = () => {
             deposit remains valid and carries forward to the rescheduled date.
           </p>
           <p>
-            23.3. Personal Rescheduling: We appreciate at least 48 hours' notice for personal reschedules. 
-            Deposits are carried forward to the new date; they are not lost due to reasonable notice 
-            conflicts.
+            23.3. Personal Rescheduling: We appreciate at least 48 hours' notice for personal
+            reschedules. When you provide reasonable notice, your deposit is carried forward to
+            the new date. Same-day cancellations, no-shows, or repeated last-minute reschedules
+            may result in forfeiture of the deposit at our discretion.
           </p>
         </div>
 

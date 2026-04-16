@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Phone, Mail, Moon, Sun, Monitor } from 'lucide-react';
 import { useTheme } from './ThemeContext';
+import logoSrc from '/favicon.svg';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   const navLinks = [
     { name: 'Services', path: '/services' },
@@ -61,7 +62,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <header className="navbar glass-nav">
         <div className="navbar-inner">
           <Link to="/detailing" className="brand">
-            <span className="brand-icon">S</span>
+            <img
+              src={logoSrc}
+              alt="SignalSource logo"
+              className={`brand-logo brand-logo--${resolvedTheme}`}
+              width={28}
+              height={28}
+            />
             <span className="brand-text">SIGNALSOURCE</span>
           </Link>
           
@@ -126,7 +133,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <div className="container footer-bar-container">
           <div className="footer-left">
             <h2 className="brand-text footer-brand-heading">SIGNALSOURCE</h2>
-            <p className="positioning-statement">Systems-driven car care and local service automation based in Oak Harbor, WA.</p>
+            <p className="positioning-statement">Systems-driven car care based in Oak Harbor, WA.</p>
             <p className="serving-text mt-1">Serving Oak Harbor, NAS Whidbey & surrounding areas.</p>
             <p className="footer-hours">By appointment only • Monday–Saturday</p>
             <p className="footer-legal">Fully Licensed & Insured • Whidbey Island, WA</p>

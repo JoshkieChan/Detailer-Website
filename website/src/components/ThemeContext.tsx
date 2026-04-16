@@ -11,9 +11,18 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+function getTimeBasedTheme(): Theme {
+  const hour = new Date().getHours();
+  // 7:00 AM (7) through 6:59 PM (18) → light; otherwise → dark
+  return hour >= 7 && hour < 19 ? 'light' : 'dark';
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem('theme') as Theme) || 'light';
+    const saved = localStorage.getItem('theme') as Theme | null;
+    // If user saved an explicit preference, honour it.
+    // Otherwise fall back to time-based default.
+    return saved ?? getTimeBasedTheme();
   });
 
   const getSystemTheme = () => 

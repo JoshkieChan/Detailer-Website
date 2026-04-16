@@ -906,6 +906,25 @@ label {
   box-shadow: inset 0 0 0 1px rgba(15, 23, 32, 0.08);
 }
 
+/* SVG logo in navbar — swap filter based on active theme */
+.brand-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: block;
+  transition: filter var(--transition-base);
+}
+
+/* Light mode: show the logo in its natural purple colour */
+.brand-logo--light {
+  filter: none;
+}
+
+/* Dark mode: invert so the mark reads cleanly on the dark navbar */
+.brand-logo--dark {
+  filter: brightness(0) invert(1);
+}
+
 .brand-text {
   font-family: var(--font-heading);
   font-weight: 800;
