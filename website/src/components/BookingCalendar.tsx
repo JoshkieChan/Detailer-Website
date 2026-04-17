@@ -4,10 +4,20 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 interface BookingCalendarProps {
   selectedDate: string;
   onChange: (date: string) => void;
-  bookedDates: string[];
+  unavailableDates: string[];
+  markedDates?: string[];
+  disablePast?: boolean;
+  disableSundays?: boolean;
 }
 
-export const BookingCalendar = ({ selectedDate, onChange, bookedDates }: BookingCalendarProps) => {
+export const BookingCalendar = ({
+  selectedDate,
+  onChange,
+  unavailableDates,
+  markedDates = [],
+  disablePast = true,
+  disableSundays = true,
+}: BookingCalendarProps) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   // Prevent selecting dates before today
@@ -47,11 +57,11 @@ export const BookingCalendar = ({ selectedDate, onChange, bookedDates }: Booking
     ].join('-');
     
     // Check constraints
-    const isToday = dateObj.getTime() === today.getTime();
-    const isPast = dateObj < today || (isToday && new Date().getHours() >= 16);
-    const isSunday = dateObj.getDay() === 0;
-    const isBooked = bookedDates.includes(dateStr);
-    const isDisabled = isPast || isSunday || isBooked;
+    const isPast = disablePast && dateObj < today;
+    const isSunday = disableSundays && dateObj.getDay() === 0;
+    const isUnavailable = unavailableDates.includes(dateStr);
+    const isMarked = markedDates.includes(dateStr);
+    const isDisabled = isPast || isSunday || isUnavailable;
     const isSelected = selectedDate === dateStr;
 
     days.push(
@@ -62,10 +72,20 @@ export const BookingCalendar = ({ selectedDate, onChange, bookedDates }: Booking
         disabled={isDisabled}
         onClick={() => onChange(dateStr)}
         aria-label={`${monthName} ${i}, ${year}`}
-        title={isBooked ? 'Already booked' : isSunday ? 'Closed on Sundays' : isPast ? 'Past date' : 'Available'}
+        title={
+          isUnavailable
+            ? 'No valid slots left'
+            : isMarked
+              ? 'Has scheduled items'
+              : isSunday
+                ? 'Closed on Sundays'
+                : isPast
+                  ? 'Past date'
+                  : 'Available'
+        }
       >
         <span>{i}</span>
-        {isBooked && <div className="dot booked"></div>}
+        {(isUnavailable || isMarked) && <div className={`dot ${isUnavailable ? 'booked' : 'selected'}`}></div>}
       </button>
     );
   }
@@ -105,11 +125,11 @@ export const BookingCalendar = ({ selectedDate, onChange, bookedDates }: Booking
       </div>
 
       <div className="calendar-legend">
-        <p>Only one vehicle per day. Dates shown in gray are fully booked.</p>
+        <p>Dates shown in gray have no remaining valid start times after service duration and buffer are applied.</p>
         <div className="legend-items">
           <div className="legend-item"><span className="swatch available"></span> Available</div>
           <div className="legend-item"><span className="swatch selected"></span> Selected</div>
-          <div className="legend-item"><span className="swatch booked"></span> Booked</div>
+          <div className="legend-item"><span className="swatch booked"></span> No slots left</div>
         </div>
       </div>
     </div>

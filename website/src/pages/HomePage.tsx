@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Star,
   ShieldCheck,
@@ -12,6 +12,9 @@ import {
 } from 'lucide-react';
 import { servicePackages } from '../data/packages';
 import { trackEvent } from '../lib/analytics';
+import { fetchAvailability } from '../api/availability';
+import { BeforeAfterSlider } from '../components/BeforeAfterSlider';
+import { detailingGalleryItems } from '../config/detailingGallery';
 
 const systemsBenefits = [
   {
@@ -30,6 +33,11 @@ const systemsBenefits = [
 
 const HomePage = () => {
   const trackedDepths = useRef(new Set<number>());
+  const [nextAvailableOpening, setNextAvailableOpening] = useState<{
+    date: string;
+    startTime: string;
+    serviceLabel: string;
+  } | null>(null);
 
   useEffect(() => {
     const thresholds = [25, 50, 75, 90];
@@ -58,12 +66,18 @@ const HomePage = () => {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    fetchAvailability('maintenance')
+      .then((data) => setNextAvailableOpening(data.nextAvailableOpening))
+      .catch((error) => console.error('Failed to load next opening', error));
+  }, []);
+
   return (
     <div className="page-shell detailing-home">
       <section className="hero-grid">
         <div className="hero-copy reveal">
           <div className="capacity-banner">
-            <CalendarCheck size={16} /> Currently accepting one vehicle per day, Monday–Saturday.
+            <CalendarCheck size={16} /> Currently accepting 2–3 customers per day, Monday–Saturday.
           </div>
           <h1 className="hero-title">
             Whidbey Island detailing for drivers who want it done right the first time.
@@ -91,6 +105,11 @@ const HomePage = () => {
           <p className="policy-note">
             A 20% deposit secures the appointment and goes toward the final total.
           </p>
+          {nextAvailableOpening ? (
+            <p className="section-note next-opening-pill">
+              Next available opening: {nextAvailableOpening.date} at {nextAvailableOpening.startTime} for {nextAvailableOpening.serviceLabel}
+            </p>
+          ) : null}
         </div>
         <div className="hero-visual reveal" data-reveal-delay="1" aria-hidden="true" />
       </section>
@@ -271,14 +290,15 @@ const HomePage = () => {
 
       <section className="detailing-section">
         <div className="section-header reveal">
-          <span className="eyebrow">Systems In The Background</span>
-          <h2 className="section-title">A smoother detailing experience because the systems run in the background.</h2>
+          <span className="eyebrow">Before / After Work</span>
+          <h2 className="section-title">Real detailing results deserve the visual block here.</h2>
           <p className="section-copy">
-            SignalSource uses automation behind the scenes so booking detailing feels cleaner
-            and more predictable for you.
+            The systems still help with reminders and cleaner handoffs, but the work itself
+            should carry this section. The slider below is wired for owner-supplied before and
+            after images without hard-coding them into the page.
           </p>
         </div>
-
+        <BeforeAfterSlider items={detailingGalleryItems} />
         <div className="section-panel benefits-panel reveal" data-reveal-delay="1">
           {systemsBenefits.map((item, index) => (
             <article className="benefit-row reveal-item" key={item.title}>

@@ -5,7 +5,7 @@ import { ShieldCheck, PlusCircle, MapPinned } from 'lucide-react';
 const PricingPage = () => {
   return (
     <div className="page-shell pricing-page">
-      <section className="page-hero text-center reveal compact-hero">
+      <section className="page-hero text-center reveal compact-hero centered-hero-copy">
         <span className="eyebrow">Pricing / Memberships</span>
         <h1 className="hero-title">Clear pricing by vehicle size. 20% deposit.</h1>
         <p className="hero-subtitle">

@@ -2,11 +2,11 @@ import { ChevronLeft, CheckCircle2, TrendingUp, Package, HelpCircle } from 'luci
 import { Link } from 'react-router-dom';
 
 const OVERWHELM_LINK =
-  'https://signalsource.myhelcim.com/order/?token=a9d201f5cc9bd818564cc1';
+  'https://signalsource.myhelcim.com/hosted/?token=a064dcb3e63be5d02cf39e&amount=39.00&amountHash=b664cc3403154734bcf92bd34b09ddb6ac5281ca482d1b0efe5e2de445d65f0f';
 const DEBT_DASHBOARD_LINK =
-  'https://signalsource.myhelcim.com/order/?token=938a103bf675b0a8db87ee';
+  'https://signalsource.myhelcim.com/hosted/?token=b84d5d12b978c9041ef043&amount=47.00&amountHash=024fe5db6e311ed06a901429321e92f56a3320df46421307d2f5d867495bf284';
 const LIFE_INCOME_PACK_LINK =
-  'https://signalsource.myhelcim.com/order/?token=76d31ebcabd2e38e28e54a';
+  'https://signalsource.myhelcim.com/hosted/?token=1949190ee7aaaf35dba111&amount=147.00&amountHash=c1a44255ca09f468e2124cfd881fde58ca872c828fc80bfe4111a69f31a2240b';
 
 const DigitalAssetsExamples = () => {
   return (

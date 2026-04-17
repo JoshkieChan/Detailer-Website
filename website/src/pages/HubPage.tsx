@@ -5,7 +5,7 @@ import { LeadMagnet } from '../components/LeadMagnet';
 const HubPage = () => {
   return (
     <div className="page-shell hub-page">
-      <section className="hub-hero reveal">
+      <section className="hub-hero reveal centered-hero-copy">
         <span className="eyebrow">SignalSource</span>
         <h1 className="hero-title">Car detailing for Oak Harbor. Digital guides and playbooks for anywhere.</h1>
         <p className="hero-subtitle">

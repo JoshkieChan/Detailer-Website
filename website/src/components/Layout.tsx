@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Phone, Mail, Moon, Sun, Monitor } from 'lucide-react';
 import { useTheme } from './ThemeContext';
-import logoSrc from '/favicon.svg';
+import logoWhiteSrc from '../assets/logo-white.png';
+import logoBlackSrc from '../assets/logo-black.png';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const { theme, setTheme, resolvedTheme } = useTheme();
+  const logoSrc = resolvedTheme === 'dark' ? logoWhiteSrc : logoBlackSrc;
 
   const navLinks = [
     { name: 'Services', path: '/services' },
@@ -65,9 +67,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <img
               src={logoSrc}
               alt="SignalSource logo"
-              className={`brand-logo brand-logo--${resolvedTheme}`}
-              width={28}
-              height={28}
+              className="brand-logo"
+              width={36}
+              height={36}
             />
             <span className="brand-text">SIGNALSOURCE</span>
           </Link>

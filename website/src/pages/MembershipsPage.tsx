@@ -5,7 +5,7 @@ import { maintenancePlans } from '../data/maintenancePlans';
 const MembershipsPage = () => {
   return (
     <div className="page-shell memberships-page">
-      <section className="page-hero text-center reveal compact-hero">
+      <section className="page-hero text-center reveal compact-hero centered-hero-copy">
         <span className="eyebrow">Maintenance Plans</span>
         <h1 className="hero-title">Keep the vehicle from sliding backward.</h1>
         <p className="hero-subtitle">

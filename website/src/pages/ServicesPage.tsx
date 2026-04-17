@@ -5,9 +5,9 @@ import { servicePackages } from '../data/packages';
 const ServicesPage = () => {
   return (
     <div className="page-shell services-page">
-      <section className="page-hero text-center reveal compact-hero">
+      <section className="page-hero text-center reveal compact-hero centered-hero-copy">
         <div className="capacity-banner inline-block">
-          <CalendarCheck size={16} /> Currently accepting one vehicle per day, Monday–Saturday.
+          <CalendarCheck size={16} /> Currently accepting 2–3 customers per day, Monday–Saturday.
         </div>
         <span className="eyebrow">Detailing / Services</span>
         <h1 className="hero-title">Two clear detailing tiers for Whidbey Island vehicles.</h1>

@@ -16,9 +16,11 @@ import DigitalAssetsExamples from './pages/DigitalAssetsExamples';
 import LocalSystemsExamples from './pages/LocalSystemsExamples';
 import BookingPage from './pages/BookingPage';
 import ConfirmationPage from './pages/ConfirmationPage';
+import BookingThanksPage from './pages/BookingThanksPage';
 import TripwirePage from './pages/TripwirePage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
+import OwnerSchedulePage from './pages/OwnerSchedulePage';
 import { useState, useEffect } from 'react';
 
 function App() {
@@ -50,7 +52,9 @@ function App() {
               <Route path="/systems/examples/digital-assets" element={<DigitalAssetsExamples />} />
               <Route path="/systems/examples/local-systems" element={<LocalSystemsExamples />} />
               <Route path="/booking" element={<BookingPage />} />
+              <Route path="/booking/thanks" element={<BookingThanksPage />} />
               <Route path="/booking/confirmation" element={<ConfirmationPage />} />
+              <Route path="/owner/schedule" element={<OwnerSchedulePage />} />
               <Route path="/snapshot/order" element={<TripwirePage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/terms" element={<TermsPage />} />
