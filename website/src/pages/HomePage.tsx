@@ -288,27 +288,29 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section className="detailing-section">
-        <div className="section-header reveal">
-          <span className="eyebrow">Before / After Work</span>
-          <h2 className="section-title">Real detailing results deserve the visual block here.</h2>
-          <p className="section-copy">
-            The systems still help with reminders and cleaner handoffs, but the work itself
-            should carry this section. The slider below is wired for owner-supplied before and
-            after images without hard-coding them into the page.
-          </p>
-        </div>
-        <BeforeAfterSlider items={detailingGalleryItems} />
-        <div className="section-panel benefits-panel reveal" data-reveal-delay="1">
-          {systemsBenefits.map((item, index) => (
-            <article className="benefit-row reveal-item" key={item.title}>
-              <div className="support-pill slim">
-                {index === 0 ? <MessageSquare size={16} /> : index === 1 ? <Bell size={16} /> : <ShieldCheck size={16} />}
-                {item.title}
-              </div>
-              <p className="section-copy">{item.text}</p>
-            </article>
-          ))}
+      <section className="py-12 sm:py-16">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="section-header reveal mb-8">
+            <span className="eyebrow">Before / After Work</span>
+            <h2 className="section-title">Real detailing results deserve the visual block here.</h2>
+            <p className="section-copy">
+              The systems still help with reminders and cleaner handoffs, but the work itself
+              should carry this section. The slider below is wired for owner-supplied before and
+              after images without hard-coding them into the page.
+            </p>
+          </div>
+          <BeforeAfterSlider items={detailingGalleryItems} />
+          <div className="section-panel benefits-panel reveal mt-8" data-reveal-delay="1">
+            {systemsBenefits.map((item, index) => (
+              <article className="benefit-row reveal-item" key={item.title}>
+                <div className="support-pill slim">
+                  {index === 0 ? <MessageSquare size={16} /> : index === 1 ? <Bell size={16} /> : <ShieldCheck size={16} />}
+                  {item.title}
+                </div>
+                <p className="section-copy">{item.text}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 

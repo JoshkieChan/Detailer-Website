@@ -2304,6 +2304,43 @@ select.input-error {
   animation: reveal var(--transition-base) forwards;
   opacity: 0;
 }
+.rounded-2xl { border-radius: 1.25rem; }
+.rounded-xl { border-radius: 0.85rem; }
+.backdrop-blur-sm { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.bg-background\/80 { background-color: rgba(var(--color-background-surface-rgb), 0.8); }
+.bg-muted\/40 { background-color: rgba(var(--color-background-soft-rgb), 0.4); }
+.bg-muted\/60 { background-color: rgba(var(--color-background-soft-rgb), 0.6); }
+
+.aspect-video { aspect-ratio: 16 / 9; }
+.aspect-\[4\/3\] { aspect-ratio: 4 / 3; }
+
+.hover\:-translate-y-0\.5:hover { transform: translateY(-0.125rem); }
+
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.mt-6 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 1rem; }
+
+.max-w-5xl { max-width: 64rem; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+.sm\:py-16 { }
+@media (min-width: 640px) {
+  .sm\:py-16 { padding-top: 4rem; padding-bottom: 4rem; }
+  .sm\:p-6 { padding: 1.5rem; }
+  .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+:root {
+  --color-background-surface-rgb: 255, 255, 255;
+  --color-background-soft-rgb: 243, 244, 246;
+}
+
+[data-theme='dark'] {
+  --color-background-surface-rgb: 24, 24, 27;
+  --color-background-soft-rgb: 39, 39, 42;
+}
 
 /* 
  * Premium Booking UI Refresh
