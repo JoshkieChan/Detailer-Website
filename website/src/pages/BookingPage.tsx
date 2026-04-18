@@ -234,8 +234,15 @@ const BookingPage = () => {
   const availableTimeSlots = useMemo(() => {
     if (!validPackage || !formData.date) return [];
 
+    // Use Pacific time for today comparison
     const now = new Date();
-    const todayStr = now.toISOString().slice(0, 10);
+    const pacificDate = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Los_Angeles',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(now);
+    const todayStr = pacificDate; // 'YYYY-MM-DD'
 
     return hourlySlots.map((slot) => {
       const slotWindow = buildBookingWindow({
@@ -244,9 +251,17 @@ const BookingPage = () => {
         startTime: slot.value,
       });
       const slotStart = timeToMinutes(slot.value);
-      const isPastSlot =
-        formData.date === todayStr &&
-        now.getHours() * 60 + now.getMinutes() >= slotStart;
+      
+      const pacificTimeStr = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Los_Angeles',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      }).format(now);
+      const [h, m] = pacificTimeStr.split(':').map(Number);
+      const currentMinutes = h * 60 + m;
+
+      const isPastSlot = formData.date === todayStr && currentMinutes >= slotStart;
       const overlaps = selectedDayIntervals.some((interval) =>
         intervalsOverlap(
           slotWindow.startMinutes,

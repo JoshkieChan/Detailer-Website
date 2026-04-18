@@ -118,10 +118,12 @@ export const isDateUnavailable = ({
   date,
   packageId,
   intervals,
+  now = new Date(),
 }: {
   date: string;
   packageId: SlotBookingPackageId;
   intervals: ScheduledInterval[];
+  now?: Date;
 }) => {
   const validSlots = getHourlyStartSlots(packageId);
 
@@ -129,7 +131,29 @@ export const isDateUnavailable = ({
   const day = new Date(date).getDay();
   if (day === 0) return true;
 
+  const pacificDate = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Los_Angeles',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now);
+  const todayStr = pacificDate;
+
+  const pacificTime = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Los_Angeles',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(now);
+  const [h, m] = pacificTime.split(':').map(Number);
+  const currentMinutes = h * 60 + m;
+
   return !validSlots.some((slot) => {
+    // Filter out past slots for today
+    if (date === todayStr) {
+      if (timeToMinutes(slot.value) <= currentMinutes) return false;
+    }
+
     const slotWindow = buildBookingWindow({ date, packageId, startTime: slot.value });
     return !intervals.some((interval) => {
       if (interval.date !== date) return false;
@@ -167,6 +191,20 @@ export const getNextAvailableOpening = ({
     const slots = getHourlyStartSlots(packageId);
 
     for (const slot of slots) {
+      // Filter out past slots for today
+      const pacificTime = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Los_Angeles',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      }).format(fromDate);
+      const [h, m] = pacificTime.split(':').map(Number);
+      const currentMinutes = h * 60 + m;
+
+      if (dayOffset === 0 && timeToMinutes(slot.value) <= currentMinutes) {
+        continue;
+      }
+
       const window = buildBookingWindow({ date, packageId, startTime: slot.value });
       const overlaps = intervals.some((interval) => {
         if (interval.date !== date) return false;
