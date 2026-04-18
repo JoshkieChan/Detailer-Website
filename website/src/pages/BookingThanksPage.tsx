@@ -8,21 +8,22 @@ const BookingThanksPage = () => {
         <div className="thanks-icon-wrap">
           <CheckCircle2 size={56} className="icon-lime" />
         </div>
-        <span className="eyebrow">Deposit Received</span>
-        <h1 className="hero-title">You&apos;re Booked. Your Detail is Locked In.</h1>
+        <span className="eyebrow">Booking Received</span>
+        <h1 className="hero-title">Appointment Pending Confirmation.</h1>
         <p className="hero-subtitle">
-          We&apos;ve received your 20% deposit and sent a confirmation email with your appointment details.
+          Your deposit has been attempted. Final booking confirmation will be sent to your email
+          once your payment is successfully processed.
         </p>
 
         <div className="thanks-copy">
           <p>
-            Arrive on time for your selected start window, remove personal items and heavy loose
-            gear before service, and expect us to confirm any major scope changes before work
-            begins.
+            Once confirmed, please arrive on time for your selected start window, remove personal
+            items and heavy loose gear before service, and expect us to confirm any major scope
+            changes before work begins.
           </p>
           <p className="section-note">
             Rescheduling is allowed up to 24 hours before the appointment. Deposits are
-            non-refundable for late cancellations and no-shows.
+            non-refundable for late cancellations and no-shows once the booking is confirmed.
           </p>
         </div>
 

@@ -124,6 +124,11 @@ export const isDateUnavailable = ({
   intervals: ScheduledInterval[];
 }) => {
   const validSlots = getHourlyStartSlots(packageId);
+
+  // Requirement: Sundays are unavailable
+  const day = new Date(date).getDay();
+  if (day === 0) return true;
+
   return !validSlots.some((slot) => {
     const slotWindow = buildBookingWindow({ date, packageId, startTime: slot.value });
     return !intervals.some((interval) => {
