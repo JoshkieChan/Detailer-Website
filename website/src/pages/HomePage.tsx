@@ -6,30 +6,14 @@ import {
   CalendarCheck,
   Gauge,
   MapPinned,
-  MessageSquare,
-  Bell,
   CheckCircle2,
 } from 'lucide-react';
 import { servicePackages } from '../data/packages';
 import { trackEvent } from '../lib/analytics';
 import { fetchAvailability } from '../api/availability';
-import { BeforeAfterSlider } from '../components/BeforeAfterSlider';
-import { detailingGalleryItems } from '../config/detailingGallery';
 
-const systemsBenefits = [
-  {
-    title: 'Faster replies',
-    text: 'You get clearer answers earlier instead of long back-and-forth before you can even book.',
-  },
-  {
-    title: 'Clear reminders',
-    text: 'Prep instructions and appointment reminders keep service day from turning into guesswork.',
-  },
-  {
-    title: 'Fewer dropped balls',
-    text: 'The process stays tighter so details, follow-up, and payment handoff do not get lost.',
-  },
-];
+
+
 
 const HomePage = () => {
   const trackedDepths = useRef(new Set<number>());
@@ -288,37 +272,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section className="py-12 sm:py-16">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="section-header reveal mb-8">
-            <span className="eyebrow">Before / After Work</span>
-            <h2 className="section-title">Real detailing results deserve the visual block here.</h2>
-            <p className="section-copy">
-              The systems still help with reminders and cleaner handoffs, but the work itself
-              should carry this section. The slider below is wired for owner-supplied before and
-              after images without hard-coding them into the page.
-            </p>
-          </div>
-          
-          <div className="mt-6 flex justify-center reveal" data-reveal-delay="1">
-            <div className="w-full max-w-3xl">
-              <BeforeAfterSlider items={detailingGalleryItems.slice(0, 3)} />
-            </div>
-          </div>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-3 reveal" data-reveal-delay="2">
-            {systemsBenefits.map((item, index) => (
-              <article className="benefit-row content-card" key={item.title}>
-                <div className="support-pill slim mb-2">
-                  {index === 0 ? <MessageSquare size={16} /> : index === 1 ? <Bell size={16} /> : <ShieldCheck size={16} />}
-                  {item.title}
-                </div>
-                <p className="section-copy">{item.text}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <section className="detailing-section reveal">
         <div className="section-header">

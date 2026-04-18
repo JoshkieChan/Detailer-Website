@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { ThemeProvider } from './components/ThemeContext';
-import PasswordGate from './components/PasswordGate';
+
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import ServicesPage from './pages/ServicesPage';
@@ -35,7 +35,7 @@ function App() {
 
   return (
     <ThemeProvider>
-      <PasswordGate>
+
         <Router>
           <Layout>
             <Routes>
@@ -61,7 +61,7 @@ function App() {
             </Routes>
           </Layout>
         </Router>
-      </PasswordGate>
+
       {loadAnalytics && (
         <>
           <Analytics />
