@@ -34,6 +34,13 @@ Deno.serve(async (req) => {
     }
 
     const payload = await req.json();
+    console.log('--- create-booking payload received ---', {
+      timestamp: new Date().toISOString(),
+      payloadKeys: Object.keys(payload),
+      serviceDate: payload.service_date || payload.serviceDate,
+      startTime: payload.start_time || payload.startTime,
+    });
+
     const {
       fullName,
       full_name,
@@ -49,7 +56,6 @@ Deno.serve(async (req) => {
       location_type,
       membershipIntent,
       membership_intent,
-      // Handle both camelCase and snake_case for robustness
       serviceDate,
       service_date,
       startTime,
@@ -72,31 +78,31 @@ Deno.serve(async (req) => {
       helcim_deposit_url,
     } = payload;
 
-    const finalServiceDate = service_date || serviceDate;
-    const finalStartTime = start_time || startTime;
-    const finalEndTime = end_time || endTime;
-    const finalServiceDurationMinutes = service_duration_minutes || serviceDurationMinutes;
-    const finalBufferMinutes = buffer_minutes || bufferMinutes;
-    const finalBlockedUntil = blocked_until || blockedUntil;
-    const finalFullName = full_name || fullName;
-    const finalPackageId = package_id || packageId;
-    const finalVehicleType = vehicle_type || vehicleType;
-    const finalLocationType = location_type || locationType;
+    const finalServiceDate = (service_date || serviceDate)?.toString().trim();
+    const finalStartTime = (start_time || startTime)?.toString().trim();
+    const finalEndTime = (end_time || endTime)?.toString().trim();
+    const finalServiceDurationMinutes = Number(service_duration_minutes || serviceDurationMinutes);
+    const finalBufferMinutes = Number(buffer_minutes || bufferMinutes);
+    const finalBlockedUntil = (blocked_until || blockedUntil)?.toString().trim();
+    const finalFullName = (full_name || fullName)?.toString().trim();
+    const finalPackageId = (package_id || packageId)?.toString().trim();
+    const finalVehicleType = (vehicle_type || vehicleType)?.toString().trim();
+    const finalLocationType = (location_type || locationType)?.toString().trim();
 
     if (!finalFullName || !phone || !email || !finalServiceDate || !finalStartTime) {
-      console.error('Missing required booking fields', {
+      console.error('CRITICAL: Missing required booking fields', {
         finalFullName: !!finalFullName,
         phone: !!phone,
         email: !!email,
         finalServiceDate: !!finalServiceDate,
         finalStartTime: !!finalStartTime,
-        payloadReceived: payload,
+        rawPayload: payload,
       });
-      throw new Error('Missing required booking fields (Name, Phone, Email, Date, or Time).');
+      throw new Error(`Missing required timing fields. Received Date: [${finalServiceDate}], Time: [${finalStartTime}]`);
     }
 
     if (!isBookingPackageId(finalPackageId) || !isVehicleTypeId(finalVehicleType) || !isLocationType(finalLocationType)) {
-      throw new Error('Invalid booking selection.');
+      throw new Error(`Invalid selection: ${finalPackageId}, ${finalVehicleType}, ${finalLocationType}`);
     }
 
     const pricing = calculateBookingFinancials({
@@ -111,18 +117,17 @@ Deno.serve(async (req) => {
     const finalHelcimUrl = helcim_deposit_url || pricing.helcimLink.url;
 
     if (Math.abs(finalTotalToday - pricing.helcimLink.amount) > 0.01) {
-      console.error('Helcim amount mismatch in create-booking', {
+      console.error('Helcim amount mismatch', {
         packageId: finalPackageId,
-        vehicleType: finalVehicleType,
-        locationType: finalLocationType,
-        calculatedTotalToday: pricing.totalToday,
-        receivedTotalToday: finalTotalToday,
-        configuredHelcimAmount: pricing.helcimLink.amount,
+        calculated: pricing.totalToday,
+        received: finalTotalToday,
       });
-      throw new Error('Deposit routing mismatch. Please contact SignalSource directly.');
+      throw new Error('Deposit amount mismatch. Please try refreshing the page.');
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+    console.log('Attempting database insert', { service_date: finalServiceDate, start_time: finalStartTime });
+
     const { data: insertResult, error: insertError } = await supabase
       .from('bookings')
       .insert([

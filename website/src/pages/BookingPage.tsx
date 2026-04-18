@@ -380,12 +380,14 @@ const BookingPage = () => {
           vehicleType: validVehicle,
           locationType: validLocation,
           membershipIntent: formData.membershipIntent,
+          // Explicitly named fields for database compatibility
           service_date: formData.date,
           start_time: formData.startTime,
           end_time: selectedWindow.endTime,
-          blocked_until: selectedWindow.blockedUntil,
           service_duration_minutes: selectedWindow.rule.durationMinutes,
           buffer_minutes: selectedWindow.rule.bufferMinutes,
+          blocked_until: selectedWindow.blockedUntil,
+          // Pricing and metadata
           calculated_price: pricing.subtotal,
           deposit_amount: pricing.depositAmount,
           tax_amount: pricing.taxAmount,

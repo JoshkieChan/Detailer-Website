@@ -20,110 +20,81 @@ export const BeforeAfterSlider = ({ items }: { items: DetailingGalleryItem[] }) 
 
   if (items.length === 0) return null;
 
-  const activeItem = items[activeIndex];
-  const goTo = (nextIndex: number) =>
-    setActiveIndex((nextIndex + items.length) % items.length);
+  const activeSlide = items[activeIndex];
+  const goTo = (index: number) => {
+    setActiveIndex((index + items.length) % items.length);
+    setIsPlaying(false);
+  };
+  const goNext = () => goTo(activeIndex + 1);
+  const goPrev = () => goTo(activeIndex - 1);
 
   return (
-    <div className="mt-6 rounded-2xl border border-border bg-background/80 backdrop-blur-sm shadow-sm p-4 sm:p-5 reveal" data-reveal-delay="1">
-      {/* Slider header */}
-      <div className="flex items-center justify-between gap-3 mb-5">
-        <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-semibold truncate">{activeItem.title}</h3>
-          <p className="text-sm text-muted-foreground truncate">{activeItem.support}</p>
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <button
-            type="button"
-            className="rounded-full border border-border bg-muted/60 px-3 py-1 text-xs sm:text-sm hover:bg-background hover:shadow-sm transition font-medium flex items-center gap-1.5"
-            onClick={() => setIsPlaying((current) => !current)}
-            aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}
-          >
-            {isPlaying ? (
-              <><Pause size={14} /> Pause</>
-            ) : (
-              <><Play size={14} /> Play</>
-            )}
-          </button>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              className="rounded-full border border-border bg-muted/60 p-1.5 hover:bg-background hover:shadow-sm transition"
-              onClick={() => goTo(activeIndex - 1)}
-              aria-label="Previous slide"
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <button
-              type="button"
-              className="rounded-full border border-border bg-muted/60 p-1.5 hover:bg-background hover:shadow-sm transition"
-              onClick={() => goTo(activeIndex + 1)}
-              aria-label="Next slide"
-            >
-              <ChevronRight size={18} />
-            </button>
-          </div>
+    <div className="slideshow-root">
+      {/* Hero Image Area */}
+      <div className="relative group overflow-hidden rounded-2xl shadow-xl bg-muted border border-border aspect-[16/9]">
+        <img
+          src="/images/LinkedIn-Background.jpg"
+          alt={activeSlide.title}
+          className="h-full w-full object-cover transition-opacity duration-700"
+          onError={(e) => {
+            // Fallback if the requested image isn't there yet
+            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1601362840469-51e4d8d59085?auto=format&fit=crop&q=80&w=1200';
+          }}
+        />
+
+        {/* Overlaid Arrows */}
+        <button
+          type="button"
+          onClick={goPrev}
+          className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/30 backdrop-blur-md text-white p-2.5 opacity-0 group-hover:opacity-100 hover:bg-black/50 transition-all duration-300 z-10"
+          aria-label="Previous slide"
+        >
+          <ChevronLeft size={22} />
+        </button>
+        <button
+          type="button"
+          onClick={goNext}
+          className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/30 backdrop-blur-md text-white p-2.5 opacity-0 group-hover:opacity-100 hover:bg-black/50 transition-all duration-300 z-10"
+          aria-label="Next slide"
+        >
+          <ChevronRight size={22} />
+        </button>
+
+        {/* Subtle Slide Info Overlay */}
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-6 pt-12 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+          <p className="text-white/70 text-xs font-bold uppercase tracking-widest mb-1">Recent Work</p>
+          <h3 className="text-white text-xl font-semibold">{activeSlide.title}</h3>
         </div>
       </div>
 
-      {/* Slide content */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-border bg-muted/40 overflow-hidden hover:bg-muted/60 hover:-translate-y-0.5 transition-all duration-300">
-          <div className="aspect-[4/3] w-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800">
-            {activeItem.beforeImage ? (
-              <img src={activeItem.beforeImage} alt={`${activeItem.title} before`} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center p-6 text-center">
-                <p className="text-sm font-medium text-muted-foreground">Before image slot ready</p>
-              </div>
-            )}
-          </div>
-          <div className="px-4 py-2.5 border-t border-border bg-background/40">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80 mb-0.5">
-              Before
-            </div>
-            <p className="text-[13px] text-muted-foreground leading-snug">
-              {activeItem.beforeImage ? 'Condition before detailing service.' : 'Add owner-provided work photos here.'}
-            </p>
-          </div>
+      {/* Navigation Controls (Dots) */}
+      <div className="mt-6 flex flex-col items-center gap-4">
+        <div className="flex items-center gap-3">
+          {items.map((_, index) => (
+            <button
+              key={items[index].id}
+              type="button"
+              onClick={() => goTo(index)}
+              className={`h-2.5 rounded-full transition-all duration-300 ${
+                index === activeIndex ? 'bg-accent-primary w-6' : 'bg-muted-foreground/30 hover:bg-muted-foreground/50 w-2.5'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+              aria-pressed={index === activeIndex}
+            />
+          ))}
         </div>
 
-        <div className="group rounded-xl border border-border bg-muted/40 overflow-hidden hover:bg-muted/60 hover:-translate-y-0.5 transition-all duration-300">
-          <div className="aspect-[4/3] w-full bg-gradient-to-br from-slate-300 to-slate-200 dark:from-slate-800 dark:to-slate-700">
-            {activeItem.afterImage ? (
-              <img src={activeItem.afterImage} alt={`${activeItem.title} after`} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center p-6 text-center">
-                <p className="text-sm font-medium text-muted-foreground">After image slot ready</p>
-              </div>
-            )}
-          </div>
-          <div className="px-4 py-2.5 border-t border-border bg-background/40">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-accent-primary mb-0.5">
-              After
-            </div>
-            <p className="text-[13px] text-muted-foreground leading-snug">
-              {activeItem.afterImage ? 'Final result after detailing service.' : 'Slider is wired and ready for real before/after sets.'}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Slide selector dots */}
-      <div className="mt-6 flex justify-center gap-2" role="tablist" aria-label="Work gallery navigation">
-        {items.map((item, index) => (
-          <button
-            key={item.id}
-            type="button"
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${index === activeIndex ? 'bg-accent-primary w-5' : 'bg-border hover:bg-muted-foreground/50'}`}
-            aria-label={`Show ${item.title}`}
-            aria-pressed={index === activeIndex}
-            onClick={() => {
-              goTo(index);
-              setIsPlaying(false);
-            }}
-          />
-        ))}
+        <button
+          type="button"
+          className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors py-1 flex items-center gap-2"
+          onClick={() => setIsPlaying(!isPlaying)}
+        >
+          {isPlaying ? (
+            <><Pause size={14} /> Pause Slideshow</>
+          ) : (
+            <><Play size={14} /> Resume Slideshow</>
+          )}
+        </button>
       </div>
     </div>
   );

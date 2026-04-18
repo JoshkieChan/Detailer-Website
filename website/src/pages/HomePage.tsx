@@ -299,7 +299,11 @@ const HomePage = () => {
               after images without hard-coding them into the page.
             </p>
           </div>
-          <BeforeAfterSlider items={detailingGalleryItems} />
+          <div className="mt-8 flex justify-center reveal" data-reveal-delay="1">
+            <div className="w-full max-w-3xl">
+              <BeforeAfterSlider items={detailingGalleryItems} />
+            </div>
+          </div>
           <div className="section-panel benefits-panel reveal mt-8" data-reveal-delay="1">
             {systemsBenefits.map((item, index) => (
               <article className="benefit-row reveal-item" key={item.title}>
