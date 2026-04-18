@@ -8,20 +8,18 @@ const HubPage = () => {
   return (
     <div className="page-shell hub-page">
       <PageHeroWithBackground imageSrc="/images/hero-detailing.jpg">
-        <div className="text-center reveal">
-          <span className="eyebrow text-slate-300">SignalSource</span>
-          <h1 className="hero-title text-white">Car detailing for Oak Harbor. Digital guides and playbooks for anywhere.</h1>
-          <PageSubtitle>
-            <span className="text-slate-100">
-              Choose where you want to go next: local car care or downloadable guides.
-            </span>
-          </PageSubtitle>
-          <div className="hero-actions hub-hero-actions">
-            <a href="#hub-paths" className="btn primary btn-lg">
-              Choose Your Path
-              <ChevronDown size={16} className="ml-1" />
-            </a>
-          </div>
+        <span className="eyebrow text-slate-300">SignalSource</span>
+        <h1 className="hero-title text-white mt-2">Car detailing for Oak Harbor. Digital guides and playbooks for anywhere.</h1>
+        <PageSubtitle>
+          <span className="text-slate-100 italic">
+            Choose where you want to go next: local car care or downloadable guides.
+          </span>
+        </PageSubtitle>
+        <div className="hero-actions hub-hero-actions mt-6">
+          <a href="#hub-paths" className="btn primary btn-lg">
+            Choose Your Path
+            <ChevronDown size={16} className="ml-1" />
+          </a>
         </div>
       </PageHeroWithBackground>
 

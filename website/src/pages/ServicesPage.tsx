@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { CalendarCheck, PlusCircle, ShieldCheck, ClipboardList } from 'lucide-react';
+import { PlusCircle, ShieldCheck, ClipboardList } from 'lucide-react';
 import { servicePackages } from '../data/packages';
 import { PageSubtitle } from '../components/PageSubtitle';
 import { PageHeroWithBackground } from '../components/PageHeroWithBackground';
@@ -8,22 +8,20 @@ const ServicesPage = () => {
   return (
     <div className="page-shell services-page">
       <PageHeroWithBackground imageSrc="/images/hero-detailing.jpg">
-        <div className="text-center reveal">
-          <div className="capacity-banner inline-block border-white/20 bg-white/10 text-white">
-            <CalendarCheck size={16} /> Currently accepting 2–3 customers per day, Monday–Saturday.
-          </div>
-          <span className="eyebrow text-slate-300 block mt-4">Detailing / Services</span>
-          <h1 className="hero-title text-white">Two clear detailing tiers for Whidbey Island vehicles.</h1>
-          <PageSubtitle>
-            <span className="text-slate-100">
-              Here&apos;s the full menu of detailing tiers and how the 20% deposit works.
-              Use it to see what fits before you configure your booking.
-            </span>
-          </PageSubtitle>
-          <div className="hero-actions hero-actions-center">
-            <Link to="/booking" className="btn primary btn-lg">Configure Your Detail</Link>
-            <Link to="/detailing" className="btn secondary text-white border-white/30 hover:bg-white/10">See Detailing Overview</Link>
-          </div>
+        <p className="text-xs font-semibold tracking-wide text-primary">
+          Currently accepting 2–3 customers per day, Monday–Saturday.
+        </p>
+        <span className="eyebrow block mt-4 text-slate-300">Detailing / Services</span>
+        <h1 className="hero-title text-white">Two clear detailing tiers for Whidbey Island vehicles.</h1>
+        <PageSubtitle>
+          <span className="text-slate-100 italic">
+            Here&apos;s the full menu of detailing tiers and how the 20% deposit works.
+            Use it to see what fits before you configure your booking.
+          </span>
+        </PageSubtitle>
+        <div className="hero-actions hero-actions-center mt-6">
+          <Link to="/booking" className="btn primary btn-lg">Configure Your Detail</Link>
+          <Link to="/detailing" className="btn secondary text-white border-white/30 hover:bg-white/10 btn-lg">See Detailing Overview</Link>
         </div>
       </PageHeroWithBackground>
 

@@ -8,18 +8,16 @@ const PricingPage = () => {
   return (
     <div className="page-shell pricing-page">
       <PageHeroWithBackground imageSrc="/images/hero-detailing.jpg">
-        <div className="text-center reveal">
-          <span className="eyebrow text-slate-300">Pricing / Memberships</span>
-          <h1 className="hero-title text-white">Clear pricing by vehicle size. 20% deposit.</h1>
-          <PageSubtitle>
-            <span className="text-slate-200">
-              Submit photos with your booking and we&apos;ll confirm your exact price by text/email before your appointment.
-            </span>
-          </PageSubtitle>
-          <div className="hero-actions hero-actions-center">
-            <Link to="/booking" className="btn primary btn-lg">Configure Your Detail</Link>
-            <Link to="/detailing" className="btn secondary text-white border-white/30 hover:bg-white/10">See Detailing Overview</Link>
-          </div>
+        <span className="eyebrow text-slate-300">Pricing / Memberships</span>
+        <h1 className="hero-title text-white mt-2">Clear pricing by vehicle size. 20% deposit.</h1>
+        <PageSubtitle>
+          <span className="text-slate-100">
+            Submit photos with your booking and we&apos;ll confirm your exact price by text/email before your appointment.
+          </span>
+        </PageSubtitle>
+        <div className="hero-actions hero-actions-center mt-6">
+          <Link to="/booking" className="btn primary btn-lg">Configure Your Detail</Link>
+          <Link to="/detailing" className="btn secondary text-white border-white/30 hover:bg-white/10 btn-lg">See Detailing Overview</Link>
         </div>
       </PageHeroWithBackground>
 

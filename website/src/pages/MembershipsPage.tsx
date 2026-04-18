@@ -8,16 +8,14 @@ const MembershipsPage = () => {
   return (
     <div className="page-shell memberships-page">
       <PageHeroWithBackground imageSrc="/images/hero-detailing.jpg">
-        <div className="text-center reveal">
-          <span className="eyebrow text-slate-300">Maintenance Plans</span>
-          <h1 className="hero-title text-white">Keep the vehicle from sliding backward.</h1>
-          <PageSubtitle>
-            <span className="text-slate-100">
-              For customers who already have a clean baseline and want predictable upkeep without
-              re-deciding every month.
-            </span>
-          </PageSubtitle>
-        </div>
+        <span className="eyebrow text-slate-300">Maintenance Plans</span>
+        <h1 className="hero-title text-white mt-2">Keep the vehicle from sliding backward.</h1>
+        <PageSubtitle>
+          <span className="text-slate-100">
+            For customers who already have a clean baseline and want predictable upkeep without
+            re-deciding every month.
+          </span>
+        </PageSubtitle>
       </PageHeroWithBackground>
 
       <section className="content-card reveal baseline-callout">
