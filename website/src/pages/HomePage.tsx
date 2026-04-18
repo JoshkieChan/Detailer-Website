@@ -29,12 +29,12 @@ const recentWorkImages = [
     label: "Interior carpet and floor reset",
   },
   {
-    src: "/images/recent-work/04.jpg",
+    src: "/images/recent-work/04.png",
     alt: "Subaru wheel detailing",
     label: "Subaru wheel detailing",
   },
   {
-    src: "/images/recent-work/05.jpg",
+    src: "/images/recent-work/05.png",
     alt: "Exterior foam wash - Subaru Outback",
     label: "Exterior foam wash - Subaru Outback",
   },
