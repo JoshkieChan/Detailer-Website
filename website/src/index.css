@@ -2304,3 +2304,106 @@ select.input-error {
   animation: reveal var(--transition-base) forwards;
   opacity: 0;
 }
+
+/* 
+ * Premium Booking UI Refresh
+ * Overriding or adding styles for Step 1 & 2
+ */
+
+.package-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.package-choice-card {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  padding: 1.25rem;
+  background: var(--color-background-soft);
+  border: 1px solid var(--color-border-default);
+  border-radius: 1rem;
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+.package-choice-card:hover {
+  background: var(--color-background-surface);
+  border-color: var(--color-accent-primary);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+}
+
+.package-choice-card.selected {
+  background: var(--color-background-surface);
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 0 0 1px var(--color-accent-primary);
+}
+
+.package-choice-card strong {
+  font-size: 1.15rem;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.package-choice-card .duration-label {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+.package-choice-card p {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .slot-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.slot-choice {
+  padding: 0.6rem 0.75rem;
+  font-size: 0.875rem;
+  background: var(--color-background-soft);
+  border: 1px solid var(--color-border-default);
+  border-radius: 0.75rem;
+  color: var(--color-text-primary);
+  text-align: center;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.slot-choice:hover:not(:disabled) {
+  background: var(--color-background-surface);
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.02);
+}
+
+.slot-choice.selected {
+  background: var(--color-background-surface);
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 0 0 1px var(--color-accent-primary);
+  font-weight: 700;
+}
+
+.slot-choice:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: var(--color-background-soft);
+  border-color: var(--color-border-default);
+}
+

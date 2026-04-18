@@ -11,7 +11,7 @@ import {
   X,
 } from 'lucide-react';
 import { BookingCalendar } from '../components/BookingCalendar';
-import { PageSubtitle } from '../components/PageSubtitle';
+import { PageHero } from '../components/PageHero';
 import { fetchAvailability } from '../api/availability';
 import {
   maintenancePlans,
@@ -380,12 +380,12 @@ const BookingPage = () => {
           vehicleType: validVehicle,
           locationType: validLocation,
           membershipIntent: formData.membershipIntent,
-          serviceDate: formData.date,
-          startTime: formData.startTime,
-          endTime: selectedWindow.endTime,
+          service_date: formData.date,
+          start_time: formData.startTime,
+          end_time: selectedWindow.endTime,
           blockedUntil: selectedWindow.blockedUntil,
-          serviceDurationMinutes: selectedWindow.rule.durationMinutes,
-          bufferMinutes: selectedWindow.rule.bufferMinutes,
+          service_duration_minutes: selectedWindow.rule.durationMinutes,
+          buffer_minutes: selectedWindow.rule.bufferMinutes,
           calculatedPrice: pricing.subtotal,
           depositAmount: pricing.depositAmount,
           taxAmount: pricing.taxAmount,
@@ -419,21 +419,20 @@ const BookingPage = () => {
 
   return (
     <div className="page-shell booking-page">
-      <section className="page-hero text-center reveal compact-hero centered-hero-copy">
-        <div className="capacity-banner inline-block">
+      <PageHero
+        eyebrow="Configure Your Detail"
+        title="Build the appointment in four short steps."
+        subtitle="Your 20% deposit secures the appointment and goes toward the final total. If scope or vehicle condition changes significantly, we confirm the updated price before work begins."
+      >
+        <div className="capacity-banner inline-block mb-05">
           <CalendarCheck size={16} /> Currently accepting 2–3 customers per day, Monday–Saturday.
         </div>
-        <span className="eyebrow">Configure Your Detail</span>
-        <h1 className="hero-title">Build the appointment in four short steps.</h1>
-        <PageSubtitle>
-          Your 20% deposit secures the appointment and goes toward the final total. If scope or vehicle condition changes significantly, we confirm the updated price before work begins.
-        </PageSubtitle>
         {nextAvailableOpening ? (
-          <p className="section-note next-opening-pill">
+          <p className="section-note next-opening-pill mt-2">
             Next available opening: {nextAvailableOpening.date} at {nextAvailableOpening.startTime}
           </p>
         ) : null}
-      </section>
+      </PageHero>
 
       {availabilityError ? <div className="content-card reveal is-visible">{availabilityError}</div> : null}
       {systemError ? (
@@ -463,8 +462,12 @@ const BookingPage = () => {
                     }))
                   }
                 >
-                  <strong>{bookingPackages[packageId].label}</strong>
-                  <span>{SERVICE_TIMING_RULES[packageId as SlotBookingPackageId].approxLabel}</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <strong>{bookingPackages[packageId].label}</strong>
+                  </div>
+                  <span className="duration-label">
+                    {SERVICE_TIMING_RULES[packageId as SlotBookingPackageId].approxLabel}
+                  </span>
                   <p>{bookingPackages[packageId].bestFor}</p>
                 </button>
               ))}

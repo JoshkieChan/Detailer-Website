@@ -44,17 +44,39 @@ Deno.serve(async (req) => {
       vehicleType,
       locationType,
       membershipIntent,
+      // Handle both camelCase and snake_case for robustness
       serviceDate,
+      service_date,
       startTime,
+      start_time,
       endTime,
+      end_time,
       blockedUntil,
+      blocked_until,
       serviceDurationMinutes,
+      service_duration_minutes,
       bufferMinutes,
+      buffer_minutes,
       totalAmountCents,
     } = payload;
 
-    if (!fullName || !phone || !email || !serviceDate || !startTime) {
-      throw new Error('Missing required booking fields.');
+    const finalServiceDate = service_date || serviceDate;
+    const finalStartTime = start_time || startTime;
+    const finalEndTime = end_time || endTime;
+    const finalServiceDurationMinutes = service_duration_minutes || serviceDurationMinutes;
+    const finalBufferMinutes = buffer_minutes || bufferMinutes;
+    const finalBlockedUntil = blocked_until || blockedUntil;
+
+    if (!fullName || !phone || !email || !finalServiceDate || !finalStartTime) {
+      console.error('Missing required booking fields', {
+        fullName: !!fullName,
+        phone: !!phone,
+        email: !!email,
+        finalServiceDate: !!finalServiceDate,
+        finalStartTime: !!finalStartTime,
+        payloadReceived: payload,
+      });
+      throw new Error('Missing required booking fields (Name, Phone, Email, Date, or Time).');
     }
 
     if (!isBookingPackageId(packageId) || !isVehicleTypeId(vehicleType) || !isLocationType(locationType)) {
@@ -92,13 +114,13 @@ Deno.serve(async (req) => {
           package_id: packageId,
           vehicle_info: vehicleTypeLabels[vehicleType],
           vehicle_type: vehicleTypeLabels[vehicleType],
-          service_date: serviceDate,
-          start_time: startTime,
-          end_time: endTime,
-          service_time: startTime,
-          blocked_until: blockedUntil,
-          service_duration_minutes: serviceDurationMinutes,
-          buffer_minutes: bufferMinutes,
+          service_date: finalServiceDate,
+          start_time: finalStartTime,
+          end_time: finalEndTime,
+          service_time: finalStartTime,
+          blocked_until: finalBlockedUntil,
+          service_duration_minutes: finalServiceDurationMinutes,
+          buffer_minutes: finalBufferMinutes,
           location_type: locationTypeLabels[locationType],
           mobile_fee_applied: locationType === 'mobile',
           membership_intent:
@@ -120,6 +142,7 @@ Deno.serve(async (req) => {
       ])
       .select('id, helcim_deposit_url')
       .single();
+
 
     if (error) {
       console.error('create-booking insert failed', error);
