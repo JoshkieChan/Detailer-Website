@@ -135,7 +135,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <div className="container footer-bar-container">
           <div className="footer-left">
             <h2 className="brand-text footer-brand-heading">SIGNALSOURCE</h2>
-            <p className="positioning-statement">Systems-driven car care based in Oak Harbor, WA.</p>
+            
             <p className="serving-text mt-1">Serving Oak Harbor, NAS Whidbey & surrounding areas.</p>
             <p className="footer-hours">By appointment only • Monday–Saturday</p>
             <p className="footer-legal">Fully Licensed & Insured • Whidbey Island, WA</p>
@@ -145,7 +145,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <span className="separator">•</span>
               <Link to="/terms">Terms of Service</Link>
             </div>
-            <p className="coming-soon mt-1">Coming Soon: Window Tint, Ceramic Coatings, PPF & Wraps</p>
+            
           </div>
           <div className="footer-right">
             <a href="tel:9049937503" className="contact-pill">

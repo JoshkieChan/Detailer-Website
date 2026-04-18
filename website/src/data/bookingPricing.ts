@@ -3,7 +3,7 @@ import {
   type Location,
   type Service,
   type VehicleSize,
-} from '../config/helcimLinks';
+} from '../config/helcimLinks.ts';
 
 export type BookingPackageId = 'maintenance' | 'deepReset';
 export type VehicleTypeId = 'sedan' | 'smallSuv' | 'largeSuvTruck';

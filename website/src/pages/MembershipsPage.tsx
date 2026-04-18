@@ -35,7 +35,14 @@ const MembershipsPage = () => {
           >
             <div className="membership-head">
               <div className="tier-title-row">
-                <h2>{plan.id === 'quarterly' ? 'Quarterly Plan' : 'Monthly Plan'}</h2>
+                <div className="flex items-center gap-2">
+                  <h2>{plan.id === 'quarterly' ? 'Quarterly Plan' : 'Monthly Plan'}</h2>
+                  {plan.id === 'monthly' && (
+                    <span className="bg-primary/10 text-primary text-[10px] sm:text-xs font-medium rounded-full px-2 py-0.5 whitespace-nowrap">
+                      Monthly
+                    </span>
+                  )}
+                </div>
                 {plan.popular && <div className="badge-popular tier-badge">Most picked</div>}
               </div>
               <p className="membership-best-for">{plan.bestFor}</p>
