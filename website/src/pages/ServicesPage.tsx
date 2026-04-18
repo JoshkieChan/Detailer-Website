@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { CalendarCheck, PlusCircle, ShieldCheck, ClipboardList } from 'lucide-react';
 import { servicePackages } from '../data/packages';
+import { PageSubtitle } from '../components/PageSubtitle';
 
 const ServicesPage = () => {
   return (
@@ -11,10 +12,10 @@ const ServicesPage = () => {
         </div>
         <span className="eyebrow">Detailing / Services</span>
         <h1 className="hero-title">Two clear detailing tiers for Whidbey Island vehicles.</h1>
-        <p className="hero-subtitle">
+        <PageSubtitle>
           Here&apos;s the full menu of detailing tiers and how the 20% deposit works.
           Use it to see what fits before you configure your booking.
-        </p>
+        </PageSubtitle>
         <div className="hero-actions hero-actions-center">
           <Link to="/booking" className="btn primary btn-lg">Configure Your Detail</Link>
           <Link to="/detailing" className="btn secondary">See Detailing Overview</Link>

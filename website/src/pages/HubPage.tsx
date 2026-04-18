@@ -1,6 +1,7 @@
 import { ArrowRight, MapPin, Search, Cpu, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LeadMagnet } from '../components/LeadMagnet';
+import { PageSubtitle } from '../components/PageSubtitle';
 
 const HubPage = () => {
   return (
@@ -8,9 +9,9 @@ const HubPage = () => {
       <section className="hub-hero reveal centered-hero-copy">
         <span className="eyebrow">SignalSource</span>
         <h1 className="hero-title">Car detailing for Oak Harbor. Digital guides and playbooks for anywhere.</h1>
-        <p className="hero-subtitle">
+        <PageSubtitle>
           Choose where you want to go next: local car care or downloadable guides.
-        </p>
+        </PageSubtitle>
         <div className="hero-actions hub-hero-actions">
           <a href="#hub-paths" className="btn primary btn-lg">
             Choose Your Path

@@ -11,6 +11,7 @@ import {
   X,
 } from 'lucide-react';
 import { BookingCalendar } from '../components/BookingCalendar';
+import { PageSubtitle } from '../components/PageSubtitle';
 import { fetchAvailability } from '../api/availability';
 import {
   maintenancePlans,
@@ -424,9 +425,9 @@ const BookingPage = () => {
         </div>
         <span className="eyebrow">Configure Your Detail</span>
         <h1 className="hero-title">Build the appointment in four short steps.</h1>
-        <p className="hero-subtitle">
+        <PageSubtitle>
           Your 20% deposit secures the appointment and goes toward the final total. If scope or vehicle condition changes significantly, we confirm the updated price before work begins.
-        </p>
+        </PageSubtitle>
         {nextAvailableOpening ? (
           <p className="section-note next-opening-pill">
             Next available opening: {nextAvailableOpening.date} at {nextAvailableOpening.startTime}

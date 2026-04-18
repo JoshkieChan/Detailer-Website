@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { servicePackages } from '../data/packages';
 import { ShieldCheck, PlusCircle, MapPinned } from 'lucide-react';
+import { PageSubtitle } from '../components/PageSubtitle';
 
 const PricingPage = () => {
   return (
@@ -8,9 +9,9 @@ const PricingPage = () => {
       <section className="page-hero text-center reveal compact-hero centered-hero-copy">
         <span className="eyebrow">Pricing / Memberships</span>
         <h1 className="hero-title">Clear pricing by vehicle size. 20% deposit.</h1>
-        <p className="hero-subtitle">
+        <PageSubtitle>
           Submit photos with your booking and we&apos;ll confirm your exact price by text/email before your appointment.
-        </p>
+        </PageSubtitle>
         <div className="hero-actions hero-actions-center">
           <Link to="/booking" className="btn primary btn-lg">Configure Your Detail</Link>
           <Link to="/detailing" className="btn secondary">See Detailing Overview</Link>

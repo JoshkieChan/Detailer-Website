@@ -447,6 +447,16 @@ button {
   text-align: center;
 }
 
+.max-w-2xl {
+  max-width: 672px;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
 .mt-1 {
   margin-top: 1rem;
 }

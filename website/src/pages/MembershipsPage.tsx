@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { CheckCircle, CalendarClock, ClipboardList } from 'lucide-react';
 import { maintenancePlans } from '../data/maintenancePlans';
+import { PageSubtitle } from '../components/PageSubtitle';
 
 const MembershipsPage = () => {
   return (
@@ -8,10 +9,10 @@ const MembershipsPage = () => {
       <section className="page-hero text-center reveal compact-hero centered-hero-copy">
         <span className="eyebrow">Maintenance Plans</span>
         <h1 className="hero-title">Keep the vehicle from sliding backward.</h1>
-        <p className="hero-subtitle">
+        <PageSubtitle>
           For customers who already have a clean baseline and want predictable upkeep without
           re-deciding every month.
-        </p>
+        </PageSubtitle>
       </section>
 
       <section className="content-card reveal baseline-callout">

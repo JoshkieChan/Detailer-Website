@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, CalendarCheck } from 'lucide-react';
+import { PageSubtitle } from '../components/PageSubtitle';
 
 interface FAQItem {
   question: string;
@@ -170,10 +171,10 @@ const FAQPage = () => {
         </div>
         <span className="eyebrow">FAQ</span>
         <h1 className="hero-title">Questions before you book? Start here.</h1>
-        <p className="hero-subtitle">
+        <PageSubtitle>
           Everything most Oak Harbor and NAS Whidbey customers ask before scheduling,
           dropping off, or choosing mobile service.
-        </p>
+        </PageSubtitle>
       </section>
 
       <div className="faq-group-list">
