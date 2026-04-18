@@ -2,23 +2,28 @@ import { ArrowRight, MapPin, Search, Cpu, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LeadMagnet } from '../components/LeadMagnet';
 import { PageSubtitle } from '../components/PageSubtitle';
+import { PageHeroWithBackground } from '../components/PageHeroWithBackground';
 
 const HubPage = () => {
   return (
     <div className="page-shell hub-page">
-      <section className="hub-hero reveal centered-hero-copy">
-        <span className="eyebrow">SignalSource</span>
-        <h1 className="hero-title">Car detailing for Oak Harbor. Digital guides and playbooks for anywhere.</h1>
-        <PageSubtitle>
-          Choose where you want to go next: local car care or downloadable guides.
-        </PageSubtitle>
-        <div className="hero-actions hub-hero-actions">
-          <a href="#hub-paths" className="btn primary btn-lg">
-            Choose Your Path
-            <ChevronDown size={16} />
-          </a>
+      <PageHeroWithBackground imageSrc="/images/hero-detailing.jpg">
+        <div className="text-center reveal">
+          <span className="eyebrow text-slate-300">SignalSource</span>
+          <h1 className="hero-title text-white">Car detailing for Oak Harbor. Digital guides and playbooks for anywhere.</h1>
+          <PageSubtitle>
+            <span className="text-slate-100">
+              Choose where you want to go next: local car care or downloadable guides.
+            </span>
+          </PageSubtitle>
+          <div className="hero-actions hub-hero-actions">
+            <a href="#hub-paths" className="btn primary btn-lg">
+              Choose Your Path
+              <ChevronDown size={16} className="ml-1" />
+            </a>
+          </div>
         </div>
-      </section>
+      </PageHeroWithBackground>
 
       <section className="hub-lead-magnet container">
         <LeadMagnet />

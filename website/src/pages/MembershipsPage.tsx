@@ -2,18 +2,23 @@ import { Link } from 'react-router-dom';
 import { CheckCircle, CalendarClock, ClipboardList } from 'lucide-react';
 import { maintenancePlans } from '../data/maintenancePlans';
 import { PageSubtitle } from '../components/PageSubtitle';
+import { PageHeroWithBackground } from '../components/PageHeroWithBackground';
 
 const MembershipsPage = () => {
   return (
     <div className="page-shell memberships-page">
-      <section className="page-hero text-center reveal compact-hero centered-hero-copy">
-        <span className="eyebrow">Maintenance Plans</span>
-        <h1 className="hero-title">Keep the vehicle from sliding backward.</h1>
-        <PageSubtitle>
-          For customers who already have a clean baseline and want predictable upkeep without
-          re-deciding every month.
-        </PageSubtitle>
-      </section>
+      <PageHeroWithBackground imageSrc="/images/hero-detailing.jpg">
+        <div className="text-center reveal">
+          <span className="eyebrow text-slate-300">Maintenance Plans</span>
+          <h1 className="hero-title text-white">Keep the vehicle from sliding backward.</h1>
+          <PageSubtitle>
+            <span className="text-slate-100">
+              For customers who already have a clean baseline and want predictable upkeep without
+              re-deciding every month.
+            </span>
+          </PageSubtitle>
+        </div>
+      </PageHeroWithBackground>
 
       <section className="content-card reveal baseline-callout">
         <div className="support-pill"><CalendarClock size={16} /> Baseline required</div>

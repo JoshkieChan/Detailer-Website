@@ -11,9 +11,7 @@ import {
 import { servicePackages } from '../data/packages';
 import { trackEvent } from '../lib/analytics';
 import { fetchAvailability } from '../api/availability';
-
-
-
+import { PageHeroWithBackground } from '../components/PageHeroWithBackground';
 
 const HomePage = () => {
   const trackedDepths = useRef(new Set<number>());
@@ -58,15 +56,15 @@ const HomePage = () => {
 
   return (
     <div className="page-shell detailing-home">
-      <section className="hero-grid">
-        <div className="hero-copy reveal">
-          <div className="capacity-banner">
+      <PageHeroWithBackground imageSrc="/images/hero-detailing.jpg">
+        <div className="reveal">
+          <div className="capacity-banner border-white/20 bg-white/10 text-white">
             <CalendarCheck size={16} /> Currently accepting 2–3 customers per day, Monday–Saturday.
           </div>
-          <h1 className="hero-title">
+          <h1 className="hero-title text-white mt-4">
             Whidbey Island detailing for drivers who want it done right the first time.
           </h1>
-          <p className="hero-subtitle">
+          <p className="hero-subtitle text-slate-100">
             SignalSource is a systems-driven local shop in Oak Harbor. We clean, protect, and
             maintain daily drivers without wasting your day or leaving you guessing on price.
           </p>
@@ -82,21 +80,20 @@ const HomePage = () => {
             >
               Configure Your Detail
             </Link>
-            <Link to="/pricing" className="btn secondary btn-lg">
+            <Link to="/pricing" className="btn secondary text-white border-white/30 hover:bg-white/10 btn-lg">
               See Pricing
             </Link>
           </div>
-          <p className="policy-note">
+          <p className="policy-note text-slate-300">
             A 20% deposit secures the appointment and goes toward the final total.
           </p>
           {nextAvailableOpening ? (
-            <p className="section-note next-opening-pill">
+            <p className="section-note next-opening-pill bg-white/10 border-white/20 text-white mt-4 inline-block">
               Next available opening: {nextAvailableOpening.date} at {nextAvailableOpening.startTime} for {nextAvailableOpening.serviceLabel}
             </p>
           ) : null}
         </div>
-        <div className="hero-visual reveal" data-reveal-delay="1" aria-hidden="true" />
-      </section>
+      </PageHeroWithBackground>
 
       <section className="review-strip reveal">
         <div className="quote-shell">

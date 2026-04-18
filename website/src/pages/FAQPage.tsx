@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, CalendarCheck } from 'lucide-react';
 import { PageSubtitle } from '../components/PageSubtitle';
+import { PageHeroWithBackground } from '../components/PageHeroWithBackground';
 
 interface FAQItem {
   question: string;
@@ -175,17 +176,21 @@ const FAQPage = () => {
 
   return (
     <div className="page-shell faq-page">
-      <section className="page-hero text-center reveal centered-hero-copy">
-        <div className="capacity-banner inline-block">
-          <CalendarCheck size={16} /> Currently accepting 2–3 customers per day, Monday–Saturday.
+      <PageHeroWithBackground imageSrc="/images/hero-detailing.jpg">
+        <div className="text-center reveal">
+          <div className="capacity-banner inline-block border-white/20 bg-white/10 text-white">
+            <CalendarCheck size={16} /> Currently accepting 2–3 customers per day, Monday–Saturday.
+          </div>
+          <span className="eyebrow block mt-4 text-slate-300">FAQ</span>
+          <h1 className="hero-title text-white">Questions before you book? Start here.</h1>
+          <PageSubtitle>
+            <span className="text-slate-100">
+              Everything most Oak Harbor and NAS Whidbey customers ask before scheduling,
+              dropping off, or choosing mobile service.
+            </span>
+          </PageSubtitle>
         </div>
-        <span className="eyebrow">FAQ</span>
-        <h1 className="hero-title">Questions before you book? Start here.</h1>
-        <PageSubtitle>
-          Everything most Oak Harbor and NAS Whidbey customers ask before scheduling,
-          dropping off, or choosing mobile service.
-        </PageSubtitle>
-      </section>
+      </PageHeroWithBackground>
 
       <div className="faq-group-list">
         {faqGroups.map((group, groupIndex) => (
