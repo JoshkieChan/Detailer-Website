@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   Star,
   ShieldCheck,
+  CalendarCheck,
   Gauge,
   MapPinned,
   CheckCircle2,
@@ -10,35 +11,8 @@ import {
 import { servicePackages } from '../data/packages';
 import { trackEvent } from '../lib/analytics';
 import { fetchAvailability } from '../api/availability';
-import { PageHeroWithBackground } from '../components/PageHeroWithBackground';
 
-const recentWorkImages = [
-  {
-    src: "/images/recent-work/01.jpg",
-    alt: "Interior reset – family SUV front seats",
-    label: "Interior reset – family SUV",
-  },
-  {
-    src: "/images/recent-work/02.jpg",
-    alt: "Wheel and tire deep clean",
-    label: "Wheel and tire deep clean",
-  },
-  {
-    src: "/images/recent-work/03.jpg",
-    alt: "Interior carpet and floor reset",
-    label: "Interior carpet and floor reset",
-  },
-  {
-    src: "/images/recent-work/04.png",
-    alt: "Subaru wheel detailing",
-    label: "Subaru wheel detailing",
-  },
-  {
-    src: "/images/recent-work/05.png",
-    alt: "Exterior foam wash - Subaru Outback",
-    label: "Exterior foam wash - Subaru Outback",
-  },
-];
+
 
 const HomePage = () => {
   const trackedDepths = useRef(new Set<number>());
@@ -83,41 +57,47 @@ const HomePage = () => {
 
   return (
     <div className="page-shell detailing-home">
-      <PageHeroWithBackground imageSrc="/images/hero-detailing.jpg">
-        <p className="text-xs font-semibold tracking-wide text-primary">
-          Currently accepting 2–3 customers per day, Monday–Saturday.
-        </p>
-        <h1 className="mt-2 text-3xl sm:text-4xl font-semibold tracking-tight text-white">
-          Whidbey Island detailing for drivers who want it done right the first time.
-        </h1>
-        <p className="mt-3 max-w-2xl mx-auto text-sm sm:text-base text-slate-100">
-          SignalSource is a systems-driven local shop in Oak Harbor. We clean, protect, and maintain daily drivers without wasting your day or leaving you guessing on price.
-        </p>
-        <div className="hero-actions hero-actions-center mt-6">
-          <Link
-            to="/booking"
-            className="btn primary btn-lg"
-            onClick={() =>
-              trackEvent('Detailing Lead - Booking Page', {
-                cta: 'hero_book_a_detail',
-              })
-            }
-          >
-            Configure Your Detail
-          </Link>
-          <Link to="/pricing" className="btn secondary text-white border-white/30 hover:bg-white/10 btn-lg">
-            See Pricing
-          </Link>
+      <header className="page-hero reveal">
+        <div className="hero-grid">
+          <div className="hero-copy">
+            <div className="capacity-banner">
+              <CalendarCheck size={16} /> Currently accepting 2–3 customers per day, Monday–Saturday.
+            </div>
+            <h1 className="hero-title">
+              Whidbey Island detailing for drivers who want it done right the first time.
+            </h1>
+            <p className="hero-subtitle">
+              SignalSource is a systems-driven local shop in Oak Harbor. We clean, protect, and
+              maintain daily drivers without wasting your day or leaving you guessing on price.
+            </p>
+            <div className="hero-actions">
+              <Link
+                to="/booking"
+                className="btn primary btn-lg"
+                onClick={() =>
+                  trackEvent('Detailing Lead - Booking Page', {
+                    cta: 'hero_book_a_detail',
+                  })
+                }
+              >
+                Configure Your Detail
+              </Link>
+              <Link to="/pricing" className="btn secondary">
+                See Pricing
+              </Link>
+            </div>
+            <p className="policy-note">
+              A 20% deposit secures the appointment and goes toward the final total.
+            </p>
+            {nextAvailableOpening ? (
+              <p className="section-note next-opening-pill mt-1">
+                Next available opening: {nextAvailableOpening.date} at {nextAvailableOpening.startTime} for {nextAvailableOpening.serviceLabel}
+              </p>
+            ) : null}
+          </div>
+          <div className="hero-visual"></div>
         </div>
-        <p className="policy-note text-slate-300 mt-4">
-          A 20% deposit secures the appointment and goes toward the final total.
-        </p>
-        {nextAvailableOpening ? (
-          <p className="section-note next-opening-pill bg-white/10 border-white/20 text-white mt-4 inline-block">
-            Next available opening: {nextAvailableOpening.date} at {nextAvailableOpening.startTime} for {nextAvailableOpening.serviceLabel}
-          </p>
-        ) : null}
-      </PageHeroWithBackground>
+      </header>
 
       <section className="review-strip reveal">
         <div className="quote-shell">
@@ -198,40 +178,7 @@ const HomePage = () => {
           ))}
         </div>
 
-        <section className="py-12 sm:py-16 reveal border-t border-border mt-12">
-          <div className="max-w-5xl mx-auto px-4">
-            <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-              RECENT WORK
-            </h2>
-            <p className="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight">
-              A few real vehicles we&apos;ve cleaned and reset.
-            </p>
-            <p className="mt-3 text-sm sm:text-base text-muted-foreground">
-              These are actual angles from Whidbey Island drivers. Use them to get a feel
-              for the level of work before you book.
-            </p>
 
-            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {recentWorkImages.map((item) => (
-                <figure
-                  key={item.src}
-                  className="overflow-hidden rounded-xl border border-border bg-muted/40 transition-all hover:shadow-lg"
-                >
-                  <div className="overflow-hidden h-48 sm:h-56">
-                    <img
-                      src={item.src}
-                      alt={item.alt}
-                      className="h-full w-full object-cover transition duration-500 hover:scale-110"
-                    />
-                  </div>
-                  <figcaption className="px-3 py-3 text-xs sm:text-sm text-muted-foreground font-medium border-t border-border bg-white">
-                    {item.label}
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
-          </div>
-        </section>
         
         <div className="section-panel reveal mt-1 text-center" style={{ maxWidth: '800px', margin: '0 auto 1rem' }}>
           <h3 className="section-title" style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Products we use (without the chemistry lesson)</h3>

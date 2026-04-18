@@ -2,24 +2,23 @@ import { Link } from 'react-router-dom';
 import { servicePackages } from '../data/packages';
 import { ShieldCheck, PlusCircle, MapPinned } from 'lucide-react';
 import { PageSubtitle } from '../components/PageSubtitle';
-import { PageHeroWithBackground } from '../components/PageHeroWithBackground';
 
 const PricingPage = () => {
   return (
     <div className="page-shell pricing-page">
-      <PageHeroWithBackground imageSrc="/images/hero-detailing.jpg">
-        <span className="eyebrow text-slate-300">Pricing / Memberships</span>
-        <h1 className="hero-title text-white mt-2">Clear pricing by vehicle size. 20% deposit.</h1>
-        <PageSubtitle>
-          <span className="text-slate-100">
+      <header className="page-hero reveal">
+        <div className="text-center">
+          <span className="eyebrow">Pricing / Memberships</span>
+          <h1 className="hero-title">Clear pricing by vehicle size. 20% deposit.</h1>
+          <PageSubtitle>
             Submit photos with your booking and we&apos;ll confirm your exact price by text/email before your appointment.
-          </span>
-        </PageSubtitle>
-        <div className="hero-actions hero-actions-center mt-6">
-          <Link to="/booking" className="btn primary btn-lg">Configure Your Detail</Link>
-          <Link to="/detailing" className="btn secondary text-white border-white/30 hover:bg-white/10 btn-lg">See Detailing Overview</Link>
+          </PageSubtitle>
+          <div className="hero-actions hero-actions-center">
+            <Link to="/booking" className="btn primary btn-lg">Configure Your Detail</Link>
+            <Link to="/detailing" className="btn secondary">See Detailing Overview</Link>
+          </div>
         </div>
-      </PageHeroWithBackground>
+      </header>
 
       <section className="section-stack">
         <div className="section-header reveal">
