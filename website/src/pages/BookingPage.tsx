@@ -393,6 +393,8 @@ const BookingPage = () => {
           remaining_balance: pricing.remainingBalance,
           total_amount_cents: Math.round(pricing.totalToday * 100),
           helcim_deposit_url: pricing.helcimLink.url,
+          booking_source: 'web',
+          payment_status: 'pending_payment',
         }),
       });
 

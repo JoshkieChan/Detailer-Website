@@ -2383,6 +2383,7 @@ select.input-error {
   font-size: 1.15rem;
   margin-bottom: 0.25rem;
   display: block;
+  color: var(--color-text-primary);
 }
 
 .package-choice-card .duration-label {

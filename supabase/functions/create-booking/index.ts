@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
-    const { data, error } = await supabase
+    const { data: insertResult, error: insertError } = await supabase
       .from('bookings')
       .insert([
         {
@@ -146,7 +146,10 @@ Deno.serve(async (req) => {
           location_type: locationTypeLabels[finalLocationType],
           mobile_fee_applied: finalLocationType === 'mobile',
           membership_intent:
-            membership_intent === 'quarterly' || membership_intent === 'monthly' || membershipIntent === 'quarterly' || membershipIntent === 'monthly'
+            membership_intent === 'quarterly' ||
+            membership_intent === 'monthly' ||
+            membershipIntent === 'quarterly' ||
+            membershipIntent === 'monthly'
               ? (membership_intent || membershipIntent)
               : 'none',
           calculated_price: calculated_price ?? pricing.subtotal,
@@ -156,24 +159,33 @@ Deno.serve(async (req) => {
           total_today: finalTotalToday,
           remaining_balance: remaining_balance ?? pricing.remainingBalance,
           helcim_deposit_url: finalHelcimUrl,
-          booking_source: 'web',
-          payment_status: 'pending_payment',
-          total_amount_cents: total_amount_cents || totalAmountCents || Math.round(finalTotalToday * 100),
+          booking_source: payload.booking_source || 'web',
+          payment_status: payload.payment_status || 'pending_payment',
+          total_amount_cents:
+            total_amount_cents || totalAmountCents || Math.round(finalTotalToday * 100),
           status: 'pending',
         },
       ])
       .select('id, helcim_deposit_url')
       .single();
 
-    if (error) {
-      console.error('create-booking insert failed', error);
-      throw new Error(error.message);
+    if (insertError) {
+      console.error('create-booking insert failed', {
+        error: insertError,
+        insertedRow: {
+          full_name: finalFullName,
+          service_date: finalServiceDate,
+          start_time: finalStartTime,
+          package_id: finalPackageId,
+        },
+      });
+      throw new Error(`Database Error: ${insertError.message}`);
     }
 
     return new Response(
       JSON.stringify({
-        bookingId: data.id,
-        helcimDepositUrl: data.helcim_deposit_url,
+        bookingId: insertResult.id,
+        helcimDepositUrl: insertResult.helcim_deposit_url,
         totalToday: finalTotalToday,
       }),
       {
