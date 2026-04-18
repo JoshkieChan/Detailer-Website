@@ -77,6 +77,29 @@ const ServicesPage = () => {
 
       <section className="section-stack">
         <div className="section-header reveal">
+          <span className="eyebrow">Quality over Speed</span>
+          <h2 className="section-title">Why we&apos;re not the cheapest option.</h2>
+          <p className="section-copy">
+            Most &ldquo;full details&rdquo; are built around speed: as many cars as possible in a day,
+            basic chemicals, and light interior work. SignalSource is set up differently. We
+            book a limited number of vehicles per day, use interior steam where it matters,
+            and follow a repeatable system so your car is easier to keep clean after we&apos;re done.
+          </p>
+          <p className="section-copy">
+            We won&apos;t be the cheapest detailer in Oak Harbor, and we&apos;re okay with that.
+            We&apos;re aiming for more thorough work and fewer surprises &mdash; especially
+            for busy families and commuters who&apos;d rather get it done right the first time.
+          </p>
+          <p className="section-copy">
+            For most mobile appointments, we use your on-site water spigot and a standard
+            electrical outlet. Usage is minimal, and we&apos;ll confirm those details when
+            we book your slot.
+          </p>
+        </div>
+      </section>
+
+      <section className="section-stack">
+        <div className="section-header reveal">
           <span className="eyebrow">Deposit & Expectations</span>
           <h2 className="section-title">How the 20% deposit works.</h2>
         </div>

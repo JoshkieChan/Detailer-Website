@@ -56,6 +56,11 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
         answer:
           'If the actual condition changes the scope in a meaningful way, we confirm the updated time and price before work begins.',
       },
+      {
+        question: 'Why are your prices higher than some other detailers?',
+        answer:
+          'Most lower prices you’ll see are for quicker, lighter services that try to squeeze as many cars as possible into a day. We limit how many vehicles we book, use interior steam where it matters (high‑touch areas, stains, pet hair, spills), and follow a documented system so the car is actually reset — not just made to look good for a week. If you just need the fastest or cheapest option, we’re probably not the best fit, and that’s okay.',
+      },
     ],
   },
   {
@@ -85,6 +90,11 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
         question: 'What happens if it’s very hot or sunny the day of my appointment?',
         answer:
           'In extreme heat or full sun with no shade, certain Deep Reset steps—like iron remover, clay decontamination, and machine polishing—can be unsafe if panels can’t be kept cool and wet. In those cases we may adjust the visit to Maintenance‑level exterior only or reschedule the decontamination and polishing steps for a cooler/shaded day. We’ll always explain this before making changes.',
+      },
+      {
+        question: 'Do you use my water and electricity for mobile appointments?',
+        answer:
+          'For most mobile appointments, yes. We use your on‑site water spigot and a standard electrical outlet for our equipment. Usage is minimal — typically less than you’d use for a normal home wash — and we’ll confirm access details when we schedule your booking. If you’re in an apartment or a spot with limited access, mention that in your booking notes and we’ll let you know what’s possible.',
       },
     ],
   },

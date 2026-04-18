@@ -268,9 +268,10 @@ const TermsPage = () => {
 
         <div className="legal-section">
           <h2>24. CONTACT US</h2>
+          <p>If you have questions or comments about these Terms of Service, please contact us at:</p>
           <p>
-            SignalSource<br />
-            <a href="https://www.signaldatasource.com">https://www.signaldatasource.com</a>
+            Email: <a href="mailto:jcab@signaldatasource.com">jcab@signaldatasource.com</a><br />
+            Website: <a href="https://www.signaldatasource.com">https://www.signaldatasource.com</a>
           </p>
         </div>
       </section>

@@ -36,14 +36,19 @@ Deno.serve(async (req) => {
     const payload = await req.json();
     const {
       fullName,
+      full_name,
       phone,
       email,
       address,
       notes,
       packageId,
+      package_id,
       vehicleType,
+      vehicle_type,
       locationType,
+      location_type,
       membershipIntent,
+      membership_intent,
       // Handle both camelCase and snake_case for robustness
       serviceDate,
       service_date,
@@ -58,6 +63,13 @@ Deno.serve(async (req) => {
       bufferMinutes,
       buffer_minutes,
       totalAmountCents,
+      total_amount_cents,
+      calculated_price,
+      deposit_amount,
+      tax_amount,
+      total_today,
+      remaining_balance,
+      helcim_deposit_url,
     } = payload;
 
     const finalServiceDate = service_date || serviceDate;
@@ -66,10 +78,14 @@ Deno.serve(async (req) => {
     const finalServiceDurationMinutes = service_duration_minutes || serviceDurationMinutes;
     const finalBufferMinutes = buffer_minutes || bufferMinutes;
     const finalBlockedUntil = blocked_until || blockedUntil;
+    const finalFullName = full_name || fullName;
+    const finalPackageId = package_id || packageId;
+    const finalVehicleType = vehicle_type || vehicleType;
+    const finalLocationType = location_type || locationType;
 
-    if (!fullName || !phone || !email || !finalServiceDate || !finalStartTime) {
+    if (!finalFullName || !phone || !email || !finalServiceDate || !finalStartTime) {
       console.error('Missing required booking fields', {
-        fullName: !!fullName,
+        finalFullName: !!finalFullName,
         phone: !!phone,
         email: !!email,
         finalServiceDate: !!finalServiceDate,
@@ -79,22 +95,28 @@ Deno.serve(async (req) => {
       throw new Error('Missing required booking fields (Name, Phone, Email, Date, or Time).');
     }
 
-    if (!isBookingPackageId(packageId) || !isVehicleTypeId(vehicleType) || !isLocationType(locationType)) {
+    if (!isBookingPackageId(finalPackageId) || !isVehicleTypeId(finalVehicleType) || !isLocationType(finalLocationType)) {
       throw new Error('Invalid booking selection.');
     }
 
     const pricing = calculateBookingFinancials({
-      packageId,
-      vehicleType,
-      locationType,
+      packageId: finalPackageId,
+      vehicleType: finalVehicleType,
+      locationType: finalLocationType,
     });
 
-    if (Math.abs(pricing.totalToday - pricing.helcimLink.amount) > 0.01) {
+    // Use values from payload if they exist, otherwise use calculated values
+    const finalDepositAmount = deposit_amount ?? pricing.depositAmount;
+    const finalTotalToday = total_today ?? pricing.totalToday;
+    const finalHelcimUrl = helcim_deposit_url || pricing.helcimLink.url;
+
+    if (Math.abs(finalTotalToday - pricing.helcimLink.amount) > 0.01) {
       console.error('Helcim amount mismatch in create-booking', {
-        packageId,
-        vehicleType,
-        locationType,
+        packageId: finalPackageId,
+        vehicleType: finalVehicleType,
+        locationType: finalLocationType,
         calculatedTotalToday: pricing.totalToday,
+        receivedTotalToday: finalTotalToday,
         configuredHelcimAmount: pricing.helcimLink.amount,
       });
       throw new Error('Deposit routing mismatch. Please contact SignalSource directly.');
@@ -105,15 +127,15 @@ Deno.serve(async (req) => {
       .from('bookings')
       .insert([
         {
-          full_name: fullName,
+          full_name: finalFullName,
           email,
           phone,
           address: address || '',
           notes: notes || '',
-          package: bookingPackages[packageId].label,
-          package_id: packageId,
-          vehicle_info: vehicleTypeLabels[vehicleType],
-          vehicle_type: vehicleTypeLabels[vehicleType],
+          package: bookingPackages[finalPackageId].label,
+          package_id: finalPackageId,
+          vehicle_info: vehicleTypeLabels[finalVehicleType],
+          vehicle_type: vehicleTypeLabels[finalVehicleType],
           service_date: finalServiceDate,
           start_time: finalStartTime,
           end_time: finalEndTime,
@@ -121,28 +143,27 @@ Deno.serve(async (req) => {
           blocked_until: finalBlockedUntil,
           service_duration_minutes: finalServiceDurationMinutes,
           buffer_minutes: finalBufferMinutes,
-          location_type: locationTypeLabels[locationType],
-          mobile_fee_applied: locationType === 'mobile',
+          location_type: locationTypeLabels[finalLocationType],
+          mobile_fee_applied: finalLocationType === 'mobile',
           membership_intent:
-            membershipIntent === 'quarterly' || membershipIntent === 'monthly'
-              ? membershipIntent
+            membership_intent === 'quarterly' || membership_intent === 'monthly' || membershipIntent === 'quarterly' || membershipIntent === 'monthly'
+              ? (membership_intent || membershipIntent)
               : 'none',
-          calculated_price: pricing.subtotal,
-          total_amount: pricing.subtotal,
-          deposit_amount: pricing.depositAmount,
-          tax_amount: pricing.taxAmount,
-          total_today: pricing.totalToday,
-          remaining_balance: pricing.remainingBalance,
-          helcim_deposit_url: pricing.helcimLink.url,
+          calculated_price: calculated_price ?? pricing.subtotal,
+          total_amount: calculated_price ?? pricing.subtotal,
+          deposit_amount: finalDepositAmount,
+          tax_amount: tax_amount ?? pricing.taxAmount,
+          total_today: finalTotalToday,
+          remaining_balance: remaining_balance ?? pricing.remainingBalance,
+          helcim_deposit_url: finalHelcimUrl,
           booking_source: 'web',
           payment_status: 'pending_payment',
-          total_amount_cents: totalAmountCents || Math.round(pricing.totalToday * 100),
+          total_amount_cents: total_amount_cents || totalAmountCents || Math.round(finalTotalToday * 100),
           status: 'pending',
         },
       ])
       .select('id, helcim_deposit_url')
       .single();
-
 
     if (error) {
       console.error('create-booking insert failed', error);
@@ -153,7 +174,7 @@ Deno.serve(async (req) => {
       JSON.stringify({
         bookingId: data.id,
         helcimDepositUrl: data.helcim_deposit_url,
-        totalToday: pricing.totalToday,
+        totalToday: finalTotalToday,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -169,3 +190,4 @@ Deno.serve(async (req) => {
     });
   }
 });
+
