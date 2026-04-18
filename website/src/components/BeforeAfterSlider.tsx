@@ -17,7 +17,6 @@ export const BeforeAfterSlider = ({ items }: { items: DetailingGalleryItem[] }) 
 
   if (items.length === 0) return null;
 
-  const activeSlide = items[activeIndex];
   const goTo = (index: number) => {
     setActiveIndex((index + items.length) % items.length);
   };
@@ -25,28 +24,31 @@ export const BeforeAfterSlider = ({ items }: { items: DetailingGalleryItem[] }) 
   const goPrev = () => goTo(activeIndex - 1);
 
   return (
-    <div className="slideshow-root flex flex-col items-center">
-      {/* Image Area */}
+    <div className="slideshow-root flex flex-col items-center w-full">
+      {/* Image Area with Horizontal Slide */}
       <div className="relative w-full overflow-hidden rounded-2xl shadow-2xl bg-muted aspect-[16/9]">
-        {items.map((item, index) => (
-          <img
-            key={item.id}
-            src="/images/slideshow-placeholder.png"
-            alt={item.title}
-            className={`absolute inset-0 h-full w-full object-cover transition-all duration-1000 ease-in-out ${
-              index === activeIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
-            }`}
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1601362840469-51e4d8d59085?auto=format&fit=crop&q=80&w=1200';
-            }}
-          />
-        ))}
-
-        {/* Caption Overlay */}
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6 pt-12">
-          <p className="text-white text-lg font-medium text-center tracking-wide">
-            {activeSlide.title}
-          </p>
+        <div 
+          className="flex h-full w-full transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)]"
+          style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+        >
+          {items.map((item) => (
+            <div key={item.id} className="h-full w-full flex-shrink-0 relative">
+              <img
+                src="/images/slideshow-placeholder.png"
+                alt={item.title}
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1601362840469-51e4d8d59085?auto=format&fit=crop&q=80&w=1200';
+                }}
+              />
+              {/* Caption Overlay */}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6 pt-12">
+                <p className="text-white text-lg font-medium text-center tracking-wide">
+                  {item.title}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

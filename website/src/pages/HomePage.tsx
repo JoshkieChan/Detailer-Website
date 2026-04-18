@@ -306,9 +306,9 @@ const HomePage = () => {
             </div>
           </div>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-3 reveal" data-reveal-delay="2">
+          <div className="mt-8 flex flex-row gap-4 overflow-x-auto pb-4 hide-scrollbar justify-center reveal" data-reveal-delay="2">
             {systemsBenefits.map((item, index) => (
-              <article className="benefit-row content-card" key={item.title}>
+              <article className="benefit-row content-card flex-shrink-0 w-[280px] sm:w-auto sm:flex-1" key={item.title}>
                 <div className="support-pill slim mb-2">
                   {index === 0 ? <MessageSquare size={16} /> : index === 1 ? <Bell size={16} /> : <ShieldCheck size={16} />}
                   {item.title}
