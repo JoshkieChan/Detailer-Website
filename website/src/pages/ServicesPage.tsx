@@ -14,10 +14,6 @@ const ServicesPage = () => {
             Here&apos;s the full menu of detailing tiers and how the 20% deposit works.
             Use it to see what fits before you configure your booking.
           </PageSubtitle>
-          <div className="hero-actions hero-actions-center">
-            <Link to="/booking" className="btn primary btn-lg">Configure Your Detail</Link>
-            <Link to="/detailing" className="btn secondary">See Detailing Overview</Link>
-          </div>
         </div>
       </header>
 
@@ -136,6 +132,17 @@ const ServicesPage = () => {
           <Link to="/detailing" className="btn secondary">See Detailing Overview</Link>
         </div>
       </section>
+
+      <style>{`
+        .page-hero {
+          position: relative;
+        }
+
+        .text-center {
+          position: relative;
+          z-index: 1;
+        }
+      `}</style>
     </div>
   );
 };

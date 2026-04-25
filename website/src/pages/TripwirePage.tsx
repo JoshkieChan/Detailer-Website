@@ -74,6 +74,15 @@ const TripwirePage = () => {
           margin: 0 auto;
         }
 
+        .hero-grid {
+          position: relative;
+        }
+
+        .hero-copy {
+          position: relative;
+          z-index: 1;
+        }
+
         .guide-card.highlight {
           border-color: var(--color-accent-primary);
           background: color-mix(in srgb, var(--color-background-surface) 94%, var(--color-accent-primary) 6%);

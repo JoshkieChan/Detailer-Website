@@ -23,14 +23,6 @@ const OurWorkPage = () => {
             A recent Subaru Outback reset, shown the way customers actually care about it:
             what it looked like before, what it looked like after, and what changed.
           </PageSubtitle>
-          <div className="hero-actions">
-            <Link to="/booking" className="btn primary btn-lg">
-              Configure Your Detail
-            </Link>
-            <Link to="/pricing" className="btn secondary">
-              See Pricing
-            </Link>
-          </div>
         </div>
 
         <div className="our-work-hero-visual">

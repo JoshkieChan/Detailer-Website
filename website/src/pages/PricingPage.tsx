@@ -13,10 +13,6 @@ const PricingPage = () => {
           <PageSubtitle>
             Submit photos with your booking and we&apos;ll confirm your exact price by text/email before your appointment.
           </PageSubtitle>
-          <div className="hero-actions hero-actions-center">
-            <Link to="/booking" className="btn primary btn-lg">Configure Your Detail</Link>
-            <Link to="/detailing" className="btn secondary">See Detailing Overview</Link>
-          </div>
         </div>
       </header>
 
@@ -188,6 +184,15 @@ const PricingPage = () => {
           .pricing-page {
             gap: 1.5rem;
           }
+        }
+
+        .page-hero {
+          position: relative;
+        }
+
+        .text-center {
+          position: relative;
+          z-index: 1;
         }
       `}</style>
     </div>

@@ -70,45 +70,19 @@ const HomePage = () => {
   return (
     <div className="page-shell detailing-home">
       <header className="page-hero reveal">
-        <div className="hero-grid">
-          <div className="hero-copy">
-            <div className="capacity-banner">
-              <CalendarCheck size={16} /> Currently accepting 2–3 customers per day, Monday–Saturday.
-            </div>
-            <h1 className="hero-title">
-              Whidbey Island detailing for drivers who want it done right the first time.
-            </h1>
-            <p className="hero-subtitle">
-              SignalSource is a systems-driven local shop in Oak Harbor. We clean, protect, and
-              maintain daily drivers without wasting your day or leaving you guessing on price.
-            </p>
-            <div className="hero-actions">
-              <Link
-                to="/booking"
-                className="btn primary btn-lg"
-                onClick={() =>
-                  trackEvent('Detailing Lead - Booking Page', {
-                    cta: 'hero_book_a_detail',
-                  })
-                }
-              >
-                Configure Your Detail
-              </Link>
-              <Link to="/pricing" className="btn secondary">
-                See Pricing
-              </Link>
-            </div>
-            <p className="policy-note">
-              A 20% deposit secures the appointment and goes toward the final total.
-            </p>
-            {nextAvailableOpening ? (
-              <p className="section-note next-opening-pill mt-1">
-                Next available opening: {nextAvailableOpening.date} at {nextAvailableOpening.startTime} for {nextAvailableOpening.serviceLabel}
-              </p>
-            ) : null}
+        <h1 className="hero-title">
+          Whidbey Island detailing for drivers who want it done right the first time.
+        </h1>
+        <p className="hero-subtitle">
+          SignalSource is a systems-driven local shop in Oak Harbor. We clean, protect, and
+          maintain daily drivers without wasting your day or leaving you guessing on price.
+        </p>
+        {nextAvailableOpening ? (
+          <div className="availability-badge">
+            <CalendarCheck size={16} />
+            Next available: {nextAvailableOpening.date} at {nextAvailableOpening.startTime}
           </div>
-          <div className="hero-visual"></div>
-        </div>
+        ) : null}
       </header>
 
       <section className="review-strip reveal">
@@ -338,6 +312,54 @@ const HomePage = () => {
           display: grid;
           gap: 1.5rem;
           padding-top: 1rem;
+        }
+
+        .page-hero {
+          position: relative;
+          padding: 6rem 2rem 4rem;
+          background: linear-gradient(135deg, var(--color-background-surface) 0%, var(--color-background-surface) 50%, color-mix(in srgb, var(--color-background-surface) 95%, var(--color-accent-primary) 5%) 100%);
+          text-align: center;
+        }
+
+        .hero-title {
+          font-size: clamp(2.5rem, 5vw, 3.5rem);
+          line-height: 1.1;
+          letter-spacing: -0.02em;
+          margin-bottom: 1.5rem;
+        }
+
+        .hero-subtitle {
+          font-size: 1.125rem;
+          line-height: 1.6;
+          color: var(--color-text-secondary);
+          margin-bottom: 2rem;
+        }
+
+        .availability-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.75rem 1.25rem;
+          background: color-mix(in srgb, var(--color-accent-primary) 10%, transparent);
+          border: 1px solid color-mix(in srgb, var(--color-accent-primary) 20%, transparent);
+          border-radius: 9999px;
+          color: var(--color-accent-primary);
+          font-size: 0.875rem;
+          font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+          .page-hero {
+            padding: 4rem 1.5rem 3rem;
+          }
+
+          .hero-title {
+            font-size: 2rem;
+          }
+
+          .hero-subtitle {
+            font-size: 1rem;
+          }
         }
 
         .before-after-display {

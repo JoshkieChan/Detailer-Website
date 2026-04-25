@@ -191,6 +191,15 @@ const MembershipsPage = () => {
             grid-template-columns: 1fr;
           }
         }
+
+        .page-hero {
+          position: relative;
+        }
+
+        .text-center {
+          position: relative;
+          z-index: 1;
+        }
       `}</style>
     </div>
   );

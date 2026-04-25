@@ -229,6 +229,15 @@ const HubPage = () => {
             align-items: flex-start;
           }
         }
+
+        .page-hero {
+          position: relative;
+        }
+
+        .text-center {
+          position: relative;
+          z-index: 1;
+        }
       `}</style>
     </div>
   );

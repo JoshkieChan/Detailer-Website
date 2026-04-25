@@ -384,6 +384,15 @@ const DigitalAssetsExamples = () => {
             font-size: 2.25rem;
           }
         }
+
+        .hero-card {
+          position: relative;
+        }
+
+        .hero-copy {
+          position: relative;
+          z-index: 1;
+        }
       `}</style>
     </div>
   );

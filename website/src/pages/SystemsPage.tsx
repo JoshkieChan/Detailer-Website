@@ -171,6 +171,17 @@ const SystemsPage = () => {
         <h2 className="section-title">Want a custom build? Start with a short intake here.</h2>
         <a href={CUSTOM_BUILD_INTAKE_URL} className="btn primary">Start intake</a>
       </section>
+
+      <style>{`
+        .hero-grid {
+          position: relative;
+        }
+
+        .hero-copy {
+          position: relative;
+          z-index: 1;
+        }
+      `}</style>
     </div>
   );
 };
