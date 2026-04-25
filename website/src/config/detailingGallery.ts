@@ -29,32 +29,32 @@ export const detailingGallerySupportingImages: GallerySupportingImage[] = [
   {
     id: 'grid-1',
     src: '/images/gallery/grid-1.jpg',
-    alt: 'Supporting image 1',
+    alt: 'Front cabin area',
   },
   {
     id: 'grid-2',
     src: '/images/gallery/grid-2.jpg',
-    alt: 'Supporting image 2',
+    alt: 'Cargo area',
   },
   {
     id: 'grid-3',
     src: '/images/gallery/grid-3.jpg',
-    alt: 'Supporting image 3',
+    alt: 'Driver controls',
   },
   {
     id: 'grid-4',
     src: '/images/gallery/grid-4.jpg',
-    alt: 'Supporting image 4',
+    alt: 'Rear seat area',
   },
   {
     id: 'grid-5',
     src: '/images/gallery/grid-5.jpg',
-    alt: 'Supporting image 5',
+    alt: 'Exterior side profile',
   },
   {
     id: 'grid-6',
     src: '/images/gallery/grid-6.png',
-    alt: 'Supporting image 6',
+    alt: 'Wheel close-up',
   },
 ];
 

@@ -14,13 +14,13 @@ import { fetchAvailability } from '../api/availability';
 const galleryProofCards = [
   {
     title: 'Interior reset',
-    body: 'Deep cleaning and restoration for high-touch interior surfaces.',
+    body: 'Deep cleaning and restoration for high-touch interior surfaces from a recent Deep Reset Detail.',
     link: '/our-work',
     image: '/images/gallery/interior-reset.png',
   },
   {
     title: 'Exterior finish',
-    body: 'Noticeable clarity and protection for the vehicle exterior.',
+    body: 'Noticeable clarity and protection on the exterior after a Deep Reset Detail.',
     link: '/our-work',
     image: '/images/gallery/exterior-finish.jpg',
   }
@@ -74,8 +74,7 @@ const HomePage = () => {
           Whidbey Island detailing for drivers who want it done right the first time.
         </h1>
         <p className="hero-subtitle">
-          SignalSource is a systems-driven local shop in Oak Harbor. We clean, protect, and
-          maintain daily drivers without wasting your day or leaving you guessing on price.
+          SignalSource is a systems-driven local shop in Oak Harbor. We clean, protect, and maintain daily drivers on a clear system — no vague &apos;full detail&apos; packages or surprise add-ons.
         </p>
         {nextAvailableOpening ? (
           <div className="availability-badge">

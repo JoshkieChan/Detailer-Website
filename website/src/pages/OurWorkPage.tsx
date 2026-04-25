@@ -46,12 +46,20 @@ const OurWorkPage = () => {
       <section className="our-work-intro section-panel reveal">
         <div className="section-header">
           <span className="eyebrow">Featured Reset</span>
-          <h2 className="section-title">Subaru Outback | interior and exterior baseline reset</h2>
+          <h2 className="section-title">Subaru Outback | Deep Reset Detail (interior and exterior baseline reset)</h2>
+          <div className="price-anchor">
+            <p className="price-anchor-text">
+              This was a Deep Reset Detail for a Subaru Outback, which typically runs in the $400–$550 range depending on condition. For exact pricing on your vehicle, check the <Link to="/pricing">Pricing page</Link>.
+            </p>
+          </div>
           <p className="section-copy">
-            This job focused on the areas daily drivers usually feel first: dirty rear floors,
+            This Deep Reset Detail focused on the areas daily drivers usually feel first: dirty rear floors,
             cluttered storage spaces, dusty exterior surfaces, and wheels that make the whole
             vehicle look tired.
           </p>
+          <div className="inline-cta">
+            <p className="inline-cta-text">Want this kind of reset? Scroll down for more angles or <Link to="/pricing">jump straight to pricing</Link>.</p>
+          </div>
         </div>
         <div className="our-work-intro-points">
           <div className="feature-row">
@@ -128,7 +136,7 @@ const OurWorkPage = () => {
         </p>
         <div className="hero-actions">
           <Link to="/booking" className="btn primary btn-lg">
-            Configure Your Detail
+            Configure Your Deep Reset
           </Link>
           <Link to="/pricing" className="btn secondary">
             See Pricing
@@ -211,6 +219,45 @@ const OurWorkPage = () => {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 1rem;
+        }
+
+        .price-anchor {
+          padding: 1rem;
+          background: color-mix(in srgb, var(--color-accent-primary) 8%, transparent);
+          border: 1px solid color-mix(in srgb, var(--color-accent-primary) 15%, transparent);
+          border-radius: 12px;
+          margin-bottom: 1rem;
+        }
+
+        .price-anchor-text {
+          margin: 0;
+          font-size: 0.9375rem;
+          line-height: 1.5;
+          color: var(--color-text-secondary);
+        }
+
+        .price-anchor-text a {
+          color: var(--color-accent-primary);
+          text-decoration: underline;
+        }
+
+        .inline-cta {
+          margin-top: 1rem;
+          padding: 0.75rem 1rem;
+          background: color-mix(in srgb, var(--color-background-surface) 95%, var(--color-accent-primary) 5%);
+          border-radius: 8px;
+        }
+
+        .inline-cta-text {
+          margin: 0;
+          font-size: 0.875rem;
+          line-height: 1.5;
+          color: var(--color-text-secondary);
+        }
+
+        .inline-cta-text a {
+          color: var(--color-accent-primary);
+          font-weight: 500;
         }
 
         .our-work-sections {
