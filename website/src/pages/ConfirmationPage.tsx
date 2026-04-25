@@ -3,11 +3,24 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, Calendar, MapPin, CreditCard, Clock, Loader2, AlertTriangle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
+interface BookingConfirmation {
+  package_id?: string;
+  package?: string;
+  location_type?: string;
+  remaining_balance?: number | null;
+  total_amount?: number;
+  deposit_amount?: number;
+  service_date: string;
+  service_time?: string;
+  vehicle_info?: string;
+  address?: string;
+}
+
 const ConfirmationPage = () => {
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get('booking_id');
   const [loading, setLoading] = useState(true);
-  const [booking, setBooking] = useState<any>(null);
+  const [booking, setBooking] = useState<BookingConfirmation | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -30,7 +43,7 @@ const ConfirmationPage = () => {
           .single();
 
         if (data) {
-          setBooking(data);
+          setBooking(data as BookingConfirmation);
           setLoading(false);
         } else if (attempts < maxAttempts) {
           attempts++;
@@ -38,7 +51,7 @@ const ConfirmationPage = () => {
         } else {
           // If we timed out but the record exists (even if unpaid yet)
           if (data) {
-            setBooking(data);
+            setBooking(data as BookingConfirmation);
             setLoading(false);
           } else {
             setError("We couldn't find your booking details yet. Don't worry, your payment was processed. Please check your email shortly.");
@@ -53,7 +66,7 @@ const ConfirmationPage = () => {
     fetchBooking();
   }, [bookingId]);
 
-  const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`;
+  const formatCurrency = (amount: number | undefined) => `$${Number(amount ?? 0).toFixed(2)}`;
 
   if (loading) {
     return (

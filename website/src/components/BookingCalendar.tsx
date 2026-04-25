@@ -1,5 +1,10 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  hasAvailableSlot,
+  type ScheduledInterval,
+  type SlotBookingPackageId,
+} from '../config/scheduler';
 
 interface BookingCalendarProps {
   selectedDate: string;
@@ -8,6 +13,12 @@ interface BookingCalendarProps {
   markedDates?: string[];
   disablePast?: boolean;
   disableSundays?: boolean;
+  /** When set with intervalsByDate, days with no valid start times match public availability logic. */
+  slotPackageId?: SlotBookingPackageId;
+  intervalsByDate?: Record<string, ScheduledInterval[]>;
+  isExpanded?: boolean;
+  showNoSlots?: boolean;
+  dayBadges?: Record<string, string>;
 }
 
 export const BookingCalendar = ({
@@ -17,6 +28,11 @@ export const BookingCalendar = ({
   markedDates = [],
   disablePast = true,
   disableSundays = true,
+  slotPackageId,
+  intervalsByDate,
+  isExpanded = false,
+  showNoSlots = true,
+  dayBadges = {},
 }: BookingCalendarProps) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
@@ -47,6 +63,8 @@ export const BookingCalendar = ({
     days.push(<div key={`pad-${i}`} className="calendar-day empty"></div>);
   }
 
+  const now = new Date();
+
   // Actual days
   for (let i = 1; i <= daysInMonth; i++) {
     const dateObj = new Date(year, month, i);
@@ -59,10 +77,20 @@ export const BookingCalendar = ({
     // Check constraints
     const isPast = disablePast && dateObj < today;
     const isSunday = disableSundays && dateObj.getDay() === 0;
-    const isUnavailable = unavailableDates.includes(dateStr);
+    const isUnavailable = showNoSlots && unavailableDates.includes(dateStr);
     const isMarked = markedDates.includes(dateStr);
-    const isDisabled = isPast || isSunday || isUnavailable;
+    const noSlotsForPackage =
+      showNoSlots && slotPackageId && intervalsByDate
+        ? !hasAvailableSlot({
+            date: dateStr,
+            packageId: slotPackageId,
+            intervals: intervalsByDate[dateStr] ?? [],
+            now,
+          })
+        : false;
+    const isDisabled = isPast || isSunday || (showNoSlots && isUnavailable);
     const isSelected = selectedDate === dateStr;
+    const dayBadge = dayBadges[dateStr];
 
     days.push(
       <button
@@ -70,10 +98,16 @@ export const BookingCalendar = ({
         type="button"
         className={`calendar-day ${isDisabled ? 'disabled' : ''} ${isSelected ? 'selected' : ''}`}
         disabled={isDisabled}
-        onClick={() => onChange(dateStr)}
+        onClick={() => {
+          if (showNoSlots && noSlotsForPackage && !isSunday) {
+            alert('This date is fully booked. No available time slots remain for the selected service package and vehicle configuration.');
+          } else {
+            onChange(dateStr);
+          }
+        }}
         aria-label={`${monthName} ${i}, ${year}`}
         title={
-          isUnavailable
+          showNoSlots && (isUnavailable || noSlotsForPackage)
             ? 'No valid slots left'
             : isMarked
               ? 'Has scheduled items'
@@ -85,13 +119,16 @@ export const BookingCalendar = ({
         }
       >
         <span>{i}</span>
-        {(isUnavailable || isMarked) && <div className={`dot ${isUnavailable ? 'booked' : 'selected'}`}></div>}
+        {dayBadge ? <small className="calendar-day-badge">{dayBadge}</small> : null}
+        {(showNoSlots && noSlotsForPackage && !isSunday) ? (
+          <div className="dot booked"></div>
+        ) : null}
       </button>
     );
   }
 
   return (
-    <div className="calendar-container glass">
+    <div className={`calendar-container glass${isExpanded ? ' calendar-container-expanded' : ''}`}>
       <div className="calendar-header">
         <button
           type="button"

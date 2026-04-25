@@ -126,9 +126,34 @@ const faqGroups: Array<{ title: string; items: FAQItem[] }> = [
         ),
       },
       {
+        question: 'What do the Monthly and Quarterly Maintenance Plans actually include?',
+        answer:
+          'Both plans cover Maintenance Details only, which are the same scope as the standard Maintenance Detail. Deep Reset Details are not included in the membership and are always booked separately at standard Deep Reset pricing.',
+      },
+      {
+        question: 'Is the Deep Reset included in my membership?',
+        answer:
+          'No. A Deep Reset is always a separate one-off service at standard Deep Reset price. If you get one while on a plan, you can continue membership afterward, but any Deep Reset work is billed outside the membership.',
+      },
+      {
         question: 'Is a plan smarter than booking one detail at a time?',
         answer:
           'Usually yes, if the vehicle stays in steady use. Membership keeps you from waiting until the car feels trashed again and paying for bigger resets more frequently.',
+      },
+    ],
+  },
+  {
+    title: 'Membership billing',
+    items: [
+      {
+        question: 'How does billing work for membership plans?',
+        answer:
+          'When you book online, you still pay the normal 20% deposit + tax for that appointment. Recurring membership billing does not start automatically — it is set up manually in Helcim after your baseline visit is complete and you confirm you want to continue.',
+      },
+      {
+        question: 'Is a baseline job included in the membership?',
+        answer:
+          'No. Before membership starts, you need a clean baseline from either a Deep Reset or a first Maintenance Detail that we approve as baseline quality. That baseline job is paid at standard pricing and is not part of the membership.',
       },
     ],
   },
@@ -177,10 +202,10 @@ const FAQPage = () => {
     <div className="page-shell faq-page">
       <header className="page-hero reveal">
         <div className="text-center">
+          <span className="eyebrow">FAQ</span>
           <div className="capacity-banner inline-block">
             <CalendarCheck size={16} /> Currently accepting 2–3 customers per day, Monday–Saturday.
           </div>
-          <span className="eyebrow block mt-4">FAQ</span>
           <h1 className="hero-title">Questions before you book? Start here.</h1>
           <PageSubtitle>
             Everything most Oak Harbor and NAS Whidbey customers ask before scheduling,

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Shield, FileText, Cpu, CheckCircle } from 'lucide-react';
+import { ArrowRight, Shield, FileText, CheckCircle } from 'lucide-react';
 
 const AboutPage = () => {
   return (
@@ -65,18 +65,6 @@ const AboutPage = () => {
           </p>
         </div>
         <div className="card-grid three">
-          {/* Hidden: Systems & Digital Products — keep for future re-enable */}
-          {false && (
-            <article className="content-card surface-card reveal" data-reveal-delay="2">
-              <div className="support-pill"><Cpu size={24} />Secondary Offer</div>
-              <h3>Systems &amp; Digital Products</h3>
-              <p className="section-copy">For operators who want tighter follow-up, simpler dashboards, and less routine admin holding the day together.</p>
-              <Link to="/systems" className="cta-row accent-text">
-                Explore systems <ArrowRight size={16} />
-              </Link>
-            </article>
-          )}
-
           {[
             {
               icon: <Shield size={24} />,

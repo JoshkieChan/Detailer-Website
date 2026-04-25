@@ -25,7 +25,7 @@ export const maintenancePlans: MaintenancePlan[] = [
     bookingChoiceLabel: 'Interested in Quarterly Plan',
     bestFor:
       'Best for families and daily drivers who want lower-frequency upkeep after a clean baseline.',
-    pricingLine: 'From $180 every 3 months',
+    pricingLine: 'From $191.70 every 3 months (tax included)',
     supportLine: 'Billed separately after your baseline service on a once-every-3-month schedule.',
     summaryLine: 'From $180 every 3 months, billed separately after baseline.',
     emailIntro: 'You selected the Quarterly Maintenance Plan.',
@@ -49,7 +49,7 @@ export const maintenancePlans: MaintenancePlan[] = [
     bookingChoiceLabel: 'Interested in Monthly Plan',
     bestFor:
       'Best for drivers who want the cleanest cadence and a predictable monthly upkeep rhythm after baseline.',
-    pricingLine: 'From $150 every month',
+    pricingLine: 'From $159.75 every month (tax included)',
     supportLine: 'Billed separately after your baseline service as a monthly recurring payment.',
     summaryLine: 'From $150 every month, billed separately after baseline.',
     emailIntro: 'You selected the Monthly Maintenance Plan.',

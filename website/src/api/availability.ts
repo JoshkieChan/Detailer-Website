@@ -60,6 +60,21 @@ export interface OwnerScheduleEvent {
   title: string;
   details: string[];
   paymentStatus: string | null;
+  customerName?: string;
+  phone?: string;
+  email?: string;
+  locationType?: string;
+  vehicleType?: string;
+  vehicleInfo?: string;
+  packageLabel?: string;
+  packageId?: string;
+  bookingSource?: string;
+  notes?: string;
+  calculatedPrice?: number;
+  depositAmount?: number;
+  remainingBalance?: number;
+  reason?: string;
+  source?: string;
 }
 
 export const fetchOwnerSchedule = async (passcode: string): Promise<OwnerScheduleEvent[]> => {

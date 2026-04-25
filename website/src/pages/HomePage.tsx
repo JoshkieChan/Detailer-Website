@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import {
   Star,
-  ShieldCheck,
   CalendarCheck,
   Gauge,
   MapPinned,
@@ -12,7 +11,18 @@ import { servicePackages } from '../data/packages';
 import { trackEvent } from '../lib/analytics';
 import { fetchAvailability } from '../api/availability';
 
-
+const galleryProofCards = [
+  {
+    title: 'Interior reset',
+    body: 'Deep cleaning and restoration for high-touch interior surfaces.',
+    link: '/our-work',
+  },
+  {
+    title: 'Exterior finish',
+    body: 'Noticeable clarity and protection for the vehicle exterior.',
+    link: '/our-work',
+  }
+];
 
 const HomePage = () => {
   const trackedDepths = useRef(new Set<number>());
@@ -113,10 +123,37 @@ const HomePage = () => {
 
       <section className="detailing-section">
         <div className="section-header reveal">
+          <span className="eyebrow">Our Work</span>
+          <h2 className="section-title">See the results from our latest resets.</h2>
+          <p className="section-copy">
+            We focus on real turnaround for daily drivers. No stock photos, just the actual 
+            starting condition and final finish.
+          </p>
+        </div>
+
+        <div className="our-work-proof-cards">
+          {galleryProofCards.map((card, index) => (
+            <article 
+              key={card.title}
+              className="our-work-proof-card content-card reveal"
+              data-reveal-delay={String(index)}
+            >
+              <div className="our-work-proof-card__copy">
+                <h3>{card.title}</h3>
+                <p className="section-copy">{card.body}</p>
+                <Link to={card.link} className="text-link">View documentation →</Link>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="detailing-section">
+        <div className="section-header reveal">
           <span className="eyebrow">Choose Your Tier</span>
           <h2 className="section-title">Two clear detailing tiers for Whidbey Island vehicles.</h2>
           <p className="section-copy">
-            Choose the level your vehicle actually needs. If you need extras like light engine bay tidying, severe pet hair, or headlight work, mention it in your booking notes. We&apos;ll review your photos and confirm what&apos;s realistic and the total price before your appointment. Engine bay work is limited to light dusting and wipe-down only; we do not offer deep degreasing or engine detailing at this time.
+            Choose the level your vehicle actually needs. If you need extras like light engine bay tidying, severe pet hair, or headlight work, mention it in your booking notes. We&apos;ll review your photos and confirm what&apos;s realistic and the total price before your appointment.
           </p>
         </div>
 
@@ -146,14 +183,6 @@ const HomePage = () => {
                 ))}
               </ul>
 
-              {pkg.id === 'deep-reset' && (
-                <div className="addon-callout">
-                  <p className="addon-label"><strong>Optional add-ons</strong></p>
-                  <p className="section-note">Light paint correction (machine polishing to reduce swirls and minor surface scratches in the clear coat) is available on a case‑by‑case basis after inspection. It does not repair dents or deep damage.</p>
-                  <p className="section-note mt-1"><strong>Weather and paint safety</strong><br/>In extreme heat or full sun with no shade, we may adjust or reschedule the decontamination and polishing steps to protect your paint. We’ll always talk this through with you on the day of service so you know exactly what will be done.</p>
-                </div>
-              )}
-
               <div className="tier-price-wrap">
                 <div className="price-line">
                   <span className="price-prefix">From</span>
@@ -165,37 +194,12 @@ const HomePage = () => {
               <Link
                 to={`/booking?package=${pkg.id}`}
                 className={`btn w-full ${pkg.highlight ? 'primary' : 'secondary'}`}
-                onClick={() =>
-                  trackEvent('Detailing Lead - Booking Page', {
-                    cta: 'tier_book_now',
-                    package_id: pkg.id,
-                  })
-                }
               >
                 {pkg.highlight ? 'Book Deep Reset' : `Book ${pkg.title}`}
               </Link>
             </article>
           ))}
         </div>
-
-
-        
-        <div className="section-panel reveal mt-1 text-center" style={{ maxWidth: '800px', margin: '0 auto 1rem' }}>
-          <h3 className="section-title" style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Products we use (without the chemistry lesson)</h3>
-          <p className="section-copy" style={{ textAlign: 'left', margin: '0 auto' }}>
-            We use modern pH‑balanced wash soaps, dedicated wheel and tire cleaners, interior‑safe cleaners, iron removers, and clay to safely deep‑clean without beating up your clear coat or interior. That means:
-            <br/><br/>
-            – Brake dust and brown, baked-on tire grime broken down instead of just pushed around<br/>
-            – Traffic film, road grime, and fallout removed so the paint feels smooth again<br/>
-            – Interiors cleaned with products safe for modern plastics, vinyl, and leather<br/>
-            – Light to moderate fabric staining treated where safely extractable<br/>
-            – Glass haze, fingerprints, and bug residue removed, with ceramic glass treatment to help water bead and make future washes easier
-          </p>
-        </div>
-
-        <p className="section-note mt-1 reveal text-center">
-          <strong>Need extras?</strong> If you need extras like light engine bay tidying, severe pet hair, or headlight work, mention it in your booking notes. We’ll review your photos and confirm what’s realistic and the total price before your appointment. Engine bay work is limited to light dusting and wipe‑down of accessible areas only; we do not offer deep degreasing or full engine detailing at this time.
-        </p>
       </section>
 
       <section className="detailing-section">
@@ -213,8 +217,7 @@ const HomePage = () => {
             <h3>Better for resets, protection work, and longer jobs.</h3>
             <p className="section-copy">
               Drop-off service near Erie Street in Oak Harbor. Exact address is shared after
-              booking. If the vehicle needs controlled lighting, reliable power, weather
-              protection, or a longer reset, the studio is the better call.
+              booking.
             </p>
           </article>
 
@@ -226,75 +229,9 @@ const HomePage = () => {
             <h3>Better when home or work service makes more sense.</h3>
             <p className="section-copy">
               Available within roughly a 25–30 mile radius of Oak Harbor, including NAS
-              Whidbey, Coupeville, Deception Pass, and nearby areas. No heavy machine
-              polishing or multi-day jobs on mobile appointments.
+              Whidbey.
             </p>
           </article>
-        </div>
-      </section>
-
-      <section className="detailing-section">
-        <div className="section-header reveal">
-          <span className="eyebrow">Maintenance Plans</span>
-          <h2 className="section-title">Keep the vehicle from sliding backward.</h2>
-        </div>
-
-        <div className="section-panel membership-panel reveal" data-reveal-delay="1">
-          <article className="detailing-callout">
-            <div className="badge-popular tier-badge">Membership</div>
-            <p className="section-copy">
-              Maintenance plans are for customers who already have a clean baseline and want
-              predictable upkeep without re-deciding every month.
-            </p>
-            <p className="membership-punch">
-              Keep it dialed from <span className="accent-text">$60/mo</span> with member-first
-              scheduling and fewer “it&apos;s trashed again” surprises.
-            </p>
-            <ul className="tier-inclusions compact">
-              <li className="feature-row">
-                <ShieldCheck size={18} className="icon-lime" />
-                <span className="feature-text">Best for daily drivers after a Deep Reset service</span>
-              </li>
-              <li className="feature-row">
-                <ShieldCheck size={18} className="icon-lime" />
-                <span className="feature-text">Guaranteed spots, easier upkeep, and less mental load than ad-hoc booking</span>
-              </li>
-            </ul>
-            <Link
-              to="/memberships"
-              className="btn secondary membership-btn"
-              onClick={() =>
-                trackEvent('Detailing Lead - View Plans', {
-                  cta: 'maintenance_plan_view_plans',
-                })
-              }
-            >
-              View Plans
-            </Link>
-          </article>
-        </div>
-      </section>
-
-
-
-      <section className="detailing-section reveal">
-        <div className="section-header">
-          <span className="eyebrow">Scope &amp; Boundaries</span>
-          <h2 className="section-title">What we don&apos;t do.</h2>
-        </div>
-        <div className="section-panel reveal" data-reveal-delay="1">
-          <p className="section-copy">
-            To keep our quality consistent, we focus on high-end maintenance and resets. We do not offer:
-            <br/><br/>
-            – Full ceramic coatings (we use spray‑on protection and ceramic glass treatments instead)<br/>
-            – Full interior mold remediation<br/>
-            – Deep engine bay degreasing or pressure‑washing (light dusting and wipe‑down only)<br/>
-            – Deep stain or paint damage repair (light correction is available, but deep gouges or failed clear coat require a body shop)<br/>
-            – We also do not repair dents, bent metal, or perform collision repair.
-          </p>
-          <div className="mt-2">
-            <Link to="/faq" className="text-link">Have more questions? Read our full FAQ →</Link>
-          </div>
         </div>
       </section>
 
@@ -304,36 +241,37 @@ const HomePage = () => {
           Ready To Book
         </div>
         <h2 className="section-title">Pick your tier and lock in your spot.</h2>
-        <p className="section-copy">
-          You&apos;ll see today&apos;s 20% deposit before you submit. If you still need to compare
-          options first, read the service details or pricing before booking.
-        </p>
         <div className="hero-actions cta-actions">
-          <Link
-            to="/booking"
-            className="btn primary btn-lg"
-            onClick={() =>
-              trackEvent('Detailing Lead - Booking Page', {
-                cta: 'final_configure_detail',
-              })
-            }
-          >
+          <Link to="/booking" className="btn primary btn-lg">
             Pay 20% Deposit &amp; Book
           </Link>
-          <Link to="/services" className="btn secondary">
-            See Service Details &amp; Pricing
+          <Link to="/pricing" className="btn secondary">
+            See Service Details
           </Link>
         </div>
-        <p className="cta-reassurance">
-          The 20% deposit goes toward your final total, not on top. Final pricing is
-          confirmed before work begins if scope or vehicle condition changes.
-        </p>
       </section>
 
       <style>{`
         .detailing-home {
           display: grid;
           gap: 2rem;
+        }
+
+        .our-work-proof-cards {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 1.5rem;
+        }
+
+        .our-work-proof-card {
+          padding: 1.5rem;
+          display: grid;
+          gap: 1rem;
+        }
+
+        .our-work-proof-card__copy {
+          display: grid;
+          gap: 0.5rem;
         }
 
         .review-strip {
@@ -350,26 +288,12 @@ const HomePage = () => {
           text-align: center;
         }
 
-        .quote-blurb {
-          font-size: 1.05rem;
-          max-width: 52ch;
-          color: var(--color-text-secondary);
-        }
-
         .stars-row {
           display: flex;
           flex-wrap: wrap;
           justify-content: center;
           align-items: center;
           gap: 0.55rem;
-        }
-
-        .review-label {
-          font-family: var(--font-label);
-          font-size: 0.78rem;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          color: var(--color-text-secondary);
         }
 
         .detailing-section {
@@ -379,7 +303,9 @@ const HomePage = () => {
         }
 
         .tier-grid {
-          margin-bottom: 2rem;
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 1.5rem;
         }
 
         .section-panel {
@@ -400,80 +326,17 @@ const HomePage = () => {
           gap: 0.85rem;
         }
 
-        .detailing-callout h3 {
-          font-size: 1.2rem;
-          line-height: 1.3;
-        }
-
-        .membership-panel {
-          max-width: 760px;
-        }
-
-        .membership-punch {
-          font-size: 1rem;
-          font-weight: 700;
-          color: var(--color-text-secondary);
-        }
-
-        .membership-btn {
-          width: fit-content;
-        }
-
-        .benefits-panel {
-          display: grid;
-          gap: 1rem;
-        }
-
-        .benefit-row {
-          display: grid;
-          gap: 0.65rem;
-          padding-bottom: 1rem;
-          border-bottom: 1px solid var(--color-border-default);
-        }
-
-        .benefit-row:last-child {
-          border-bottom: none;
-          padding-bottom: 0;
-        }
-
-        .support-pill.slim {
-          width: fit-content;
-        }
-
         .final-local-cta {
           display: grid;
           gap: 1rem;
-          margin-top: 0.5rem;
           padding: 2rem;
         }
 
-        .cta-actions {
-          align-items: center;
-        }
-
-        .cta-reassurance {
-          color: var(--color-text-secondary);
-          font-size: 0.92rem;
-          line-height: 1.6;
-          max-width: 60ch;
-        }
-
-        @media (max-width: 1040px) {
-          .tier-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-
         @media (max-width: 820px) {
+          .tier-grid,
+          .our-work-proof-cards,
           .two-up {
             grid-template-columns: 1fr;
-          }
-
-          .section-panel,
-          .final-local-cta,
-          .tier-card,
-          .review-strip {
-            padding: 1.25rem;
           }
         }
       `}</style>

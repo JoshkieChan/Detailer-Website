@@ -1,4 +1,4 @@
-import { ArrowRight, MapPin, Search, Cpu, ChevronDown } from 'lucide-react';
+import { ArrowRight, MapPin, Search, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LeadMagnet } from '../components/LeadMagnet';
 import { PageSubtitle } from '../components/PageSubtitle';
@@ -10,7 +10,7 @@ const HubPage = () => {
         <div className="text-center">
           <span className="eyebrow">SignalSource</span>
           <h1 className="hero-title">Car detailing for Oak Harbor. Digital guides and playbooks for anywhere.</h1>
-          <PageSubtitle>
+          <PageSubtitle className="hub-subtitle-spacing">
             Choose where you want to go next: local car care or downloadable guides.
           </PageSubtitle>
           <div className="hero-actions hub-hero-actions">
@@ -71,30 +71,6 @@ const HubPage = () => {
             </Link>
           </article>
 
-          {false && (
-            <article className="hub-card reveal" data-reveal-delay="2">
-              <div className="hub-card-top">
-                <div className="support-pill">
-                  <Cpu size={16} />
-                  Secondary offer
-                </div>
-              </div>
-              <div className="hub-card-copy">
-                <h2>Systems &amp; Digital Products</h2>
-                <p className="section-copy">
-                  Custom systems for operators who are tired of missed follow-up, manual admin,
-                  and running everything from memory. This is for people who want the same
-                  organized SignalSource approach applied to automations, dashboards, and
-                  workflows.
-                </p>
-              </div>
-              <Link to="/systems" className="btn secondary hub-card-cta">
-                Explore Systems
-                <ArrowRight size={16} />
-              </Link>
-            </article>
-          )}
-
           <article className="hub-card reveal" data-reveal-delay="2">
             <div className="hub-card-copy">
               <h2>Coming Soon: Window Tint, Ceramic Coatings, PPF &amp; Wraps</h2>
@@ -117,6 +93,11 @@ const HubPage = () => {
         .hub-page {
           display: grid;
           gap: 3rem;
+        }
+
+        .hub-subtitle-spacing {
+          margin-top: 2.5rem;
+          margin-bottom: 2.5rem;
         }
 
         .hub-hero {

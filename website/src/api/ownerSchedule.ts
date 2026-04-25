@@ -86,3 +86,84 @@ export const createManualBooking = async ({
 
   return data;
 };
+
+export const deleteOwnerEvent = async ({
+  passcode,
+  id,
+  type,
+}: {
+  passcode: string;
+  id: string;
+  type: 'booking' | 'blackout';
+}) => {
+  const { url, anonKey } = getOwnerFunctionBase();
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: buildHeaders(passcode, anonKey),
+    body: JSON.stringify({
+      action: 'delete_event',
+      id,
+      type,
+    }),
+  });
+
+  const data = await response.json();
+  if (!response.ok || data.error) {
+    throw new Error(data.error || 'Could not delete event.');
+  }
+
+  return data;
+};
+
+export const deleteAllBookings = async ({ passcode }: { passcode: string }) => {
+  const { url, anonKey } = getOwnerFunctionBase();
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: buildHeaders(passcode, anonKey),
+    body: JSON.stringify({
+      action: 'delete_all_bookings',
+    }),
+  });
+
+  const data = await response.json();
+  if (!response.ok || data.error) {
+    throw new Error(data.error || 'Could not delete all bookings.');
+  }
+
+  return data;
+};
+
+export const updateManualBooking = async ({
+  passcode,
+  id,
+  updates,
+}: {
+  passcode: string;
+  id: string;
+  updates: {
+    payment_status?: string;
+    notes?: string;
+    start_time?: string;
+    end_time?: string;
+    service_date?: string;
+    blocked_until?: string;
+  };
+}) => {
+  const { url, anonKey } = getOwnerFunctionBase();
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: buildHeaders(passcode, anonKey),
+    body: JSON.stringify({
+      action: 'update_booking',
+      id,
+      updates,
+    }),
+  });
+
+  const data = await response.json();
+  if (!response.ok || data.error) {
+    throw new Error(data.error || 'Could not update booking.');
+  }
+
+  return data;
+};

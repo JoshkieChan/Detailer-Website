@@ -26,7 +26,7 @@ const PrivacyPage = () => {
         <div className="hero-visual reveal" data-reveal-delay="1" aria-hidden="true" />
       </section>
 
-      <section className="section-stack legal-content reveal">
+      <section className="section-stack legal-content reveal is-visible">
         <div className="legal-section">
           <h2>1. INTRODUCTION</h2>
           <p>
@@ -267,7 +267,7 @@ const PrivacyPage = () => {
 
         @media (max-width: 768px) {
           .legal-content {
-            padding: 2rem 1.5rem;
+            padding: 1.5rem;
           }
         }
       `}</style>

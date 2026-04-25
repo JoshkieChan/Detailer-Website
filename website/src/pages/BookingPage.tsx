@@ -34,6 +34,7 @@ import {
   getNextAvailableOpening,
   intervalsOverlap,
   timeToMinutes,
+  type ScheduledInterval,
   type SlotBookingPackageId,
 } from '../config/scheduler';
 
@@ -212,6 +213,7 @@ const BookingPage = () => {
   const validPackage = isBookingPackageId(formData.packageType) ? formData.packageType : null;
   const validVehicle = isVehicleTypeId(formData.vehicleType) ? formData.vehicleType : null;
   const validLocation = isLocationType(formData.locationType) ? formData.locationType : null;
+  const showNoSlots = Boolean(validPackage && validVehicle && validLocation);
 
   useEffect(() => {
     if (!validPackage) return;
@@ -230,6 +232,15 @@ const BookingPage = () => {
 
   const hourlySlots = validPackage ? getHourlyStartSlots(validPackage as SlotBookingPackageId) : [];
   const selectedDayIntervals = formData.date ? availability.intervalsByDate[formData.date] || [] : [];
+
+  const calendarIntervalsByDate = useMemo(() => {
+    if (!validPackage) return undefined;
+    const out: Record<string, ScheduledInterval[]> = {};
+    for (const [date, list] of Object.entries(availability.intervalsByDate)) {
+      out[date] = list.map((interval) => ({ ...interval, date }));
+    }
+    return out;
+  }, [validPackage, availability.intervalsByDate]);
 
   const availableTimeSlots = useMemo(() => {
     if (!validPackage || !formData.date) return [];
@@ -535,11 +546,16 @@ const BookingPage = () => {
 
               <div className="input-group full-width">
                 <label>Preferred day</label>
-                <BookingCalendar
-                  selectedDate={formData.date}
-                  onChange={(date) => setFormData({ ...formData, date, startTime: '' })}
-                  unavailableDates={availability.unavailableDates}
-                />
+                <div className="booking-calendar-panel">
+                  <BookingCalendar
+                    selectedDate={formData.date}
+                    onChange={(date) => setFormData({ ...formData, date, startTime: '' })}
+                    unavailableDates={availability.unavailableDates}
+                    slotPackageId={validPackage ?? undefined}
+                    intervalsByDate={calendarIntervalsByDate}
+                    showNoSlots={showNoSlots}
+                  />
+                </div>
                 <FieldError msg={fieldErrors.date} />
               </div>
 

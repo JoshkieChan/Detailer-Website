@@ -54,6 +54,11 @@ export const timeToMinutes = (time: string) => {
   return hours * 60 + minutes;
 };
 
+const parseDateString = (date: string) => {
+  const [year, month, day] = date.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
 export const formatWindowLabel = (startMinutes: number, endMinutes: number) =>
   `${minutesToTime(startMinutes)} to ${minutesToTime(endMinutes)}`;
 
@@ -128,7 +133,7 @@ export const isDateUnavailable = ({
   const validSlots = getHourlyStartSlots(packageId);
 
   // Requirement: Sundays are unavailable
-  const day = new Date(date).getDay();
+  const day = parseDateString(date).getDay();
   if (day === 0) return true;
 
   const pacificDate = new Intl.DateTimeFormat('en-CA', {
@@ -166,6 +171,13 @@ export const isDateUnavailable = ({
     });
   });
 };
+
+export const hasAvailableSlot = (args: {
+  date: string;
+  packageId: SlotBookingPackageId;
+  intervals: ScheduledInterval[];
+  now?: Date;
+}) => !isDateUnavailable(args);
 
 export const getNextAvailableOpening = ({
   fromDate,

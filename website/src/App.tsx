@@ -21,6 +21,7 @@ import TripwirePage from './pages/TripwirePage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import OwnerSchedulePage from './pages/OwnerSchedulePage';
+import OurWorkPage from './pages/OurWorkPage';
 import { useState, useEffect } from 'react';
 
 function App() {
@@ -55,6 +56,7 @@ function App() {
               <Route path="/booking/thanks" element={<BookingThanksPage />} />
               <Route path="/booking/confirmation" element={<ConfirmationPage />} />
               <Route path="/owner/schedule" element={<OwnerSchedulePage />} />
+              <Route path="/our-work" element={<OurWorkPage />} />
               <Route path="/snapshot/order" element={<TripwirePage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/terms" element={<TermsPage />} />

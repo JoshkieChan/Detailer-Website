@@ -1,24 +1,36 @@
-import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, Maximize2, Minimize2, PlusSquare, ShieldCheck } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { CalendarDays, PlusSquare, ShieldCheck } from 'lucide-react';
 import { BookingCalendar } from '../components/BookingCalendar';
+import { OwnerGate } from '../components/OwnerGate';
+import { clearStoredOwnerPasscode, getStoredOwnerPasscode } from '../lib/ownerSession';
+import { fetchOwnerSchedule, type OwnerScheduleEvent } from '../api/availability';
+import { createAvailabilityBlock, createManualBooking, verifyOwnerPasscode, deleteOwnerEvent, deleteAllBookings, updateManualBooking } from '../api/ownerSchedule';
 import {
-  clearStoredOwnerPasscode,
-  getStoredOwnerPasscode,
-  OwnerGate,
-} from '../components/OwnerGate';
-import { fetchOwnerSchedule } from '../api/availability';
-import { createAvailabilityBlock, createManualBooking, verifyOwnerPasscode } from '../api/ownerSchedule';
-import { bookingPackages, locationTypeLabels, vehicleTypeLabels, type BookingPackageId, type LocationType, type VehicleTypeId } from '../data/bookingPricing';
+  bookingPackages,
+  calculateBookingFinancials,
+  vehicleTypeLabels,
+  type BookingPackageId,
+  type LocationType,
+  type VehicleTypeId,
+} from '../data/bookingPricing';
 import { buildBookingWindow, getHourlyStartSlots, type SlotBookingPackageId } from '../config/scheduler';
 
-const formatEventTime = (start: string, end: string) => `${start} to ${end}`;
+const formatCurrency = (value: number) =>
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0);
 
 const OwnerSchedulePage = () => {
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<OwnerScheduleEvent[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
-  const [isExpanded, setIsExpanded] = useState(false);
   const [systemMessage, setSystemMessage] = useState('');
-  const [isReady, setIsReady] = useState(Boolean(getStoredOwnerPasscode()));
+  const [sessionOk, setSessionOk] = useState(() => Boolean(getStoredOwnerPasscode()));
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({
+    paymentStatus: '',
+    notes: '',
+    startTime: '',
+  });
+
   const [bookingForm, setBookingForm] = useState({
     fullName: '',
     email: '',
@@ -27,11 +39,11 @@ const OwnerSchedulePage = () => {
     packageId: 'maintenance' as BookingPackageId,
     vehicleType: 'sedan' as VehicleTypeId,
     locationType: 'garage' as LocationType,
-    date: new Date().toISOString().slice(0, 10),
     startTime: '08:00',
     notes: '',
-    paymentStatus: 'paid',
+    paymentStatus: 'pending_payment',
   });
+
   const [blockForm, setBlockForm] = useState({
     startAt: `${new Date().toISOString().slice(0, 10)}T08:00`,
     endAt: `${new Date().toISOString().slice(0, 10)}T09:00`,
@@ -40,40 +52,94 @@ const OwnerSchedulePage = () => {
 
   const ownerPasscode = getStoredOwnerPasscode();
 
-  const loadSchedule = async () => {
-    if (!ownerPasscode) return;
-    const data = await fetchOwnerSchedule(ownerPasscode);
+  const loadSchedule = useCallback(async () => {
+    const pass = getStoredOwnerPasscode();
+    if (!pass) return;
+    const data = await fetchOwnerSchedule(pass);
     setEvents(data);
-    setIsReady(true);
-  };
+  }, []);
 
   useEffect(() => {
-    loadSchedule().catch(() => {
-      clearStoredOwnerPasscode();
-      setIsReady(false);
+    if (!sessionOk) return;
+    const frame = requestAnimationFrame(() => {
+      void loadSchedule().catch(() => {
+        clearStoredOwnerPasscode();
+        setSessionOk(false);
+      });
     });
-  }, []);
+    return () => cancelAnimationFrame(frame);
+  }, [sessionOk, loadSchedule]);
 
   const eventsForSelectedDate = useMemo(
     () => events.filter((event) => event.date === selectedDate),
     [events, selectedDate]
   );
-  const markedDates = useMemo(
-    () => Array.from(new Set(events.map((event) => event.date))),
-    [events]
+
+  const bookingEventsForSelectedDay = useMemo(
+    () => eventsForSelectedDate.filter((event) => event.eventType === 'booking'),
+    [eventsForSelectedDate]
   );
+
+  const blockEventsForSelectedDay = useMemo(
+    () => eventsForSelectedDate.filter((event) => event.eventType === 'blackout'),
+    [eventsForSelectedDate]
+  );
+
+  const markedDates = useMemo(() => Array.from(new Set(events.map((event) => event.date))), [events]);
+
+  const dayBadges = useMemo(() => {
+    const byDate: Record<string, string[]> = {};
+    for (const event of events) {
+      byDate[event.date] = byDate[event.date] || [];
+      byDate[event.date].push(event.startTime);
+    }
+    const labels: Record<string, string> = {};
+    for (const [date, times] of Object.entries(byDate)) {
+      const sorted = [...times].sort();
+      labels[date] = sorted.length <= 2 ? sorted.join(', ') : `${sorted.length} items`;
+    }
+    return labels;
+  }, [events]);
 
   const currentSlots = getHourlyStartSlots(bookingForm.packageId as SlotBookingPackageId);
 
-  if (!isReady) {
+  const manualPricing = useMemo(
+    () =>
+      calculateBookingFinancials({
+        packageId: bookingForm.packageId,
+        vehicleType: bookingForm.vehicleType,
+        locationType: bookingForm.locationType,
+      }),
+    [bookingForm.packageId, bookingForm.vehicleType, bookingForm.locationType]
+  );
+
+  if (!sessionOk) {
     return (
       <div className="page-shell owner-page">
-        <OwnerGate onVerify={verifyOwnerPasscode}>
+        <OwnerGate onVerify={verifyOwnerPasscode} onUnlocked={() => setSessionOk(true)}>
           <div />
         </OwnerGate>
       </div>
     );
   }
+
+  const allTimeRevenue = events
+    .filter(e => e.eventType === 'booking' && e.paymentStatus === 'paid')
+    .reduce((sum, e) => sum + (e.calculatedPrice || 0), 0);
+  
+  const pendingRevenue = events
+    .filter(e => e.eventType === 'booking' && e.paymentStatus !== 'paid')
+    .reduce((sum, e) => sum + (e.remainingBalance || 0), 0);
+
+  const packageCounts = events
+    .filter(e => e.eventType === 'booking')
+    .reduce((acc, e) => {
+      const pkg = e.packageLabel || 'Unknown';
+      acc[pkg] = (acc[pkg] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+  
+  const popularPackage = Object.entries(packageCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
 
   return (
     <div className="page-shell owner-page">
@@ -87,61 +153,264 @@ const OwnerSchedulePage = () => {
 
       {systemMessage ? <div className="content-card reveal is-visible">{systemMessage}</div> : null}
 
-      <section className={`content-card owner-calendar-shell ${isExpanded ? 'expanded' : ''}`}>
+      <section className="card-grid three reveal">
+        <article className="content-card" style={{ padding: '1.5rem' }}>
+          <div className="eyebrow" style={{ marginBottom: '0.5rem' }}>Paid Revenue</div>
+          <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--color-primary)' }}>{formatCurrency(allTimeRevenue)}</div>
+        </article>
+        <article className="content-card" style={{ padding: '1.5rem' }}>
+          <div className="eyebrow" style={{ marginBottom: '0.5rem' }}>Pending Balance</div>
+          <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--color-warning)' }}>{formatCurrency(pendingRevenue)}</div>
+        </article>
+        <article className="content-card" style={{ padding: '1.5rem' }}>
+          <div className="eyebrow" style={{ marginBottom: '0.5rem' }}>Popular Package</div>
+          <div style={{ fontSize: '1.2rem', fontWeight: 600 }}>{popularPackage}</div>
+        </article>
+      </section>
+
+      <section className="content-card owner-calendar-shell expanded reveal">
         <div className="owner-calendar-topbar">
           <div className="support-pill">
             <CalendarDays size={16} />
-            Calendar view
+            Calendar view (expanded)
           </div>
-          <button
-            type="button"
-            className="btn secondary"
-            onClick={() => setIsExpanded((current) => !current)}
-          >
-            {isExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-            {isExpanded ? 'Return to normal size' : 'Expand calendar'}
-          </button>
         </div>
 
         <BookingCalendar
           selectedDate={selectedDate}
-          onChange={setSelectedDate}
+          onChange={(date) => {
+            setSelectedDate(date);
+            setBookingForm((current) => ({ ...current, startTime: '', notes: current.notes }));
+            setBlockForm((current) => ({
+              ...current,
+              startAt: `${date}T08:00`,
+              endAt: `${date}T09:00`,
+            }));
+          }}
           unavailableDates={[]}
           markedDates={markedDates}
+          dayBadges={dayBadges}
           disablePast={false}
           disableSundays={false}
+          isExpanded
         />
-
-        <div className="owner-event-list">
-          <h2 className="section-title">Entries for {selectedDate}</h2>
-          {eventsForSelectedDate.length === 0 ? (
-            <p className="section-copy">No bookings or blackout blocks on this date yet.</p>
-          ) : (
-            eventsForSelectedDate.map((event) => (
-              <article className="owner-event-card" key={event.id}>
-                <div className="owner-event-head">
-                  <strong>{event.title}</strong>
-                  <span>{formatEventTime(event.startTime, event.endTime)}</span>
-                </div>
-                <div className="owner-event-meta">
-                  {event.details.map((detail: string) => (
-                    <p key={detail}>{detail}</p>
-                  ))}
-                  <p>Payment state: {event.paymentStatus || 'n/a'}</p>
-                </div>
-              </article>
-            ))
-          )}
-        </div>
       </section>
 
-      <section className="card-grid two">
-        <article className="content-card">
-          <div className="support-pill">
-            <PlusSquare size={16} />
-            Manual in-person booking
+      <section className="card-grid two owner-detail-layout">
+        <article className="content-card owner-day-panel">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+            <h2 className="section-title" style={{ margin: 0 }}>Appointments on {selectedDate}</h2>
+            <button 
+              className="btn outline-lime" 
+              disabled={isSubmitting}
+              style={{ minHeight: '36px', padding: '0.5rem 1rem', fontSize: '0.85rem', borderColor: 'var(--color-danger)', color: 'var(--color-danger)' }}
+              onClick={async () => {
+                if (window.confirm('Are you sure you want to delete ALL bookings from the system? This cannot be undone.')) {
+                  setIsSubmitting(true);
+                  try {
+                    await deleteAllBookings({ passcode: ownerPasscode || '' });
+                    setSystemMessage('All bookings deleted.');
+                    await loadSchedule();
+                  } catch (e: any) {
+                    setSystemMessage(e.message || 'Failed to delete bookings');
+                  } finally {
+                    setIsSubmitting(false);
+                  }
+                }
+              }}
+            >
+              {isSubmitting ? 'Deleting all...' : 'Delete all bookings'}
+            </button>
           </div>
-          <div className="owner-form-grid">
+
+          {eventsForSelectedDate.length === 0 ? (
+            <p className="section-copy">No appointments on this day yet.</p>
+          ) : (
+            <>
+              {bookingEventsForSelectedDay.length > 0 ? (
+                <div className="owner-detail-block">
+                  <h3>Bookings ({bookingEventsForSelectedDay.length})</h3>
+                  {bookingEventsForSelectedDay.map((event) => (
+                    <article className="owner-event-card booking-card" key={event.id}>
+                      {editingId === event.id ? (
+                        <div className="owner-edit-form">
+                          <h4 style={{ marginBottom: '1rem' }}>Edit Booking</h4>
+                          <div className="owner-form-grid">
+                            <label>
+                              Payment status
+                              <select
+                                value={editForm.paymentStatus}
+                                onChange={(e) => setEditForm({ ...editForm, paymentStatus: e.target.value })}
+                              >
+                                <option value="pending_payment">pending_payment</option>
+                                <option value="paid">paid</option>
+                              </select>
+                            </label>
+                            <label className="full-width">
+                              Notes
+                              <textarea
+                                value={editForm.notes}
+                                onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                              />
+                            </label>
+                          </div>
+                          <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                            <button
+                              className="btn primary"
+                              disabled={isSubmitting}
+                              onClick={async () => {
+                                setIsSubmitting(true);
+                                try {
+                                  await updateManualBooking({
+                                    passcode: ownerPasscode || '',
+                                    id: event.id,
+                                    updates: {
+                                      payment_status: editForm.paymentStatus,
+                                      notes: editForm.notes,
+                                    },
+                                  });
+                                  setSystemMessage('Booking updated.');
+                                  setEditingId(null);
+                                  await loadSchedule();
+                                } catch (err: any) {
+                                  setSystemMessage(err.message || 'Update failed');
+                                } finally {
+                                  setIsSubmitting(false);
+                                }
+                              }}
+                            >
+                              {isSubmitting ? 'Saving...' : 'Save changes'}
+                            </button>
+                            <button className="btn ghost" onClick={() => setEditingId(null)}>
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="owner-event-card-header">
+                            <div className="owner-event-card-time">
+                              {event.startTime && event.endTime
+                                ? `${event.startTime}–${event.endTime}`
+                                : event.startTime
+                                  ? `Start: ${event.startTime}`
+                                  : null}
+                            </div>
+                            <div className="owner-event-card-summary">
+                              {event.packageLabel || event.packageId || 'n/a'} · {event.locationType || 'n/a'} · {event.vehicleType || event.vehicleInfo || 'n/a'}
+                            </div>
+                            <div className={`owner-event-card-status ${event.paymentStatus === 'paid' ? 'paid' : 'pending'}`}>
+                              {event.paymentStatus || 'n/a'}
+                            </div>
+                          </div>
+                          <div className="owner-event-card-meta">
+                            <strong>{event.customerName || 'n/a'}</strong>
+                            <span className="owner-event-card-source">{event.bookingSource || 'web'}</span>
+                          </div>
+                          <div className="owner-event-card-details">
+                            <div>
+                              Phone: {event.phone || 'n/a'} | Email: {event.email || 'n/a'}
+                            </div>
+                            <div>Notes: {event.notes || 'None'}</div>
+                          </div>
+                          <div className="owner-event-card-pricing">
+                            Pricing: {formatCurrency(event.calculatedPrice || 0)} subtotal · {formatCurrency(event.depositAmount || 0)} deposit · {formatCurrency(event.remainingBalance || 0)} remaining
+                          </div>
+                          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', borderTop: '1px solid var(--color-border-default)', paddingTop: '1rem' }}>
+                            <button 
+                              className="btn ghost"
+                              style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary-soft)', padding: '0.4rem 0.8rem', minHeight: '32px', fontSize: '0.85rem' }}
+                              onClick={() => {
+                                setEditingId(event.id);
+                                setEditForm({
+                                  paymentStatus: event.paymentStatus || 'pending_payment',
+                                  notes: event.notes || '',
+                                  startTime: event.startTime || '08:00',
+                                });
+                              }}
+                            >
+                              Edit booking
+                            </button>
+                            <button 
+                              className="btn ghost" 
+                              disabled={isSubmitting}
+                              style={{ color: 'var(--color-danger)', borderColor: 'var(--color-danger-soft)', padding: '0.4rem 0.8rem', minHeight: '32px', fontSize: '0.85rem' }}
+                              onClick={async () => {
+                                if (window.confirm('Delete this booking?')) {
+                                  setIsSubmitting(true);
+                                  try {
+                                    await deleteOwnerEvent({ passcode: ownerPasscode || '', id: event.id, type: 'booking' });
+                                    setSystemMessage('Booking deleted.');
+                                    await loadSchedule();
+                                  } catch (e: any) {
+                                    setSystemMessage(e.message || 'Failed to delete booking');
+                                  } finally {
+                                    setIsSubmitting(false);
+                                  }
+                                }
+                              }}
+                            >
+                              {isSubmitting ? 'Deleting...' : 'Delete booking'}
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              ) : null}
+
+              {blockEventsForSelectedDay.length > 0 ? (
+                <div className="owner-detail-block">
+                  <h3>Blackout blocks ({blockEventsForSelectedDay.length})</h3>
+                  {blockEventsForSelectedDay.map((event) => (
+                    <article className="owner-event-card blackout-card" key={event.id}>
+                      <div className="owner-event-card-header">
+                        <div className="owner-event-card-time">
+                          {event.startTime && event.endTime ? `${event.startTime}–${event.endTime}` : null}
+                        </div>
+                        <div className="owner-event-card-summary">Blackout block</div>
+                        <div className="owner-event-card-status blackout-status">Block</div>
+                      </div>
+                      <div className="owner-event-card-details">
+                        <div>Reason: {event.reason || 'Owner block'}</div>
+                      </div>
+                      <div style={{ marginTop: '1rem', borderTop: '1px solid var(--color-border-default)', paddingTop: '1rem' }}>
+                        <button 
+                          className="btn ghost" 
+                          disabled={isSubmitting}
+                          style={{ color: 'var(--color-danger)', borderColor: 'var(--color-danger-soft)', padding: '0.4rem 0.8rem', minHeight: '32px', fontSize: '0.85rem' }}
+                          onClick={async () => {
+                            if (window.confirm('Delete this blackout block?')) {
+                              setIsSubmitting(true);
+                              try {
+                                await deleteOwnerEvent({ passcode: ownerPasscode || '', id: event.id, type: 'blackout' });
+                                setSystemMessage('Blackout block deleted.');
+                                await loadSchedule();
+                              } catch (e: any) {
+                                setSystemMessage(e.message || 'Failed to delete blackout block');
+                              } finally {
+                                setIsSubmitting(false);
+                              }
+                            }
+                          }}
+                        >
+                          {isSubmitting ? 'Deleting...' : 'Delete block'}
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : null}
+            </>
+          )}
+
+          <div className="support-pill mt-2">
+            <PlusSquare size={16} />
+            Create manual booking for {selectedDate}
+          </div>
+          <article className="content-card owner-manual-booking-card">
+            <div className="owner-form-grid">
             <label>
               Customer name
               <input
@@ -196,17 +465,9 @@ const OwnerSchedulePage = () => {
                 value={bookingForm.locationType}
                 onChange={(event) => setBookingForm({ ...bookingForm, locationType: event.target.value as LocationType })}
               >
-                <option value="garage">{locationTypeLabels.garage}</option>
-                <option value="mobile">{locationTypeLabels.mobile}</option>
+                <option value="garage">Studio</option>
+                <option value="mobile">On-Island Mobile</option>
               </select>
-            </label>
-            <label>
-              Date
-              <input
-                type="date"
-                value={bookingForm.date}
-                onChange={(event) => setBookingForm({ ...bookingForm, date: event.target.value })}
-              />
             </label>
             <label>
               Start time
@@ -222,15 +483,13 @@ const OwnerSchedulePage = () => {
               </select>
             </label>
             <label>
-              Payment state
+              Payment status
               <select
                 value={bookingForm.paymentStatus}
                 onChange={(event) => setBookingForm({ ...bookingForm, paymentStatus: event.target.value })}
               >
-                <option value="paid">paid</option>
                 <option value="pending_payment">pending_payment</option>
-                <option value="unpaid">unpaid</option>
-                <option value="cancelled">cancelled</option>
+                <option value="paid">paid</option>
               </select>
             </label>
             <label className="full-width">
@@ -247,31 +506,58 @@ const OwnerSchedulePage = () => {
                 onChange={(event) => setBookingForm({ ...bookingForm, notes: event.target.value })}
               />
             </label>
+            <div className="owner-pricing-readout full-width">
+              <p className="field-help">Deposit pricing (same rules as public booking)</p>
+              <p>Subtotal {formatCurrency(manualPricing.subtotal)}</p>
+              <p>Deposit (20%) {formatCurrency(manualPricing.depositAmount)}</p>
+              <p>Tax on deposit {formatCurrency(manualPricing.taxAmount)}</p>
+              <p>
+                <strong>Due today {formatCurrency(manualPricing.totalToday)}</strong> (
+                {Math.round(manualPricing.totalToday * 100)} cents)
+              </p>
+            </div>
           </div>
+          </article>
+
           <button
             type="button"
             className="btn primary mt-1"
+            disabled={isSubmitting}
             onClick={async () => {
-              const window = buildBookingWindow({
-                date: bookingForm.date,
-                packageId: bookingForm.packageId as SlotBookingPackageId,
-                startTime: bookingForm.startTime,
-              });
-              await createManualBooking({
-                passcode: ownerPasscode,
-                payload: {
-                  ...bookingForm,
-                  endTime: window.endTime,
-                  blockedUntil: window.blockedUntil,
-                  serviceDurationMinutes: window.rule.durationMinutes,
-                  bufferMinutes: window.rule.bufferMinutes,
-                },
-              });
-              setSystemMessage('Manual booking saved.');
-              await loadSchedule();
+              setIsSubmitting(true);
+              try {
+                const window = buildBookingWindow({
+                  date: selectedDate,
+                  packageId: bookingForm.packageId as SlotBookingPackageId,
+                  startTime: bookingForm.startTime,
+                });
+                await createManualBooking({
+                  passcode: ownerPasscode,
+                  payload: {
+                    ...bookingForm,
+                    date: selectedDate,
+                    endTime: window.endTime,
+                    blockedUntil: window.blockedUntil,
+                    serviceDurationMinutes: window.rule.durationMinutes,
+                    bufferMinutes: window.rule.bufferMinutes,
+                    calculated_price: manualPricing.subtotal,
+                    deposit_amount: manualPricing.depositAmount,
+                    tax_amount: manualPricing.taxAmount,
+                    total_today: manualPricing.totalToday,
+                    remaining_balance: manualPricing.remainingBalance,
+                    total_amount_cents: Math.round(manualPricing.totalToday * 100),
+                  },
+                });
+                setSystemMessage('Manual booking saved.');
+                await loadSchedule();
+              } catch (err: any) {
+                setSystemMessage(err.message || 'Failed to save booking');
+              } finally {
+                setIsSubmitting(false);
+              }
             }}
           >
-            Save manual booking
+            {isSubmitting ? 'Saving...' : 'Save manual booking'}
           </button>
         </article>
 
@@ -309,21 +595,91 @@ const OwnerSchedulePage = () => {
           <button
             type="button"
             className="btn secondary mt-1"
+            disabled={isSubmitting}
             onClick={async () => {
-              await createAvailabilityBlock({
-                passcode: ownerPasscode,
-                startAt: blockForm.startAt,
-                endAt: blockForm.endAt,
-                reason: blockForm.reason,
-              });
-              setSystemMessage('Blackout block saved.');
-              await loadSchedule();
+              setIsSubmitting(true);
+              try {
+                await createAvailabilityBlock({
+                  passcode: ownerPasscode,
+                  startAt: blockForm.startAt,
+                  endAt: blockForm.endAt,
+                  reason: blockForm.reason,
+                });
+                setSystemMessage('Blackout block saved.');
+                await loadSchedule();
+              } catch (err: any) {
+                setSystemMessage(err.message || 'Failed to save blackout block');
+              } finally {
+                setIsSubmitting(false);
+              }
             }}
           >
-            Save blackout block
+            {isSubmitting ? 'Saving...' : 'Save blackout block'}
           </button>
         </article>
       </section>
+
+      <style>{`
+        .owner-calendar-shell {
+          width: 100%;
+          overflow: visible;
+        }
+
+        .calendar-container {
+          width: 100%;
+          max-width: 100%;
+          overflow-x: hidden;
+          overflow-y: visible;
+        }
+
+        .calendar-weekdays,
+        .calendar-grid {
+          width: 100%;
+          min-width: 0;
+        }
+
+        .calendar-day {
+          min-width: 0;
+        }
+
+        .owner-form-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 1rem;
+        }
+
+        .owner-form-grid label {
+          display: grid;
+          gap: 0.35rem;
+          width: 100%;
+        }
+
+        .owner-form-grid input,
+        .owner-form-grid select,
+        .owner-form-grid textarea {
+          width: 100%;
+          min-width: 0;
+        }
+
+        .owner-form-grid .full-width {
+          grid-column: 1 / -1;
+        }
+
+        @media (max-width: 960px) {
+          .owner-form-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .calendar-container {
+            padding: 1rem;
+          }
+
+          .calendar-weekdays,
+          .calendar-grid {
+            gap: 4px;
+          }
+        }
+      `}</style>
     </div>
   );
 };

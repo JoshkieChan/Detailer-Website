@@ -1,23 +1,15 @@
 import { useMemo, useState } from 'react';
 import { Lock, ShieldAlert } from 'lucide-react';
-
-const OWNER_SESSION_STORAGE_KEY = 'signalsource_owner_mode';
-
-export const getStoredOwnerPasscode = () =>
-  sessionStorage.getItem(OWNER_SESSION_STORAGE_KEY) || '';
-
-export const clearStoredOwnerPasscode = () =>
-  sessionStorage.removeItem(OWNER_SESSION_STORAGE_KEY);
-
-export const storeOwnerPasscode = (value: string) =>
-  sessionStorage.setItem(OWNER_SESSION_STORAGE_KEY, value);
+import { getStoredOwnerPasscode, storeOwnerPasscode } from '../lib/ownerSession';
 
 export const OwnerGate = ({
   children,
   onVerify,
+  onUnlocked,
 }: {
   children: React.ReactNode;
   onVerify: (passcode: string) => Promise<boolean>;
+  onUnlocked?: () => void;
 }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -42,6 +34,7 @@ export const OwnerGate = ({
 
       storeOwnerPasscode(password);
       setIsUnlocked(true);
+      onUnlocked?.();
     } catch {
       setError('Owner tools are unavailable right now.');
     } finally {

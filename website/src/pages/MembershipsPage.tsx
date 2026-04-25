@@ -21,7 +21,7 @@ const MembershipsPage = () => {
         <div className="support-pill"><CalendarClock size={16} /> Baseline required</div>
         <p className="section-copy">
           Maintenance plans assume a clean baseline from a recent Deep Reset
-          service or first maintenance visit. They are for keeping a good vehicle from sliding backward, not
+          service or first maintenance visit that brings the vehicle to a clean baseline. They are for keeping a good vehicle from sliding backward, not
           for fixing a heavily neglected one on the cheap.
           <br /><br />
           Each membership visit is the same scope as the standard Maintenance Detail (foam + 2‑bucket wash, wheels/tires, light jambs, interior vacuum/light wipe, glass). Deep Reset details are separate, one‑off services at the standard prices.
@@ -72,11 +72,11 @@ const MembershipsPage = () => {
         <div className="support-pill"><ClipboardList size={16} /> Plan details</div>
         <h2 className="section-title">How it works.</h2>
         <ul className="package-bullets compact-list">
-          <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Baseline: we start after a Deep Reset service.</span></li>
-          <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">When you book online, you can choose Quarterly or Monthly so we know to treat you as a maintenance plan client.</span></li>
-          <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Billing: subscriptions run through secure online billing with reminders.</span></li>
+          <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Baseline: we start after a Deep Reset or a first Maintenance Detail that gets the vehicle to a clean baseline. Deep Reset details are always separate, one‑off services at the standard Deep Reset prices.</span></li>
+          <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Booking: when you book online, you can choose Quarterly or Monthly so we know to treat you as a maintenance plan client. You still pay the normal deposit for each appointment through the site.</span></li>
+          <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Billing: after your baseline visit is completed and you confirm you want the plan, we set up your Quarterly or Monthly membership as a recurring payment in our billing system (separate from the website booking deposit).</span></li>
           <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Cancel: minimum commitment is 3 months, then cancel anytime.</span></li>
-          <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Scope: heavy neglect or long gaps may require a separate reset service.</span></li>
+          <li className="feature-row"><CheckCircle size={18} className="icon-lime" /><span className="feature-text">Scope: heavy neglect or long gaps may require a separate reset service at standard Deep Reset pricing.</span></li>
         </ul>
       </section>
 
@@ -185,6 +185,10 @@ const MembershipsPage = () => {
         @media (max-width: 768px) {
           .membership-card {
             padding: 1.5rem 1.25rem;
+          }
+
+          .card-grid.two {
+            grid-template-columns: 1fr;
           }
         }
       `}</style>
