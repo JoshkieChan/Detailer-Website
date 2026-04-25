@@ -3,7 +3,7 @@ import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerE
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { DetailingGalleryItem } from '../config/detailingGallery';
 
-const DEFAULT_POSITION = 52;
+const DEFAULT_POSITION = 30;
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -24,8 +24,10 @@ export const BeforeAfterSlider = ({
   ariaLabel = 'Before and after gallery comparison',
 }: BeforeAfterSliderProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [sliderPosition, setSliderPosition] = useState(DEFAULT_POSITION);
+  const [beforeSliderPosition, setBeforeSliderPosition] = useState(DEFAULT_POSITION);
+  const [afterSliderPosition, setAfterSliderPosition] = useState(DEFAULT_POSITION);
   const [isDragging, setIsDragging] = useState(false);
+  const [draggingSlider, setDraggingSlider] = useState<'before' | 'after' | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const safeIndex = items.length ? clamp(activeIndex, 0, items.length - 1) : 0;
   const activeItem = items[safeIndex];
@@ -35,7 +37,12 @@ export const BeforeAfterSlider = ({
 
     const handlePointerMove = (event: PointerEvent) => {
       if (!stageRef.current) return;
-      setSliderPosition(getPointerPosition(event.clientX, stageRef.current));
+      const position = getPointerPosition(event.clientX, stageRef.current);
+      if (draggingSlider === 'before') {
+        setBeforeSliderPosition(position);
+      } else if (draggingSlider === 'after') {
+        setAfterSliderPosition(position);
+      }
     };
 
     const handlePointerUp = () => setIsDragging(false);
@@ -51,38 +58,61 @@ export const BeforeAfterSlider = ({
 
   const selectIndex = (index: number) => {
     setActiveIndex(index);
-    setSliderPosition(DEFAULT_POSITION);
+    setBeforeSliderPosition(DEFAULT_POSITION);
+    setAfterSliderPosition(DEFAULT_POSITION);
   };
 
   const goPrev = () => selectIndex(activeIndex === 0 ? items.length - 1 : activeIndex - 1);
   const goNext = () => selectIndex(activeIndex === items.length - 1 ? 0 : activeIndex + 1);
 
-  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>, slider: 'before' | 'after') => {
     if (!stageRef.current) return;
     event.preventDefault();
-    setSliderPosition(getPointerPosition(event.clientX, stageRef.current));
+    const position = getPointerPosition(event.clientX, stageRef.current);
+    if (slider === 'before') {
+      setBeforeSliderPosition(position);
+    } else {
+      setAfterSliderPosition(position);
+    }
+    setDraggingSlider(slider);
     setIsDragging(true);
   };
 
-  const handleSliderKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+  const handleSliderKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>, slider: 'before' | 'after') => {
     if (event.key === 'ArrowLeft') {
       event.preventDefault();
-      setSliderPosition((value) => clamp(value - 4, 0, 100));
+      if (slider === 'before') {
+        setBeforeSliderPosition((value: number) => clamp(value - 4, 0, 100));
+      } else {
+        setAfterSliderPosition((value: number) => clamp(value - 4, 0, 100));
+      }
     }
 
     if (event.key === 'ArrowRight') {
       event.preventDefault();
-      setSliderPosition((value) => clamp(value + 4, 0, 100));
+      if (slider === 'before') {
+        setBeforeSliderPosition((value: number) => clamp(value + 4, 0, 100));
+      } else {
+        setAfterSliderPosition((value: number) => clamp(value + 4, 0, 100));
+      }
     }
 
     if (event.key === 'Home') {
       event.preventDefault();
-      setSliderPosition(0);
+      if (slider === 'before') {
+        setBeforeSliderPosition(0);
+      } else {
+        setAfterSliderPosition(0);
+      }
     }
 
     if (event.key === 'End') {
       event.preventDefault();
-      setSliderPosition(100);
+      if (slider === 'before') {
+        setBeforeSliderPosition(100);
+      } else {
+        setAfterSliderPosition(100);
+      }
     }
   };
 
@@ -117,60 +147,85 @@ export const BeforeAfterSlider = ({
         </div>
       ) : null}
 
-      <div
-        ref={stageRef}
-        className="before-after-slider__stage"
-        onPointerDown={handlePointerDown}
-        aria-label={ariaLabel}
-        style={{ cursor: 'ew-resize', touchAction: 'none' }}
-      >
-        {/* Background: AFTER (Clean) */}
-        <img
-          src={activeItem.afterImage}
-          alt={activeItem.afterAlt}
-          className="before-after-slider__image"
-          draggable={false}
-        />
-        
-        {/* Overlay: BEFORE (Dirty) */}
+      {/* Before Image Slider Stage */}
+      <div style={{ marginBottom: '1rem' }}>
+        <div style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'white' }}>
+          Before Image Slider
+        </div>
         <div
-          className="before-after-slider__after-layer"
-          style={{ width: `${sliderPosition}%` }}
-          aria-hidden="true"
+          ref={stageRef}
+          className="before-after-slider__stage"
+          onPointerDown={(e) => handlePointerDown(e, 'before')}
+          aria-label="Before image slider"
+          style={{ cursor: 'ew-resize', touchAction: 'none' }}
         >
           <img
             src={activeItem.beforeImage}
             alt={activeItem.beforeAlt}
             className="before-after-slider__image"
             draggable={false}
+            style={{ transform: `scale(${1 + (beforeSliderPosition / 100)})`, transformOrigin: 'center' }}
           />
-        </div>
-
-        <span className="before-after-slider__badge before-after-slider__badge--before" style={{ pointerEvents: 'none' }}>
-          {activeItem.beforeLabel}
-        </span>
-        <span className="before-after-slider__badge before-after-slider__badge--after" style={{ pointerEvents: 'none' }}>
-          {activeItem.afterLabel}
-        </span>
-
-        <div
-          className="before-after-slider__divider"
-          style={{ left: `${sliderPosition}%` }}
-          aria-hidden="true"
-        >
           <div
-            className="before-after-slider__handle"
-            role="slider"
-            tabIndex={0}
-            aria-label="Adjust before and after comparison"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={Math.round(sliderPosition)}
-            aria-valuetext={`${Math.round(sliderPosition)} percent of the before image shown`}
-            onKeyDown={handleSliderKeyDown}
+            className="before-after-slider__divider"
+            style={{ left: `${beforeSliderPosition}%` }}
+            aria-hidden="true"
           >
-            <span />
-            <span />
+            <div
+              className="before-after-slider__handle"
+              role="slider"
+              tabIndex={0}
+              aria-label="Adjust before image zoom"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(beforeSliderPosition)}
+              aria-valuetext={`${Math.round(beforeSliderPosition)} percent zoom`}
+              onKeyDown={(e) => handleSliderKeyDown(e, 'before')}
+            >
+              <span />
+              <span />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* After Image Slider Stage */}
+      <div>
+        <div style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'white' }}>
+          After Image Slider
+        </div>
+        <div
+          className="before-after-slider__stage"
+          onPointerDown={(e) => handlePointerDown(e, 'after')}
+          aria-label="After image slider"
+          style={{ cursor: 'ew-resize', touchAction: 'none' }}
+        >
+          <img
+            src={activeItem.afterImage}
+            alt={activeItem.afterAlt}
+            className="before-after-slider__image"
+            draggable={false}
+            style={{ transform: `scale(${1 + (afterSliderPosition / 100)})`, transformOrigin: 'center' }}
+          />
+          <div
+            className="before-after-slider__divider"
+            style={{ left: `${afterSliderPosition}%` }}
+            aria-hidden="true"
+          >
+            <div
+              className="before-after-slider__handle"
+              role="slider"
+              tabIndex={0}
+              aria-label="Adjust after image zoom"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(afterSliderPosition)}
+              aria-valuetext={`${Math.round(afterSliderPosition)} percent zoom`}
+              onKeyDown={(e) => handleSliderKeyDown(e, 'after')}
+            >
+              <span />
+              <span />
+            </div>
           </div>
         </div>
       </div>
@@ -263,7 +318,7 @@ export const BeforeAfterSlider = ({
           border-radius: 16px;
           overflow: hidden;
           border: 1px solid var(--color-border-default);
-          background: var(--color-background-surface);
+          background: transparent;
         }
         
         .before-after-slider__image {
@@ -272,7 +327,7 @@ export const BeforeAfterSlider = ({
           left: 0;
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          object-fit: contain;
           object-position: center;
         }
         
@@ -280,6 +335,7 @@ export const BeforeAfterSlider = ({
           position: absolute;
           top: 0;
           left: 0;
+          width: 100%;
           height: 100%;
           overflow: hidden;
         }

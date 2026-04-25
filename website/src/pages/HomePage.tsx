@@ -16,11 +16,13 @@ const galleryProofCards = [
     title: 'Interior reset',
     body: 'Deep cleaning and restoration for high-touch interior surfaces.',
     link: '/our-work',
+    image: '/images/gallery/interior-reset.png',
   },
   {
     title: 'Exterior finish',
     body: 'Noticeable clarity and protection for the vehicle exterior.',
     link: '/our-work',
+    image: '/images/gallery/exterior-finish.jpg',
   }
 ];
 
@@ -131,20 +133,37 @@ const HomePage = () => {
           </p>
         </div>
 
-        <div className="our-work-proof-cards">
-          {galleryProofCards.map((card, index) => (
-            <article 
-              key={card.title}
-              className="our-work-proof-card content-card reveal"
-              data-reveal-delay={String(index)}
-            >
-              <div className="our-work-proof-card__copy">
-                <h3>{card.title}</h3>
-                <p className="section-copy">{card.body}</p>
-                <Link to={card.link} className="text-link">View documentation →</Link>
-              </div>
-            </article>
-          ))}
+        <div className="our-work-container content-card reveal">
+          <div className="before-after-display">
+            <div className="before-after-display__image">
+              <img src="/images/gallery/detail-before.png" alt="Before" />
+              <span className="before-after-display__label">Before</span>
+            </div>
+            <div className="before-after-display__image">
+              <img src="/images/gallery/detail-after.png" alt="After" />
+              <span className="before-after-display__label">After</span>
+            </div>
+          </div>
+
+          <div className="our-work-proof-cards">
+            {galleryProofCards.map((card, index) => (
+              <article 
+                key={card.title}
+                className="our-work-proof-card reveal"
+                data-reveal-delay={String(index)}
+              >
+                {card.image && (
+                  <div className="our-work-proof-card__image">
+                    <img src={card.image} alt={card.title} />
+                  </div>
+                )}
+                <div className="our-work-proof-card__copy">
+                  <h3>{card.title}</h3>
+                  <p className="section-copy">{card.body}</p>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -269,6 +288,25 @@ const HomePage = () => {
           gap: 1rem;
         }
 
+        .our-work-container {
+          display: grid;
+          gap: 2rem;
+          padding: 2rem;
+        }
+
+        .our-work-proof-card__image {
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          overflow: hidden;
+          border-radius: 12px;
+        }
+
+        .our-work-proof-card__image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
         .our-work-proof-card__copy {
           display: grid;
           gap: 0.5rem;
@@ -300,6 +338,38 @@ const HomePage = () => {
           display: grid;
           gap: 1.5rem;
           padding-top: 1rem;
+        }
+
+        .before-after-display {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 1.5rem;
+        }
+
+        .before-after-display__image {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          overflow: hidden;
+          border-radius: 12px;
+        }
+
+        .before-after-display__image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .before-after-display__label {
+          position: absolute;
+          bottom: 0.75rem;
+          left: 0.75rem;
+          background: rgba(0, 0, 0, 0.7);
+          color: white;
+          padding: 0.25rem 0.75rem;
+          border-radius: 4px;
+          font-size: 0.875rem;
+          font-weight: 600;
         }
 
         .tier-grid {
@@ -335,7 +405,8 @@ const HomePage = () => {
         @media (max-width: 820px) {
           .tier-grid,
           .our-work-proof-cards,
-          .two-up {
+          .two-up,
+          .before-after-display {
             grid-template-columns: 1fr;
           }
         }

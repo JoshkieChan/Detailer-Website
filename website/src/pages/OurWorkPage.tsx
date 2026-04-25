@@ -9,8 +9,8 @@ const sliderSections = detailingGalleryItems.map((item) => ({
   heading: item.title.charAt(0).toUpperCase() + item.title.slice(1),
 }));
 
-// Set Hero image to the After Wheel as requested
-const heroImage = detailingGallerySupportingImages.find((image) => image.id === 'wheel-after');
+// Set Hero image to the After image as requested
+const heroImage = detailingGallerySupportingImages.find((image) => image.id === 'hero-image');
 
 const OurWorkPage = () => {
   return (
@@ -116,7 +116,7 @@ const OurWorkPage = () => {
         </div>
 
         <div className="our-work-proof-grid">
-          {detailingGallerySupportingImages.filter(img => img.id !== 'wheel-after').map((image, index) => (
+          {detailingGallerySupportingImages.filter(img => img.id !== 'wheel-after' && img.id !== 'hero-image').map((image, index) => (
             <figure
               key={image.id}
               className="our-work-proof-card reveal"
@@ -176,7 +176,7 @@ const OurWorkPage = () => {
           min-height: 420px;
           border-radius: 24px;
           border: 1px solid var(--color-border-default);
-          background: var(--color-background-surface);
+          background: transparent;
           box-shadow: var(--shadow-hover);
         }
 
@@ -223,15 +223,15 @@ const OurWorkPage = () => {
 
         .our-work-sections {
           display: grid;
-          gap: 2rem;
+          gap: 1rem;
         }
 
         .our-work-case {
           display: grid;
           grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-          gap: 1.5rem;
+          gap: 1rem;
           align-items: center;
-          padding: 1.6rem;
+          padding: 1rem;
           border: 1px solid var(--color-border-default);
           border-radius: 24px;
           background: var(--color-background-surface);
@@ -251,7 +251,7 @@ const OurWorkPage = () => {
 
         .our-work-case-copy {
           display: grid;
-          gap: 1rem;
+          gap: 0.75rem;
         }
 
         .our-work-case-media {
@@ -274,7 +274,7 @@ const OurWorkPage = () => {
           overflow: hidden;
           border-radius: 18px;
           border: 1px solid var(--color-border-default);
-          background: var(--color-background-surface);
+          background: transparent;
           box-shadow: var(--shadow-hover);
         }
 

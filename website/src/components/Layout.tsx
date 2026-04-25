@@ -265,6 +265,129 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
       </footer>
+
+      <style>{`
+        .footer-bar-container {
+          padding: 2rem 1.5rem;
+        }
+
+        .footer-left {
+          display: grid;
+          gap: 1rem;
+          text-align: center;
+        }
+
+        .footer-brand-heading {
+          font-size: 1.5rem;
+        }
+
+        .serving-text,
+        .footer-hours,
+        .footer-legal {
+          font-size: 0.9rem;
+          line-height: 1.4;
+        }
+
+        .footer-contact-block {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .footer-social-links {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1rem;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .social-link {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 0.75rem;
+          border-radius: 8px;
+          transition: background-color 0.2s;
+        }
+
+        .social-link:hover {
+          background-color: var(--color-background-surface);
+        }
+
+        .footer-legal-links {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          align-items: center;
+          font-size: 0.85rem;
+          justify-content: center;
+        }
+
+        @media (max-width: 600px) {
+          .footer-bar-container {
+            padding: 1.5rem 1rem;
+          }
+
+          .footer-brand-heading {
+            font-size: 1.25rem;
+          }
+
+          .serving-text,
+          .footer-hours,
+          .footer-legal {
+            font-size: 0.85rem;
+          }
+
+          .footer-contact-block {
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            justify-content: center;
+          }
+
+          .contact-separator {
+            display: none;
+          }
+
+          .footer-social-links {
+            gap: 0.5rem;
+          }
+
+          .social-link {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.8rem;
+          }
+
+          .social-link span {
+            display: none;
+          }
+
+          .social-link svg {
+            width: 20px;
+            height: 20px;
+          }
+
+          .footer-legal-links {
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .footer-legal-links .separator {
+            display: none;
+          }
+        }
+
+        @media (max-width: 400px) {
+          .footer-social-links {
+            justify-content: center;
+          }
+        }
+      `}</style>
     </div>
   );
 };
