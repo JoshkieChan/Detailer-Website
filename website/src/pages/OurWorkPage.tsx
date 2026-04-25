@@ -185,6 +185,7 @@ const OurWorkPage = () => {
           height: 100%;
           object-fit: cover;
           object-position: center top;
+          min-height: 420px;
         }
 
         .our-work-hero-note {
@@ -282,6 +283,7 @@ const OurWorkPage = () => {
           aspect-ratio: 4 / 5;
           object-fit: cover;
           object-position: center top;
+          min-height: 300px;
         }
 
         @media (max-width: 980px) {

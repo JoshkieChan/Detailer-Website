@@ -206,6 +206,216 @@ export const BeforeAfterSlider = ({
           ))}
         </div>
       ) : null}
+      
+      <style>{`
+        .before-after-slider {
+          display: grid;
+          gap: 1rem;
+        }
+        
+        .before-after-slider__header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.75rem;
+          border: 1px solid var(--color-border-default);
+          border-radius: 16px;
+          background: var(--color-background-surface);
+        }
+        
+        .before-after-slider__controls {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+        
+        .before-after-slider__arrow {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          border: 1px solid var(--color-border-default);
+          border-radius: 8px;
+          background: var(--color-background-surface);
+          color: var(--color-text-primary);
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .before-after-slider__arrow:hover {
+          background: var(--color-background-hover);
+          border-color: var(--color-border-hover);
+        }
+        
+        .before-after-slider__count {
+          font-size: 0.875rem;
+          color: var(--color-text-secondary);
+          font-weight: 500;
+          min-width: 40px;
+          text-align: center;
+        }
+        
+        .before-after-slider__stage {
+          position: relative;
+          width: 100%;
+          height: 400px;
+          border-radius: 16px;
+          overflow: hidden;
+          border: 1px solid var(--color-border-default);
+          background: var(--color-background-surface);
+        }
+        
+        .before-after-slider__image {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center;
+        }
+        
+        .before-after-slider__after-layer {
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          overflow: hidden;
+        }
+        
+        .before-after-slider__badge {
+          position: absolute;
+          top: 1rem;
+          padding: 0.5rem 1rem;
+          border-radius: 8px;
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: white;
+          z-index: 2;
+        }
+        
+        .before-after-slider__badge--before {
+          left: 1rem;
+          background: rgba(239, 68, 68, 0.9);
+        }
+        
+        .before-after-slider__badge--after {
+          right: 1rem;
+          background: rgba(34, 197, 94, 0.9);
+        }
+        
+        .before-after-slider__divider {
+          position: absolute;
+          top: 0;
+          height: 100%;
+          width: 4px;
+          background: white;
+          transform: translateX(-50%);
+          z-index: 3;
+          box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .before-after-slider__handle {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: white;
+          border: 3px solid var(--color-border-default);
+          cursor: ew-resize;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 8px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .before-after-slider__handle span {
+          width: 4px;
+          height: 4px;
+          background: var(--color-text-secondary);
+          border-radius: 50%;
+        }
+        
+        .before-after-slider__details {
+          display: grid;
+          gap: 1rem;
+          padding: 1rem;
+          border: 1px solid var(--color-border-default);
+          border-radius: 16px;
+          background: var(--color-background-surface);
+        }
+        
+        .before-after-slider__copy h3 {
+          margin: 0 0 0.5rem 0;
+          font-size: 1.125rem;
+          font-weight: 600;
+        }
+        
+        .before-after-slider__copy p {
+          margin: 0;
+          color: var(--color-text-secondary);
+          line-height: 1.5;
+        }
+        
+        .before-after-slider__points {
+          margin: 0;
+          padding: 0;
+          list-style: none;
+        }
+        
+        .before-after-slider__point-mark {
+          display: inline-block;
+          width: 6px;
+          height: 6px;
+          background: var(--color-lime);
+          border-radius: 50%;
+          margin-right: 0.5rem;
+        }
+        
+        .before-after-slider__dots {
+          display: flex;
+          justify-content: center;
+          gap: 0.5rem;
+          padding: 1rem 0;
+        }
+        
+        .before-after-slider__dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          border: 2px solid var(--color-border-default);
+          background: var(--color-background-surface);
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .before-after-slider__dot.is-active {
+          background: var(--color-text-primary);
+          border-color: var(--color-text-primary);
+        }
+        
+        @media (max-width: 768px) {
+          .before-after-slider__stage {
+            height: 300px;
+          }
+          
+          .before-after-slider__header {
+            flex-direction: column;
+            gap: 0.75rem;
+            text-align: center;
+          }
+          
+          .before-after-slider__badge {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+          }
+        }
+      `}</style>
     </section>
   );
 };
