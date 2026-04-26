@@ -23,6 +23,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   useEffect(() => {
     const revealNodes = Array.from(document.querySelectorAll<HTMLElement>('.reveal'));
     if (revealNodes.length === 0 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
