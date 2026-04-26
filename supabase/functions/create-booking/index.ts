@@ -71,8 +71,7 @@ Deno.serve(async (req) => {
       blocked_until,
       serviceDurationMinutes,
       service_duration_minutes,
-      bufferMinutes,
-      buffer_minutes,
+      bufferMinutes: payloadBufferMinutes,
       totalAmountCents,
       total_amount_cents,
       calculated_price,
@@ -87,7 +86,6 @@ Deno.serve(async (req) => {
     const finalStartTime = (start_time || startTime)?.toString().trim();
     const finalEndTime = (end_time || endTime)?.toString().trim();
     const payloadServiceDurationMinutes = Number(service_duration_minutes || serviceDurationMinutes);
-    const payloadBufferMinutes = Number(buffer_minutes || bufferMinutes);
     const finalBlockedUntil = (blocked_until || blockedUntil)?.toString().trim();
     const finalFullName = (full_name || fullName)?.toString().trim();
     const finalPackageId = (package_id || packageId)?.toString().trim();
