@@ -133,7 +133,7 @@ Deno.serve(async (req) => {
         supabase
           .from('bookings')
           .select('service_date, start_time, end_time, blocked_until, payment_status, created_at')
-          .in('payment_status', ['paid', 'pending_payment'])
+          .eq('payment_status', 'paid')
           .order('service_date', { ascending: true })
           .order('start_time', { ascending: true }),
         supabase
