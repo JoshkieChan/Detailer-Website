@@ -1,4 +1,4 @@
-import { SERVICE_TIMING_RULES, type ScheduledInterval, type SlotBookingPackageId } from '../config/scheduler';
+import { type ScheduledInterval, type SlotBookingPackageId, type VehicleTypeId } from '../config/scheduler';
 
 const getFunctionBase = () => {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim();
@@ -26,13 +26,15 @@ export interface AvailabilityResponse {
 }
 
 export const fetchAvailability = async (
-  packageId: SlotBookingPackageId
+  packageId: SlotBookingPackageId,
+  vehicleType?: VehicleTypeId,
+  hasHeavyAddOns?: boolean
 ): Promise<AvailabilityResponse> => {
   const { url, anonKey } = getFunctionBase();
   const searchParams = new URLSearchParams({
     packageId,
-    durationMinutes: String(SERVICE_TIMING_RULES[packageId].durationMinutes),
-    bufferMinutes: String(SERVICE_TIMING_RULES[packageId].bufferMinutes),
+    vehicleType: vehicleType || 'sedan',
+    hasHeavyAddOns: String(hasHeavyAddOns || false),
   });
 
   const response = await fetch(`${url}?${searchParams.toString()}`, {

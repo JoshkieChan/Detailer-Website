@@ -7,12 +7,21 @@ const corsHeaders = {
 };
 
 const getExpectedPasscode = () =>
-  Deno.env.get('OWNER_MODE_PASSCODE') || Deno.env.get('VITE_OWNER_PASSWORD') || '';
+  Deno.env.get('OWNER_PASSCODE') ||
+  Deno.env.get('OWNER_MODE_PASSCODE') ||
+  Deno.env.get('VITE_OWNER_PASSWORD') ||
+  '';
 
 const isAuthorized = (req: Request) => {
   const passcode = req.headers.get('x-owner-passcode') || '';
   const expected = getExpectedPasscode();
   return Boolean(expected) && passcode === expected;
+};
+
+const pickMoney = (value: unknown, fallback: number): number => {
+  const n = typeof value === 'number' ? value : typeof value === 'string' ? Number.parseFloat(value) : Number.NaN;
+  if (!Number.isFinite(n) || n < 0) return fallback;
+  return n;
 };
 
 Deno.serve(async (req) => {
@@ -78,6 +87,18 @@ Deno.serve(async (req) => {
         paymentStatus,
         serviceDurationMinutes,
         bufferMinutes,
+        calculated_price,
+        calculatedPrice,
+        deposit_amount,
+        depositAmount,
+        tax_amount,
+        taxAmount,
+        total_today,
+        totalToday,
+        remaining_balance,
+        remainingBalance,
+        total_amount_cents,
+        totalAmountCents,
       } = payload;
 
       if (!isBookingPackageId(packageId) || !isVehicleTypeId(vehicleType) || !isLocationType(locationType)) {
@@ -89,6 +110,17 @@ Deno.serve(async (req) => {
         vehicleType,
         locationType,
       });
+
+      const subtotal = pickMoney(calculated_price ?? calculatedPrice, pricing.subtotal);
+      const deposit = pickMoney(deposit_amount ?? depositAmount, pricing.depositAmount);
+      const tax = pickMoney(tax_amount ?? taxAmount, pricing.taxAmount);
+      const totalTodayVal = pickMoney(total_today ?? totalToday, pricing.totalToday);
+      const remaining = pickMoney(remaining_balance ?? remainingBalance, pricing.remainingBalance);
+      const centsRaw = total_amount_cents ?? totalAmountCents;
+      const cents =
+        typeof centsRaw === 'number' && Number.isFinite(centsRaw) && centsRaw >= 0
+          ? Math.round(centsRaw)
+          : Math.round(totalTodayVal * 100);
 
       const { error } = await supabase.from('bookings').insert([
         {
@@ -111,20 +143,66 @@ Deno.serve(async (req) => {
           location_type: locationTypeLabels[locationType],
           mobile_fee_applied: locationType === 'mobile',
           membership_intent: 'none',
-          calculated_price: pricing.subtotal,
-          total_amount: pricing.subtotal,
-          deposit_amount: pricing.depositAmount,
-          tax_amount: pricing.taxAmount,
-          total_today: pricing.totalToday,
-          remaining_balance: pricing.remainingBalance,
-          helcim_deposit_url: pricing.helcimLink.url,
+          calculated_price: subtotal,
+          total_amount: subtotal,
+          deposit_amount: deposit,
+          tax_amount: tax,
+          total_today: totalTodayVal,
+          remaining_balance: remaining,
+          helcim_deposit_url: null,
           booking_source: 'admin_manual',
-          payment_status: paymentStatus || 'paid',
-          total_amount_cents: Math.round(pricing.totalToday * 100),
+          payment_status: paymentStatus || 'pending_payment',
+          total_amount_cents: cents,
           status: 'confirmed',
         },
       ]);
 
+      if (error) throw error;
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
+    if (payload.action === 'delete_event') {
+      const { id, type } = payload;
+      if (!id || !type) {
+        throw new Error('Event id and type required.');
+      }
+      
+      const table = type === 'booking' ? 'bookings' : 'availability_blocks';
+      const { error } = await supabase.from(table).delete().eq('id', id);
+      
+      if (error) throw error;
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
+    if (payload.action === 'delete_all_bookings') {
+      // Delete all bookings (useful for clearing out test data)
+      const { error } = await supabase.from('bookings').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      
+      if (error) throw error;
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
+    if (payload.action === 'update_booking') {
+      const { id, updates } = payload;
+      if (!id) throw new Error('Booking ID required.');
+
+      // Only allow safe, known fields to be updated
+      const allowedFields = ['payment_status', 'notes', 'start_time', 'end_time', 'service_date', 'blocked_until'];
+      const safeUpdates: Record<string, unknown> = {};
+      for (const key of allowedFields) {
+        if (key in updates) safeUpdates[key] = updates[key];
+      }
+
+      const { error } = await supabase.from('bookings').update(safeUpdates).eq('id', id);
       if (error) throw error;
       return new Response(JSON.stringify({ ok: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

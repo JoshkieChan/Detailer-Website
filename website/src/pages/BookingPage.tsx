@@ -40,6 +40,20 @@ import {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Heavy add-on keywords that require extra scheduling time
+const HEAVY_ADDON_KEYWORDS = [
+  'paint correction',
+  'pet hair',
+  'headlight',
+  'headlights',
+  'restoration',
+];
+
+const hasHeavyAddOns = (notes: string): boolean => {
+  const lowerNotes = notes.toLowerCase();
+  return HEAVY_ADDON_KEYWORDS.some(keyword => lowerNotes.includes(keyword));
+};
+
 function validateFullName(v: string) {
   const trimmed = v.trim();
   if (!trimmed) return 'Please enter your full name.';
@@ -218,7 +232,11 @@ const BookingPage = () => {
   useEffect(() => {
     if (!validPackage) return;
 
-    fetchAvailability(validPackage as SlotBookingPackageId)
+    fetchAvailability(
+      validPackage as SlotBookingPackageId,
+      validVehicle || 'sedan',
+      hasHeavyAddOns(formData.notes)
+    )
       .then((data) => {
         setAvailability(data);
         setAvailabilityError(null);
@@ -227,10 +245,10 @@ const BookingPage = () => {
         console.error(error);
         setAvailabilityError('Could not load live availability right now.');
       });
-  }, [validPackage]);
+  }, [validPackage, validVehicle, formData.notes]);
 
 
-  const hourlySlots = validPackage ? getHourlyStartSlots(validPackage as SlotBookingPackageId) : [];
+  const hourlySlots = validPackage ? getHourlyStartSlots(validPackage as SlotBookingPackageId, validVehicle || 'sedan', hasHeavyAddOns(formData.notes)) : [];
   const selectedDayIntervals = formData.date ? availability.intervalsByDate[formData.date] || [] : [];
 
   const calendarIntervalsByDate = useMemo(() => {
@@ -260,6 +278,8 @@ const BookingPage = () => {
         date: formData.date,
         packageId: validPackage as SlotBookingPackageId,
         startTime: slot.value,
+        vehicleType: validVehicle || 'sedan',
+        hasHeavyAddOns: hasHeavyAddOns(formData.notes),
       });
       const slotStart = timeToMinutes(slot.value);
       
@@ -315,6 +335,8 @@ const BookingPage = () => {
           date: formData.date,
           packageId: validPackage as SlotBookingPackageId,
           startTime: formData.startTime,
+          vehicleType: validVehicle || 'sedan',
+          hasHeavyAddOns: hasHeavyAddOns(formData.notes),
         })
       : null;
 
@@ -328,6 +350,8 @@ const BookingPage = () => {
             Object.entries(availability.intervalsByDate).flatMap(([date, intervals]) =>
               intervals.map((interval) => ({ ...interval, date }))
             ) || [],
+          vehicleType: validVehicle || 'sedan',
+          hasHeavyAddOns: hasHeavyAddOns(formData.notes),
         })
       : null;
 
@@ -410,8 +434,8 @@ const BookingPage = () => {
           service_date: formData.date,
           start_time: formData.startTime,
           end_time: selectedWindow.endTime,
-          service_duration_minutes: selectedWindow.rule.durationMinutes,
-          buffer_minutes: selectedWindow.rule.bufferMinutes,
+          service_duration_minutes: selectedWindow.serviceDuration,
+          buffer_minutes: selectedWindow.bufferMinutes,
           blocked_until: selectedWindow.blockedUntil,
           // Pricing and metadata
           calculated_price: pricing.subtotal,
@@ -552,6 +576,8 @@ const BookingPage = () => {
                     onChange={(date) => setFormData({ ...formData, date, startTime: '' })}
                     unavailableDates={availability.unavailableDates}
                     slotPackageId={validPackage ?? undefined}
+                    slotVehicleType={validVehicle ?? 'sedan'}
+                    slotHasHeavyAddOns={hasHeavyAddOns(formData.notes)}
                     intervalsByDate={calendarIntervalsByDate}
                     showNoSlots={showNoSlots}
                   />

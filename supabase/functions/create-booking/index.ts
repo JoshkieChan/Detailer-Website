@@ -8,6 +8,11 @@ import {
   locationTypeLabels,
   vehicleTypeLabels,
 } from '../../../website/src/data/bookingPricing.ts';
+import {
+  getServiceDuration,
+  type VehicleTypeId as SchedulerVehicleTypeId,
+  type SlotBookingPackageId,
+} from '../../../website/src/config/scheduler.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -81,8 +86,8 @@ Deno.serve(async (req) => {
     const finalServiceDate = (service_date || serviceDate)?.toString().trim();
     const finalStartTime = (start_time || startTime)?.toString().trim();
     const finalEndTime = (end_time || endTime)?.toString().trim();
-    const finalServiceDurationMinutes = Number(service_duration_minutes || serviceDurationMinutes);
-    const finalBufferMinutes = Number(buffer_minutes || bufferMinutes);
+    const payloadServiceDurationMinutes = Number(service_duration_minutes || serviceDurationMinutes);
+    const payloadBufferMinutes = Number(buffer_minutes || bufferMinutes);
     const finalBlockedUntil = (blocked_until || blockedUntil)?.toString().trim();
     const finalFullName = (full_name || fullName)?.toString().trim();
     const finalPackageId = (package_id || packageId)?.toString().trim();
@@ -110,6 +115,26 @@ Deno.serve(async (req) => {
       vehicleType: finalVehicleType,
       locationType: finalLocationType,
     });
+
+    // Calculate service duration based on vehicle size (new model)
+    const calculatedServiceDuration = getServiceDuration(
+      finalPackageId as SlotBookingPackageId,
+      finalVehicleType as SchedulerVehicleTypeId
+    );
+
+    // Detect heavy add-ons from notes
+    const HEAVY_ADDON_KEYWORDS = ['paint correction', 'pet hair', 'headlight', 'headlights', 'restoration'];
+    const notesLower = (notes || '').toLowerCase();
+    const hasHeavyAddOns = HEAVY_ADDON_KEYWORDS.some(keyword => notesLower.includes(keyword));
+
+    // Calculate blocked duration (service + buffer + add-on time)
+    const bufferMinutes = 60;
+    const addOnMinutes = hasHeavyAddOns ? 60 : 0;
+    const calculatedBlockedDuration = calculatedServiceDuration + bufferMinutes + addOnMinutes;
+
+    // Use calculated duration if not provided in payload
+    const finalServiceDurationMinutes = payloadServiceDurationMinutes || calculatedServiceDuration;
+    const finalBufferMinutes = payloadBufferMinutes || bufferMinutes;
 
     // Use values from payload if they exist, otherwise use calculated values
     const finalDepositAmount = deposit_amount ?? pricing.depositAmount;
@@ -140,7 +165,9 @@ Deno.serve(async (req) => {
           package: bookingPackages[finalPackageId].label,
           package_id: finalPackageId,
           vehicle_info: vehicleTypeLabels[finalVehicleType],
-          vehicle_type: vehicleTypeLabels[finalVehicleType],
+          vehicle_type: finalVehicleType,
+          location_label: locationTypeLabels[finalLocationType],
+          location_type: finalLocationType,
           service_date: finalServiceDate,
           start_time: finalStartTime,
           end_time: finalEndTime,
@@ -148,7 +175,6 @@ Deno.serve(async (req) => {
           blocked_until: finalBlockedUntil,
           service_duration_minutes: finalServiceDurationMinutes,
           buffer_minutes: finalBufferMinutes,
-          location_type: locationTypeLabels[finalLocationType],
           mobile_fee_applied: finalLocationType === 'mobile',
           membership_intent:
             membership_intent === 'quarterly' ||

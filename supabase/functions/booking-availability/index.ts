@@ -4,6 +4,8 @@ import {
   isDateUnavailable,
   type ScheduledInterval,
   type SlotBookingPackageId,
+  type VehicleTypeId,
+  getServiceDuration,
 } from '../../../website/src/config/scheduler.ts';
 
 const corsHeaders = {
@@ -11,11 +13,25 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-owner-passcode',
 };
 
+const getOwnerPasscodeEnv = () =>
+  Deno.env.get('OWNER_PASSCODE') ||
+  Deno.env.get('OWNER_MODE_PASSCODE') ||
+  Deno.env.get('VITE_OWNER_PASSWORD') ||
+  '';
+
 const verifyOwnerPasscode = (req: Request) => {
   const passcode = req.headers.get('x-owner-passcode') || '';
-  const expected = Deno.env.get('OWNER_MODE_PASSCODE') || Deno.env.get('VITE_OWNER_PASSWORD') || '';
+  const expected = getOwnerPasscodeEnv();
   return Boolean(expected) && passcode === expected;
 };
+
+const pacificDateString = (d: Date) =>
+  new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Los_Angeles',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(d);
 
 const toDateString = (iso: string) => iso.slice(0, 10);
 const toTimeString = (iso: string) => iso.slice(11, 16);
@@ -34,6 +50,8 @@ Deno.serve(async (req) => {
 
     const url = new URL(req.url);
     const packageId = (url.searchParams.get('packageId') || 'maintenance') as SlotBookingPackageId;
+    const vehicleType = (url.searchParams.get('vehicleType') || 'sedan') as VehicleTypeId;
+    const hasHeavyAddOns = url.searchParams.get('hasHeavyAddOns') === 'true';
     const ownerMode = url.searchParams.get('owner') === 'true';
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
@@ -51,7 +69,7 @@ Deno.serve(async (req) => {
           supabase
             .from('bookings')
             .select(
-              'id, full_name, package, vehicle_info, service_date, start_time, end_time, blocked_until, location_type, notes, payment_status'
+              'id, full_name, phone, email, package, package_id, vehicle_info, vehicle_type, service_date, start_time, end_time, blocked_until, location_type, notes, payment_status, booking_source, calculated_price, deposit_amount, remaining_balance'
             )
             .order('service_date', { ascending: true })
             .order('start_time', { ascending: true }),
@@ -73,12 +91,21 @@ Deno.serve(async (req) => {
           endTime: booking.end_time,
           blockedUntil: booking.blocked_until || booking.end_time,
           title: `${booking.full_name} — ${booking.package}`,
-          details: [
-            booking.vehicle_info || 'Vehicle size not set',
-            booking.location_type || 'Location not set',
-            booking.notes || 'No notes',
-          ],
+          details: [booking.notes || 'No notes'],
           paymentStatus: booking.payment_status || null,
+          customerName: booking.full_name || '',
+          phone: booking.phone || '',
+          email: booking.email || '',
+          packageLabel: booking.package || '',
+          packageId: booking.package_id || '',
+          vehicleInfo: booking.vehicle_info || '',
+          vehicleType: booking.vehicle_type || '',
+          locationType: booking.location_type || '',
+          bookingSource: booking.booking_source || 'web',
+          notes: booking.notes || '',
+          calculatedPrice: Number(booking.calculated_price ?? 0),
+          depositAmount: Number(booking.deposit_amount ?? 0),
+          remainingBalance: Number(booking.remaining_balance ?? 0),
         })),
         ...(blocks || []).map((block) => ({
           id: block.id,
@@ -90,6 +117,8 @@ Deno.serve(async (req) => {
           title: `Blackout block — ${block.reason || 'Owner block'}`,
           details: [block.source || 'owner_manual'],
           paymentStatus: null,
+          reason: block.reason || '',
+          source: block.source || 'owner_manual',
         })),
       ];
 
@@ -103,8 +132,8 @@ Deno.serve(async (req) => {
       await Promise.all([
         supabase
           .from('bookings')
-          .select('service_date, start_time, end_time, blocked_until')
-          .eq('payment_status', 'paid')
+          .select('service_date, start_time, end_time, blocked_until, payment_status, created_at')
+          .in('payment_status', ['paid', 'pending_payment'])
           .order('service_date', { ascending: true })
           .order('start_time', { ascending: true }),
         supabase
@@ -144,19 +173,34 @@ Deno.serve(async (req) => {
       });
     }
 
+    const now = new Date();
+
     const allIntervals = Object.values(intervalsByDate).flat();
     const unavailableDates = Object.keys(intervalsByDate).filter((date) =>
       isDateUnavailable({
         date,
         packageId,
         intervals: intervalsByDate[date],
+        now,
+        vehicleType,
+        hasHeavyAddOns,
       })
     );
 
+    // Explicitly check today (Pacific calendar day, consistent with isDateUnavailable)
+    const todayStr = pacificDateString(now);
+    if (!unavailableDates.includes(todayStr)) {
+      if (isDateUnavailable({ date: todayStr, packageId, intervals: intervalsByDate[todayStr] || [], now, vehicleType, hasHeavyAddOns })) {
+        unavailableDates.push(todayStr);
+      }
+    }
+
     const nextAvailableOpening = getNextAvailableOpening({
-      fromDate: new Date(),
+      fromDate: now,
       packageId,
       intervals: allIntervals,
+      vehicleType,
+      hasHeavyAddOns,
     });
 
     return new Response(

@@ -4,6 +4,7 @@ import {
   hasAvailableSlot,
   type ScheduledInterval,
   type SlotBookingPackageId,
+  type VehicleTypeId,
 } from '../config/scheduler';
 
 interface BookingCalendarProps {
@@ -15,6 +16,8 @@ interface BookingCalendarProps {
   disableSundays?: boolean;
   /** When set with intervalsByDate, days with no valid start times match public availability logic. */
   slotPackageId?: SlotBookingPackageId;
+  slotVehicleType?: VehicleTypeId;
+  slotHasHeavyAddOns?: boolean;
   intervalsByDate?: Record<string, ScheduledInterval[]>;
   isExpanded?: boolean;
   showNoSlots?: boolean;
@@ -29,6 +32,8 @@ export const BookingCalendar = ({
   disablePast = true,
   disableSundays = true,
   slotPackageId,
+  slotVehicleType = 'sedan',
+  slotHasHeavyAddOns = false,
   intervalsByDate,
   isExpanded = false,
   showNoSlots = true,
@@ -86,6 +91,8 @@ export const BookingCalendar = ({
             packageId: slotPackageId,
             intervals: intervalsByDate[dateStr] ?? [],
             now,
+            vehicleType: slotVehicleType,
+            hasHeavyAddOns: slotHasHeavyAddOns,
           })
         : false;
     const isDisabled = isPast || isSunday || (showNoSlots && isUnavailable);

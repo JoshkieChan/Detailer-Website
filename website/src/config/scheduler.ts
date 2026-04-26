@@ -1,4 +1,5 @@
 export type SlotBookingPackageId = 'maintenance' | 'deepReset';
+export type VehicleTypeId = 'sedan' | 'smallSuv' | 'largeSuvTruck';
 
 export interface ServiceTimingRule {
   label: string;
@@ -12,6 +13,21 @@ export const WORKDAY_START_MINUTES = 8 * 60;
 export const WORKDAY_END_MINUTES = 20 * 60;
 export const SLOT_INTERVAL_MINUTES = 60;
 
+// Base service durations by vehicle size (honest service time without buffer)
+const BASE_SERVICE_DURATIONS: Record<SlotBookingPackageId, Record<VehicleTypeId, number>> = {
+  maintenance: {
+    sedan: 120,      // 2 hours
+    smallSuv: 150,   // 2.5 hours
+    largeSuvTruck: 180, // 3 hours
+  },
+  deepReset: {
+    sedan: 300,      // 5 hours
+    smallSuv: 360,   // 6 hours
+    largeSuvTruck: 420, // 7 hours
+  },
+};
+
+// Legacy SERVICE_TIMING_RULES for backward compatibility (uses sedan duration as default)
 export const SERVICE_TIMING_RULES: Record<SlotBookingPackageId, ServiceTimingRule> = {
   maintenance: {
     label: 'Maintenance Detail',
@@ -27,6 +43,27 @@ export const SERVICE_TIMING_RULES: Record<SlotBookingPackageId, ServiceTimingRul
     bufferMinutes: 60,
     approxLabel: 'Approx. 6 hours',
   },
+};
+
+// Get service duration based on package and vehicle size
+export const getServiceDuration = (packageId: SlotBookingPackageId, vehicleType: VehicleTypeId): number => {
+  return BASE_SERVICE_DURATIONS[packageId][vehicleType];
+};
+
+// Get blocked duration (service + buffer), with optional add-on time
+export const getBlockedDuration = ({
+  packageId,
+  vehicleType,
+  hasHeavyAddOns = false,
+}: {
+  packageId: SlotBookingPackageId;
+  vehicleType: VehicleTypeId;
+  hasHeavyAddOns?: boolean;
+}): number => {
+  const serviceDuration = getServiceDuration(packageId, vehicleType);
+  const bufferMinutes = 60; // 1-hour buffer between jobs
+  const addOnMinutes = hasHeavyAddOns ? 60 : 0; // +1 hour for heavy add-ons
+  return serviceDuration + bufferMinutes + addOnMinutes;
 };
 
 export interface ScheduledInterval {
@@ -62,24 +99,60 @@ const parseDateString = (date: string) => {
 export const formatWindowLabel = (startMinutes: number, endMinutes: number) =>
   `${minutesToTime(startMinutes)} to ${minutesToTime(endMinutes)}`;
 
-export const getLatestBookableStart = (packageId: SlotBookingPackageId) =>
-  WORKDAY_END_MINUTES -
-  SERVICE_TIMING_RULES[packageId].durationMinutes -
-  SERVICE_TIMING_RULES[packageId].bufferMinutes;
+export const getLatestBookableStart = (
+  packageId: SlotBookingPackageId,
+  vehicleType: VehicleTypeId = 'sedan',
+  hasHeavyAddOns: boolean = false
+) => {
+  const serviceDuration = getServiceDuration(packageId, vehicleType);
+  const bufferMinutes = 60;
+  const addOnMinutes = hasHeavyAddOns ? 60 : 0;
+  return WORKDAY_END_MINUTES - serviceDuration - bufferMinutes - addOnMinutes;
+};
+
+export const getHourlyStartSlots = (
+  packageId: SlotBookingPackageId,
+  vehicleType: VehicleTypeId = 'sedan',
+  hasHeavyAddOns: boolean = false
+) => {
+  const latestStart = getLatestBookableStart(packageId, vehicleType, hasHeavyAddOns);
+  const slots: Array<{ value: string; label: string }> = [];
+
+  for (
+    let startMinutes = WORKDAY_START_MINUTES;
+    startMinutes <= latestStart;
+    startMinutes += SLOT_INTERVAL_MINUTES
+  ) {
+    const serviceDuration = getServiceDuration(packageId, vehicleType);
+    const endMinutes = startMinutes + serviceDuration;
+    slots.push({
+      value: minutesToTime(startMinutes),
+      label: formatWindowLabel(startMinutes, endMinutes),
+    });
+  }
+
+  return slots;
+};
 
 export const buildBookingWindow = ({
   date,
   packageId,
   startTime,
+  vehicleType = 'sedan',
+  hasHeavyAddOns = false,
 }: {
   date: string;
   packageId: SlotBookingPackageId;
   startTime: string;
+  vehicleType?: VehicleTypeId;
+  hasHeavyAddOns?: boolean;
 }) => {
   const startMinutes = timeToMinutes(startTime);
-  const rule = SERVICE_TIMING_RULES[packageId];
-  const endMinutes = startMinutes + rule.durationMinutes;
-  const blockedUntilMinutes = endMinutes + rule.bufferMinutes;
+  const serviceDuration = getServiceDuration(packageId, vehicleType);
+  const bufferMinutes = 60;
+  const addOnMinutes = hasHeavyAddOns ? 60 : 0;
+  const endMinutes = startMinutes + serviceDuration;
+  const blockedUntilMinutes = endMinutes + bufferMinutes + addOnMinutes;
 
   return {
     date,
@@ -89,27 +162,12 @@ export const buildBookingWindow = ({
     endMinutes,
     blockedUntil: minutesToTime(blockedUntilMinutes),
     blockedUntilMinutes,
-    rule,
+    serviceDuration,
+    bufferMinutes,
+    addOnMinutes,
+    vehicleType,
+    hasHeavyAddOns,
   };
-};
-
-export const getHourlyStartSlots = (packageId: SlotBookingPackageId) => {
-  const latestStart = getLatestBookableStart(packageId);
-  const slots: Array<{ value: string; label: string }> = [];
-
-  for (
-    let startMinutes = WORKDAY_START_MINUTES;
-    startMinutes <= latestStart;
-    startMinutes += SLOT_INTERVAL_MINUTES
-  ) {
-    const endMinutes = startMinutes + SERVICE_TIMING_RULES[packageId].durationMinutes;
-    slots.push({
-      value: minutesToTime(startMinutes),
-      label: formatWindowLabel(startMinutes, endMinutes),
-    });
-  }
-
-  return slots;
 };
 
 export const intervalsOverlap = (
@@ -124,13 +182,17 @@ export const isDateUnavailable = ({
   packageId,
   intervals,
   now = new Date(),
+  vehicleType = 'sedan',
+  hasHeavyAddOns = false,
 }: {
   date: string;
   packageId: SlotBookingPackageId;
   intervals: ScheduledInterval[];
   now?: Date;
+  vehicleType?: VehicleTypeId;
+  hasHeavyAddOns?: boolean;
 }) => {
-  const validSlots = getHourlyStartSlots(packageId);
+  const validSlots = getHourlyStartSlots(packageId, vehicleType, hasHeavyAddOns);
 
   // Requirement: Sundays are unavailable
   const day = parseDateString(date).getDay();
@@ -159,7 +221,7 @@ export const isDateUnavailable = ({
       if (timeToMinutes(slot.value) <= currentMinutes) return false;
     }
 
-    const slotWindow = buildBookingWindow({ date, packageId, startTime: slot.value });
+    const slotWindow = buildBookingWindow({ date, packageId, startTime: slot.value, vehicleType, hasHeavyAddOns });
     return !intervals.some((interval) => {
       if (interval.date !== date) return false;
       return intervalsOverlap(
@@ -177,6 +239,8 @@ export const hasAvailableSlot = (args: {
   packageId: SlotBookingPackageId;
   intervals: ScheduledInterval[];
   now?: Date;
+  vehicleType?: VehicleTypeId;
+  hasHeavyAddOns?: boolean;
 }) => !isDateUnavailable(args);
 
 export const getNextAvailableOpening = ({
@@ -184,11 +248,15 @@ export const getNextAvailableOpening = ({
   packageId,
   intervals,
   daysToScan = 30,
+  vehicleType = 'sedan',
+  hasHeavyAddOns = false,
 }: {
   fromDate: Date;
   packageId: SlotBookingPackageId;
   intervals: ScheduledInterval[];
   daysToScan?: number;
+  vehicleType?: VehicleTypeId;
+  hasHeavyAddOns?: boolean;
 }) => {
   const scanDate = new Date(fromDate);
   scanDate.setHours(0, 0, 0, 0);
@@ -200,7 +268,7 @@ export const getNextAvailableOpening = ({
     if (weekday === 0) continue;
 
     const date = current.toISOString().slice(0, 10);
-    const slots = getHourlyStartSlots(packageId);
+    const slots = getHourlyStartSlots(packageId, vehicleType, hasHeavyAddOns);
 
     for (const slot of slots) {
       // Filter out past slots for today
@@ -217,7 +285,7 @@ export const getNextAvailableOpening = ({
         continue;
       }
 
-      const window = buildBookingWindow({ date, packageId, startTime: slot.value });
+      const window = buildBookingWindow({ date, packageId, startTime: slot.value, vehicleType, hasHeavyAddOns });
       const overlaps = intervals.some((interval) => {
         if (interval.date !== date) return false;
         return intervalsOverlap(
