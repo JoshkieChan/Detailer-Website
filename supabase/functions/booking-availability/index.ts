@@ -51,7 +51,6 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const packageId = (url.searchParams.get('packageId') || 'maintenance') as SlotBookingPackageId;
     const vehicleType = (url.searchParams.get('vehicleType') || 'sedan') as VehicleTypeId;
-    const hasHeavyAddOns = url.searchParams.get('hasHeavyAddOns') === 'true';
     const ownerMode = url.searchParams.get('owner') === 'true';
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
@@ -132,7 +131,7 @@ Deno.serve(async (req) => {
       await Promise.all([
         supabase
           .from('bookings')
-          .select('service_date, start_time, end_time, blocked_until, payment_status, created_at')
+          .select('service_date, start_time, end_time, blocked_until, payment_status, created_at, package_id, vehicle_type')
           .eq('payment_status', 'paid')
           .order('service_date', { ascending: true })
           .order('start_time', { ascending: true }),
@@ -157,6 +156,8 @@ Deno.serve(async (req) => {
         blockedUntil: booking.blocked_until || booking.end_time,
         source: 'booking',
         paymentStatus: 'paid',
+        packageId: booking.package_id as SlotBookingPackageId,
+        vehicleType: booking.vehicle_type as VehicleTypeId,
       });
     }
 
@@ -183,14 +184,13 @@ Deno.serve(async (req) => {
         intervals: intervalsByDate[date],
         now,
         vehicleType,
-        hasHeavyAddOns,
       })
     );
 
     // Explicitly check today (Pacific calendar day, consistent with isDateUnavailable)
     const todayStr = pacificDateString(now);
     if (!unavailableDates.includes(todayStr)) {
-      if (isDateUnavailable({ date: todayStr, packageId, intervals: intervalsByDate[todayStr] || [], now, vehicleType, hasHeavyAddOns })) {
+      if (isDateUnavailable({ date: todayStr, packageId, intervals: intervalsByDate[todayStr] || [], now, vehicleType })) {
         unavailableDates.push(todayStr);
       }
     }
@@ -200,7 +200,6 @@ Deno.serve(async (req) => {
       packageId,
       intervals: allIntervals,
       vehicleType,
-      hasHeavyAddOns,
     });
 
     return new Response(

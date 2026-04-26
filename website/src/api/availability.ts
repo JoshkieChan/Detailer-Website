@@ -27,14 +27,12 @@ export interface AvailabilityResponse {
 
 export const fetchAvailability = async (
   packageId: SlotBookingPackageId,
-  vehicleType?: VehicleTypeId,
-  hasHeavyAddOns?: boolean
+  vehicleType?: VehicleTypeId
 ): Promise<AvailabilityResponse> => {
   const { url, anonKey } = getFunctionBase();
   const searchParams = new URLSearchParams({
     packageId,
     vehicleType: vehicleType || 'sedan',
-    hasHeavyAddOns: String(hasHeavyAddOns || false),
   });
 
   const response = await fetch(`${url}?${searchParams.toString()}`, {

@@ -41,18 +41,8 @@ import {
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Heavy add-on keywords that require extra scheduling time
-const HEAVY_ADDON_KEYWORDS = [
-  'paint correction',
-  'pet hair',
-  'headlight',
-  'headlights',
-  'restoration',
-];
-
-const hasHeavyAddOns = (notes: string): boolean => {
-  const lowerNotes = notes.toLowerCase();
-  return HEAVY_ADDON_KEYWORDS.some(keyword => lowerNotes.includes(keyword));
-};
+// Add-ons are now handled manually by owner - no automatic duration adjustments
+// Customers should contact owner if they want add-ons
 
 function validateFullName(v: string) {
   const trimmed = v.trim();
@@ -234,8 +224,7 @@ const BookingPage = () => {
 
     fetchAvailability(
       validPackage as SlotBookingPackageId,
-      validVehicle || 'sedan',
-      hasHeavyAddOns(formData.notes)
+      validVehicle || 'sedan'
     )
       .then((data) => {
         setAvailability(data);
@@ -248,7 +237,7 @@ const BookingPage = () => {
   }, [validPackage, validVehicle, formData.notes]);
 
 
-  const hourlySlots = validPackage ? getHourlyStartSlots(validPackage as SlotBookingPackageId, validVehicle || 'sedan', hasHeavyAddOns(formData.notes)) : [];
+  const hourlySlots = validPackage ? getHourlyStartSlots(validPackage as SlotBookingPackageId, validVehicle || 'sedan') : [];
   const selectedDayIntervals = formData.date ? availability.intervalsByDate[formData.date] || [] : [];
 
   const calendarIntervalsByDate = useMemo(() => {
@@ -279,10 +268,9 @@ const BookingPage = () => {
         packageId: validPackage as SlotBookingPackageId,
         startTime: slot.value,
         vehicleType: validVehicle || 'sedan',
-        hasHeavyAddOns: hasHeavyAddOns(formData.notes),
       });
       const slotStart = timeToMinutes(slot.value);
-      
+
       const pacificTimeStr = new Intl.DateTimeFormat('en-US', {
         timeZone: 'America/Los_Angeles',
         hour: '2-digit',
@@ -336,7 +324,6 @@ const BookingPage = () => {
           packageId: validPackage as SlotBookingPackageId,
           startTime: formData.startTime,
           vehicleType: validVehicle || 'sedan',
-          hasHeavyAddOns: hasHeavyAddOns(formData.notes),
         })
       : null;
 
@@ -351,7 +338,6 @@ const BookingPage = () => {
               intervals.map((interval) => ({ ...interval, date }))
             ) || [],
           vehicleType: validVehicle || 'sedan',
-          hasHeavyAddOns: hasHeavyAddOns(formData.notes),
         })
       : null;
 
@@ -577,7 +563,6 @@ const BookingPage = () => {
                     unavailableDates={availability.unavailableDates}
                     slotPackageId={validPackage ?? undefined}
                     slotVehicleType={validVehicle ?? 'sedan'}
-                    slotHasHeavyAddOns={hasHeavyAddOns(formData.notes)}
                     intervalsByDate={calendarIntervalsByDate}
                     showNoSlots={showNoSlots}
                   />
