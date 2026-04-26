@@ -70,7 +70,7 @@ const PricingPage = () => {
           <p className="section-copy">
             When you book, your exact total and 20% deposit will be shown in the configurator before you confirm your appointment.
           </p>
-          <p className="section-note mt-1" style={{color: 'var(--color-primary-light)', fontWeight: 600}}>
+          <p className="section-note mt-1 mobile-fee-note">
             Prices shown are for our Garage Studio. On‑Island Mobile service adds a flat $30 per visit.
           </p>
         </div>
@@ -96,8 +96,48 @@ const PricingPage = () => {
         </div>
 
         <p className="section-note mt-1 reveal">
-          <strong>Need extras?</strong> Mention light engine bay tidying, severe pet hair removal, or headlight work in your booking notes. Engine bay work is light dusting and wipe-down only—no degreasing or pressure-washing. We will confirm what is realistic and agree on any additional cost before your appointment.
+          <strong>Need extras?</strong> We offer light engine bay tidying, severe pet hair removal, headlight work, or light paint correction separately from the plans as additional add-ons. Engine bay work is light dusting and wipe‑down only—no degreasing or pressure‑washing. Light machine polishing step to boost gloss and reduce light swirls. This is a gloss‑enhancement add‑on, not full multi‑stage paint correction. Typical add‑on range: from $150–$300, depending on vehicle size and paint condition. Final pricing is confirmed after we inspect your vehicle and before any work begins.
         </p>
+      </section>
+
+      <section className="section-stack">
+        <div className="section-header reveal">
+          <span className="eyebrow">Extras & add‑ons</span>
+          <h2 className="section-title">Optional add-ons for your vehicle</h2>
+          <p className="section-copy">
+            These items are optional add-ons and are priced based on the vehicle we see in front of us. Final pricing is always confirmed before any work begins.
+          </p>
+        </div>
+
+        <div className="card-grid one">
+          <article className="content-card reveal">
+            <div className="addon-item">
+              <h3 className="addon-title">Light paint correction add‑on (Deep Reset only) – from $150–$300</h3>
+              <p className="addon-description">For suitable vehicles, we can add a light machine polishing step to boost gloss and reduce light swirls. This is a gloss‑enhancement add‑on, not full multi‑stage paint correction.</p>
+            </div>
+          </article>
+
+          <article className="content-card reveal" data-reveal-delay="1">
+            <div className="addon-item">
+              <h3 className="addon-title">Engine bay tidying – from $40–$80</h3>
+              <p className="addon-description">Light dusting and wipe‑down of accessible engine bay plastics and painted surfaces. No degreasing or pressure‑washing.</p>
+            </div>
+          </article>
+
+          <article className="content-card reveal" data-reveal-delay="2">
+            <div className="addon-item">
+              <h3 className="addon-title">Severe pet hair removal – from $75–$150</h3>
+              <p className="addon-description">For interiors with heavy, embedded pet hair that requires extra time and tools beyond our standard vacuuming.</p>
+            </div>
+          </article>
+
+          <article className="content-card reveal" data-reveal-delay="3">
+            <div className="addon-item">
+              <h3 className="addon-title">Headlight restoration/work – from $80–$150</h3>
+              <p className="addon-description">Machine polishing and refinement of cloudy, oxidized, or hazy headlight lenses where improvement is realistically achievable.</p>
+            </div>
+          </article>
+        </div>
       </section>
 
       <section className="section-stack">
@@ -193,6 +233,34 @@ const PricingPage = () => {
         .text-center {
           position: relative;
           z-index: 1;
+        }
+
+        .addon-item {
+          display: grid;
+          gap: 0.5rem;
+        }
+
+        .addon-title {
+          font-size: 1.125rem;
+          font-weight: 600;
+          color: var(--color-text-primary);
+          margin: 0;
+        }
+
+        .addon-description {
+          font-size: 0.9375rem;
+          line-height: 1.6;
+          color: var(--color-text-secondary);
+          margin: 0;
+        }
+
+        .card-grid.one {
+          grid-template-columns: 1fr;
+        }
+
+        .mobile-fee-note {
+          color: var(--color-primary-light);
+          font-weight: 600;
         }
       `}</style>
     </div>
