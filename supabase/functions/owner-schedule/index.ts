@@ -132,7 +132,7 @@ Deno.serve(async (req) => {
           package: bookingPackages[packageId].label,
           package_id: packageId,
           vehicle_info: vehicleTypeLabels[vehicleType],
-          vehicle_type: vehicleTypeLabels[vehicleType],
+          vehicle_type: vehicleType,
           service_date: date,
           start_time: startTime,
           end_time: endTime,
