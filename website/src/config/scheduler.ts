@@ -35,14 +35,14 @@ export const SERVICE_TIMING_RULES: Record<SlotBookingPackageId, ServiceTimingRul
     service: 'Maintenance Detail',
     durationMinutes: 120,
     bufferMinutes: 60,
-    approxLabel: 'Approx. 2 hours',
+    approxLabel: 'Approx. 2–4 hours, depending on vehicle size and condition.',
   },
   deepReset: {
     label: 'Deep Reset Detail',
     service: 'Deep Reset Detail',
     durationMinutes: 360,
     bufferMinutes: 60,
-    approxLabel: 'Approx. 6 hours',
+    approxLabel: 'Approx. 5–9+ hours, depending on vehicle size and condition.',
   },
 };
 

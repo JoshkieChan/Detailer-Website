@@ -646,6 +646,9 @@ const BookingPage = () => {
             <span className="eyebrow">4. Notes &amp; Confirmation</span>
             <h2>Anything we should know before service day?</h2>
             <p className="field-help">Pet hair, stains, child seats, access notes, and special requests should go here.</p>
+            <p className="field-help add-ons-notice">
+              Interested in add-ons like paint correction, light engine bay cleaning, severe pet hair removal, or headlight restoration? For now, please text or call before booking so we can confirm scope, time, and updated pricing. You can also mention what you're considering in the notes below and attach photos.
+            </p>
             <div className="form-grid">
               <div className="input-group full-width">
                 <label htmlFor="booking-notes">Notes</label>
