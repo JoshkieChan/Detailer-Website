@@ -120,7 +120,7 @@ const PricingPage = () => {
           <article className="content-card reveal" data-reveal-delay="1">
             <div className="addon-item">
               <h3 className="addon-title">Engine bay tidying – from $40–$80</h3>
-              <p className="addon-description">Light dusting and wipe‑down of accessible engine bay plastics and painted surfaces. No degreasing or pressure‑washing.</p>
+              <p className="addon-description">Light engine bay cleaning of accessible plastics and painted surfaces using diluted APC, gentle agitation, and a low‑pressure rinse, followed by drying.</p>
             </div>
           </article>
 
