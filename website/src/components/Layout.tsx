@@ -314,7 +314,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         }
 
         .social-link:hover {
-          background-color: var(--color-background-surface);
+          background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        @media (prefers-color-scheme: dark) {
+          .social-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+          }
         }
 
         .footer-legal-links {
