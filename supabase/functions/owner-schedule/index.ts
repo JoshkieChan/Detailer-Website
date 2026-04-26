@@ -140,7 +140,7 @@ Deno.serve(async (req) => {
           blocked_until: blockedUntil,
           service_duration_minutes: serviceDurationMinutes,
           buffer_minutes: bufferMinutes,
-          location_type: locationTypeLabels[locationType],
+          location_type: locationType,
           mobile_fee_applied: locationType === 'mobile',
           membership_intent: 'none',
           calculated_price: subtotal,

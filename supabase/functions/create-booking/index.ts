@@ -164,7 +164,6 @@ Deno.serve(async (req) => {
           package_id: finalPackageId,
           vehicle_info: vehicleTypeLabels[finalVehicleType],
           vehicle_type: finalVehicleType,
-          location_label: locationTypeLabels[finalLocationType],
           location_type: finalLocationType,
           service_date: finalServiceDate,
           start_time: finalStartTime,
