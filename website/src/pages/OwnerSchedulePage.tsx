@@ -230,9 +230,8 @@ const OwnerSchedulePage = () => {
               {bookingEventsForSelectedDay.length > 0 ? (
                 <div className="owner-detail-block">
                   <h3>Bookings ({bookingEventsForSelectedDay.length})</h3>
-                  {bookingEventsForSelectedDay.map((event, index) => (
+                  {bookingEventsForSelectedDay.map((event) => (
                     <article className="owner-event-card booking-card" key={event.id}>
-                      <div className="booking-number-badge">#{index + 1}</div>
                       {editingId === event.id ? (
                         <div className="owner-edit-form">
                           <h4 style={{ marginBottom: '1rem' }}>Edit Booking</h4>
@@ -621,27 +620,6 @@ const OwnerSchedulePage = () => {
       </section>
 
       <style>{`
-        .booking-number-badge {
-          position: absolute;
-          top: -8px;
-          left: -8px;
-          background: var(--color-primary);
-          color: white;
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.75rem;
-          font-weight: 700;
-          z-index: 1;
-        }
-
-        .owner-event-card {
-          position: relative;
-        }
-
         .owner-calendar-shell {
           width: 100%;
           overflow: visible;
