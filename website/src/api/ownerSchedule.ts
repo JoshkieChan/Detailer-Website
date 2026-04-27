@@ -115,24 +115,6 @@ export const deleteOwnerEvent = async ({
   return data;
 };
 
-export const deleteAllBookings = async ({ passcode }: { passcode: string }) => {
-  const { url, anonKey } = getOwnerFunctionBase();
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: buildHeaders(passcode, anonKey),
-    body: JSON.stringify({
-      action: 'delete_all_bookings',
-    }),
-  });
-
-  const data = await response.json();
-  if (!response.ok || data.error) {
-    throw new Error(data.error || 'Could not delete all bookings.');
-  }
-
-  return data;
-};
-
 export const updateManualBooking = async ({
   passcode,
   id,

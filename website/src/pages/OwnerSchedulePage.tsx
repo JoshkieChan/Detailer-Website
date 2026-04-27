@@ -5,7 +5,7 @@ import { OwnerGate } from '../components/OwnerGate';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { clearStoredOwnerPasscode, getStoredOwnerPasscode } from '../lib/ownerSession';
 import { fetchOwnerSchedule, type OwnerScheduleEvent } from '../api/availability';
-import { createAvailabilityBlock, createManualBooking, verifyOwnerPasscode, deleteOwnerEvent, deleteAllBookings, updateManualBooking } from '../api/ownerSchedule';
+import { createAvailabilityBlock, createManualBooking, verifyOwnerPasscode, deleteOwnerEvent, updateManualBooking } from '../api/ownerSchedule';
 import {
   bookingPackages,
   calculateBookingFinancials,
@@ -235,36 +235,7 @@ const OwnerSchedulePage = () => {
 
       <section className="card-grid two owner-detail-layout">
         <article className="content-card owner-day-panel">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
-            <h2 className="section-title" style={{ margin: 0 }}>Appointments on {selectedDate}</h2>
-            <button 
-              className="btn outline-lime" 
-              disabled={isSubmitting}
-              style={{ minHeight: '36px', padding: '0.5rem 1rem', fontSize: '0.85rem', borderColor: 'var(--color-danger)', color: 'var(--color-danger)' }}
-              onClick={() => {
-                setConfirmDialog({
-                  isOpen: true,
-                  title: 'Delete All Bookings',
-                  message: 'Are you sure you want to delete ALL bookings from the system? This cannot be undone.',
-                  onConfirm: async () => {
-                    setIsSubmitting(true);
-                    try {
-                      await deleteAllBookings({ passcode: ownerPasscode || '' });
-                      setSystemMessage('All bookings deleted.');
-                      await loadSchedule();
-                    } catch (e: unknown) {
-                      setSystemMessage('Failed to delete booking: ' + (e instanceof Error ? e.message : 'Unknown error'));
-                    } finally {
-                      setIsSubmitting(false);
-                    }
-                    setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: () => {} });
-                  },
-                });
-              }}
-            >
-              {isSubmitting ? 'Deleting all...' : 'Delete all bookings'}
-            </button>
-          </div>
+          <h2 className="section-title" style={{ marginBottom: '1.5rem' }}>Appointments on {selectedDate}</h2>
 
           {eventsForSelectedDate.length === 0 ? (
             <p className="section-copy">No appointments on this day yet.</p>
