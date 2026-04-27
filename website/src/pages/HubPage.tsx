@@ -2,12 +2,19 @@ import { ArrowRight, MapPin, Search, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LeadMagnet } from '../components/LeadMagnet';
 import { PageSubtitle } from '../components/PageSubtitle';
+import heroImage from '../assets/hero.png';
 
 const HubPage = () => {
   return (
     <div className="page-shell hub-page">
-      <header className="page-hero reveal">
-        <div className="text-center">
+      <header className="page-hero hub-hero reveal">
+        <img
+          src={heroImage}
+          alt="SignalSource detailing background"
+          className="hub-hero-bg-image"
+        />
+        <div className="hub-hero-overlay" />
+        <div className="hub-hero-content text-center">
           <span className="eyebrow">SignalSource</span>
           <h1 className="hero-title">Car detailing for Oak Harbor. Digital guides and playbooks for anywhere.</h1>
           <PageSubtitle className="hub-subtitle-spacing">
@@ -228,6 +235,48 @@ const HubPage = () => {
             flex-direction: column;
             align-items: flex-start;
           }
+        }
+
+        .hub-hero {
+          position: relative;
+          overflow: hidden;
+          min-height: 420px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .hub-hero-bg-image {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          z-index: 0;
+        }
+
+        .hub-hero-overlay {
+          position: absolute;
+          inset: 0;
+          z-index: 1;
+          background: linear-gradient(rgba(15, 23, 32, 0.55) 0%, rgba(15, 23, 32, 0.8) 100%);
+        }
+
+        .hub-hero-content {
+          position: relative;
+          z-index: 2;
+          padding: 2rem 1rem;
+        }
+
+        .hub-hero-content .eyebrow,
+        .hub-hero-content .hero-title,
+        .hub-hero-content .page-subtitle {
+          color: #ffffff;
+        }
+
+        .hub-hero-content .btn.primary {
+          background: var(--color-accent-primary);
+          color: var(--color-button-primary-text);
         }
 
         .page-hero {
