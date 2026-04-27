@@ -81,12 +81,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </Link>
           
           {/* Desktop Nav */}
-          <nav className="desktop-nav">
+          <nav className="desktop-nav" role="navigation" aria-label="Main navigation">
             {navLinks.map((link) => (
               <Link 
                 key={link.path} 
                 to={link.path}
                 className={location.pathname === link.path ? 'nav-link active' : 'nav-link'}
+                aria-current={location.pathname === link.path ? 'page' : undefined}
               >
                 {link.name}
               </Link>
@@ -108,7 +109,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           {/* Mobile Actions */}
           <div className="mobile-actions">
-            <button className="theme-toggle-btn mobile-only" onClick={toggleTheme}>
+            <button 
+              className="theme-toggle-btn mobile-only" 
+              onClick={toggleTheme}
+              aria-label={`Current theme: ${theme}. Click to switch.`}
+              title={`Switch theme (Current: ${theme})`}
+            >
               {getThemeIcon()}
             </button>
             <button className="mobile-toggle" onClick={toggleMenu} aria-label="Toggle menu">
@@ -118,13 +124,18 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         </div>
 
         {/* Mobile Nav */}
-        <div className={`mobile-nav glass-nav ${isMenuOpen ? 'open' : ''}`}>
+        <div 
+          className={`mobile-nav glass-nav ${isMenuOpen ? 'open' : ''}`}
+          role="navigation"
+          aria-label="Mobile navigation menu"
+        >
           {navLinks.map((link) => (
             <Link 
               key={link.path} 
               to={link.path}
               className="mobile-nav-link"
               onClick={() => setIsMenuOpen(false)}
+              aria-current={location.pathname === link.path ? 'page' : undefined}
             >
               {link.name}
             </Link>
@@ -132,12 +143,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         </div>
       </header>
 
-      <main className="main-content">
+      <main className="main-content" id="main-content" role="main">
         {children}
       </main>
 
       {/* Footer / Contact Bar (Matches bottom of flyer) */}
-      <footer className="footer-bar">
+      <footer className="footer-bar" role="contentinfo">
         <div className="container footer-bar-container">
           <div className="footer-left">
             <h2 className="brand-text footer-brand-heading">SIGNALSOURCE</h2>
