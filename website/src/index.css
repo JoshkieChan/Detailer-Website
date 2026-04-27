@@ -909,6 +909,24 @@ label {
   }
 }
 
+@media (max-width: 480px) {
+  .booking-form {
+    padding: 0.75rem !important;
+  }
+
+  .content-card {
+    padding: 0.75rem !important;
+  }
+
+  .booking-step h2 {
+    font-size: 1.1rem;
+  }
+
+  .booking-step p {
+    font-size: 0.9rem;
+  }
+}
+
 .layout {
   min-height: 100vh;
   display: flex;
