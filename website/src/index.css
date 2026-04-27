@@ -887,6 +887,14 @@ label {
   .hero-title {
     font-size: clamp(2rem, 8vw, 3rem);
   }
+
+  .booking-form {
+    padding: 1rem;
+  }
+
+  .package-card-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .layout {
