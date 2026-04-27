@@ -69,7 +69,7 @@ export const LeadMagnet = ({ redirectUrl, className = '' }: LeadMagnetProps) => 
           navigate(redirectUrl);
         }, 1200);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       setStatus('error');
       const message = err instanceof Error ? err.message : null;
       setErrorMessage(message || 'Something went wrong. Please try again or contact us directly.');

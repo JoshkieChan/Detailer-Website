@@ -470,7 +470,7 @@ const BookingPage = () => {
       }
 
       window.location.href = data.helcimDepositUrl;
-    } catch (error) {
+    } catch (error: unknown) {
       setSystemError(
         error instanceof Error
           ? error.message
