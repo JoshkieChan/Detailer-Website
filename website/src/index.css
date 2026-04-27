@@ -1002,10 +1002,31 @@ label {
   .page-shell {
     padding-left: 0 !important;
     padding-right: 0 !important;
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
   }
 
   .navbar-inner {
     padding: 0 0.5rem !important;
+  }
+
+  .btn {
+    min-height: 40px !important;
+    padding: 0.5rem 0.8rem !important;
+  }
+
+  select {
+    min-height: 40px !important;
+    padding: 0.5rem 0.8rem !important;
+  }
+
+  .toggle-btn {
+    min-height: 40px !important;
+    padding: 0.5rem 0.8rem !important;
+  }
+
+  .plan-choice {
+    min-height: 44px !important;
   }
 }
 
