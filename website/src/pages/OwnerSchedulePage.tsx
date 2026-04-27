@@ -95,13 +95,10 @@ const OwnerSchedulePage = () => {
 
   useEffect(() => {
     if (!sessionOk) return;
-    const frame = requestAnimationFrame(() => {
-      void loadSchedule().catch(() => {
-        clearStoredOwnerPasscode();
-        setSessionOk(false);
-      });
+    void loadSchedule().catch(() => {
+      clearStoredOwnerPasscode();
+      setSessionOk(false);
     });
-    return () => cancelAnimationFrame(frame);
   }, [sessionOk, loadSchedule]);
 
   const eventsForSelectedDate = useMemo(
