@@ -8,6 +8,8 @@ import {
   type AddOnId,
   getTotalDuration,
 } from '../../../website/src/config/scheduler.ts';
+import { checkRateLimit, getRateLimitIdentifier } from '../_shared/rateLimiter.ts';
+import { errorResponse, successResponse, ErrorCodes } from '../_shared/errorResponse.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://signaldatasource.com',
@@ -36,6 +38,21 @@ const toTimeString = (iso: string) => iso.slice(11, 16);
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
+  }
+
+  // Rate limiting: 60 requests per minute per IP (higher for availability checks)
+  const identifier = getRateLimitIdentifier(req);
+  const rateLimit = checkRateLimit(identifier, {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 60,
+  });
+
+  if (!rateLimit.allowed) {
+    return errorResponse(
+      'Too many requests. Please try again later.',
+      429,
+      ErrorCodes.RATE_LIMIT_EXCEEDED
+    );
   }
 
   try {

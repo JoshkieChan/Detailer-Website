@@ -147,16 +147,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <p className="footer-legal">Fully Licensed & Insured • Whidbey Island, WA</p>
             
             {/* Contact info - repositioned higher */}
-            <div className="footer-contact-block mt-2" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
-              <a href="tel:+19049937503" className="inline-link" style={{ padding: '0.5rem 0' }}>
+            <div className="footer-contact-block mt-2">
+              <a href="tel:+19049937503" className="inline-link">
                 <span>(904) 993-7503</span>
               </a>
-              <span className="contact-separator" style={{ padding: '0.5rem 0' }}> • </span>
-              <a href="https://wa.me/19049937503" target="_blank" rel="noopener noreferrer" className="inline-link" style={{ padding: '0.5rem 0' }}>
+              <span className="contact-separator"> • </span>
+              <a href="https://wa.me/19049937503" target="_blank" rel="noopener noreferrer" className="inline-link">
                 <span>Chat on WhatsApp</span>
               </a>
-              <span className="contact-separator" style={{ padding: '0.5rem 0' }}> • </span>
-              <a href="mailto:jcab@signaldatasource.com" className="inline-link" style={{ padding: '0.5rem 0' }}>
+              <span className="contact-separator"> • </span>
+              <a href="mailto:jcab@signaldatasource.com" className="inline-link">
                 <span>jcab@signaldatasource.com</span>
               </a>
             </div>
@@ -270,135 +270,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
       </footer>
-
-      <style>{`
-        .footer-bar-container {
-          padding: 2rem 1.5rem;
-        }
-
-        .footer-left {
-          display: grid;
-          gap: 1rem;
-          text-align: center;
-        }
-
-        .footer-brand-heading {
-          font-size: 1.5rem;
-        }
-
-        .serving-text,
-        .footer-hours,
-        .footer-legal {
-          font-size: 0.9rem;
-          line-height: 1.4;
-        }
-
-        .footer-contact-block {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .footer-social-links {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 1rem;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .social-link {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.5rem 0.75rem;
-          border-radius: 8px;
-          transition: background-color 0.2s;
-        }
-
-        .social-link:hover {
-          background-color: rgba(0, 0, 0, 0.05);
-        }
-
-        @media (prefers-color-scheme: dark) {
-          .social-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-          }
-        }
-
-        .footer-legal-links {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem;
-          align-items: center;
-          font-size: 0.85rem;
-          justify-content: center;
-        }
-
-        @media (max-width: 600px) {
-          .footer-bar-container {
-            padding: 1.5rem 1rem;
-          }
-
-          .footer-brand-heading {
-            font-size: 1.25rem;
-          }
-
-          .serving-text,
-          .footer-hours,
-          .footer-legal {
-            font-size: 0.85rem;
-          }
-
-          .footer-contact-block {
-            flex-direction: column;
-            align-items: center;
-            gap: 0.75rem;
-            justify-content: center;
-          }
-
-          .contact-separator {
-            display: none;
-          }
-
-          .footer-social-links {
-            gap: 0.5rem;
-          }
-
-          .social-link {
-            padding: 0.4rem 0.6rem;
-            font-size: 0.8rem;
-          }
-
-          .social-link span {
-            display: none;
-          }
-
-          .social-link svg {
-            width: 20px;
-            height: 20px;
-          }
-
-          .footer-legal-links {
-            flex-direction: column;
-            gap: 0.5rem;
-            align-items: center;
-            justify-content: center;
-          }
-
-          .footer-legal-links .separator {
-            display: none;
-          }
-        }
-
-        @media (max-width: 400px) {
-          .footer-social-links {
-            justify-content: center;
-          }
-        }
-      `}</style>
     </div>
   );
 };

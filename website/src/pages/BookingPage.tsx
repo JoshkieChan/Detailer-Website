@@ -246,6 +246,7 @@ const BookingPage = () => {
   useEffect(() => {
     if (!validPackage) return;
 
+    setAvailabilityError(null);
     fetchAvailability(
       validPackage as SlotBookingPackageId,
       validVehicle || 'sedan',
@@ -253,7 +254,6 @@ const BookingPage = () => {
     )
       .then((data) => {
         setAvailability(data);
-        setAvailabilityError(null);
       })
       .catch(() => {
         setAvailabilityError('Could not load live availability right now.');

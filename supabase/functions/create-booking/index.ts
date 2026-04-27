@@ -1,12 +1,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 import {
-  bookingPackages,
   calculateBookingFinancials,
   isBookingPackageId,
   isLocationType,
   isVehicleTypeId,
   locationTypeLabels,
   vehicleTypeLabels,
+  bookingPackages
 } from '../../../website/src/data/bookingPricing.ts';
 import {
   getServiceDuration,
@@ -15,6 +15,8 @@ import {
   type SlotBookingPackageId,
   type AddOnId,
 } from '../../../website/src/config/scheduler.ts';
+import { checkRateLimit, getRateLimitIdentifier } from '../_shared/rateLimiter.ts';
+import { errorResponse, successResponse, ErrorCodes } from '../_shared/errorResponse.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://signaldatasource.com',
@@ -24,6 +26,21 @@ const corsHeaders = {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
+  }
+
+  // Rate limiting: 10 requests per minute per IP
+  const identifier = getRateLimitIdentifier(req);
+  const rateLimit = checkRateLimit(identifier, {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 10,
+  });
+
+  if (!rateLimit.allowed) {
+    return errorResponse(
+      'Too many requests. Please try again later.',
+      429,
+      ErrorCodes.RATE_LIMIT_EXCEEDED
+    );
   }
 
   if (req.method === 'GET') {
