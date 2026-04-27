@@ -938,6 +938,91 @@ label {
   }
 }
 
+@media (max-width: 390px) {
+  .booking-form {
+    padding: 0.5rem !important;
+  }
+
+  .content-card {
+    padding: 0.5rem !important;
+  }
+
+  .booking-step h2 {
+    font-size: 1rem;
+  }
+
+  .booking-step p {
+    font-size: 0.85rem;
+  }
+
+  .booking-step {
+    gap: 0.5rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  .page-shell {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+  }
+}
+
+@media (max-width: 375px) {
+  .booking-form {
+    padding: 0.25rem !important;
+  }
+
+  .content-card {
+    padding: 0.25rem !important;
+  }
+
+  .booking-step h2 {
+    font-size: 0.95rem;
+  }
+
+  .booking-step p {
+    font-size: 0.8rem;
+  }
+
+  .booking-layout {
+    gap: 0.5rem !important;
+  }
+
+  .booking-form {
+    gap: 1rem !important;
+  }
+}
+
+@media (max-width: 320px) {
+  .booking-form {
+    padding: 0.15rem !important;
+  }
+
+  .content-card {
+    padding: 0.15rem !important;
+  }
+
+  .booking-step h2 {
+    font-size: 0.9rem;
+  }
+
+  .booking-step p {
+    font-size: 0.75rem;
+  }
+
+  .booking-layout {
+    gap: 0.25rem !important;
+  }
+
+  .booking-form {
+    gap: 0.75rem !important;
+  }
+
+  .page-shell {
+    padding-left: 0.1rem !important;
+    padding-right: 0.1rem !important;
+  }
+}
+
 .layout {
   min-height: 100vh;
   display: flex;
