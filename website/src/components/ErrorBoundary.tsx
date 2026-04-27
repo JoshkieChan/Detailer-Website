@@ -21,11 +21,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log error to error reporting service in production
     if (import.meta.env.PROD) {
       // Could integrate with error reporting service here
-      console.error('Error caught by boundary:', error, errorInfo);
     }
+    console.error('Error caught by boundary:', error, errorInfo);
+    this.setState({ error, errorInfo });
   }
 
   render() {

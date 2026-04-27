@@ -1,20 +1,35 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { checkRateLimit, getRateLimitIdentifier } from '../_shared/rateLimiter.ts';
+import { errorResponse, ErrorCodes } from '../_shared/errorResponse.ts';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://signaldatasource.com',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  // Rate limiting: 30 requests per minute per IP
+  const identifier = getRateLimitIdentifier(req);
+  const rateLimit = checkRateLimit(identifier, {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 30,
+  });
+
+  if (!rateLimit.allowed) {
+    return errorResponse(
+      'Too many requests. Please try again later.',
+      429,
+      ErrorCodes.RATE_LIMIT_EXCEEDED
+    );
+  }
+
   try {
     const payload = await req.json();
-    console.log('Webhook payload:', payload);
 
     // Payload structure for Supabase Webhook: { type: 'INSERT', table: 'bookings', record: { ... } }
     const { record } = payload;
@@ -27,19 +42,19 @@ serve(async (req) => {
 
     // Only send email if payment is confirmed (not pending)
     if (record.payment_status !== 'paid') {
-      console.log('Skipping email - payment not confirmed:', record.payment_status);
-      return new Response(JSON.stringify({ ok: true, skipped: true, reason: 'Payment not confirmed' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      });
+      return errorResponse(
+        'Payment not confirmed',
+        200,
+        ErrorCodes.VALIDATION_ERROR
+      );
     }
 
     if (!RESEND_API_KEY) {
-      console.error('RESEND_API_KEY is not set');
-      return new Response(JSON.stringify({ error: 'RESEND_API_KEY is not set' }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
-      });
+      return errorResponse(
+        'Email service not configured',
+        500,
+        ErrorCodes.INTERNAL_ERROR
+      );
     }
 
     const emailHtml = `
@@ -83,17 +98,18 @@ serve(async (req) => {
     });
 
     const resData = await res.json();
-    console.log('Resend response:', resData);
 
-    return new Response(JSON.stringify({ ok: true, resendId: resData.id }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    });
-  } catch (error: any) {
-    console.error('Error sending email:', error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 400,
-    });
+    return errorResponse(
+      'Email sent successfully',
+      200,
+      ErrorCodes.VALIDATION_ERROR
+    );
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Email sending failed.';
+    return errorResponse(
+      message,
+      400,
+      ErrorCodes.INTERNAL_ERROR
+    );
   }
 });

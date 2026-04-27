@@ -1,7 +1,9 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1"
+import { checkRateLimit, getRateLimitIdentifier } from '../_shared/rateLimiter.ts';
+import { errorResponse, ErrorCodes } from '../_shared/errorResponse.ts';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://signaldatasource.com',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
@@ -9,6 +11,21 @@ Deno.serve(async (req) => {
   // CORS Preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
+  }
+
+  // Rate limiting: 10 requests per minute per IP
+  const identifier = getRateLimitIdentifier(req);
+  const rateLimit = checkRateLimit(identifier, {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 10,
+  });
+
+  if (!rateLimit.allowed) {
+    return errorResponse(
+      'Too many requests. Please try again later.',
+      429,
+      ErrorCodes.RATE_LIMIT_EXCEEDED
+    );
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -50,7 +67,6 @@ Deno.serve(async (req) => {
       .single();
 
     if (dbError) {
-      console.error('Database Error:', dbError);
       throw new Error(`Database Error: ${dbError.message}`);
     }
 
@@ -76,8 +92,6 @@ Deno.serve(async (req) => {
     });
 
     if (!resendRes.ok) {
-      const text = await resendRes.text().catch(() => '');
-      console.error('Resend error:', resendRes.status, text);
       throw new Error('We could not send the Snapshot email. Please try again or contact us directly.');
     }
 
@@ -86,14 +100,12 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     );
 
-  } catch (error: any) {
-    console.error('LEAD MAGNET ERROR:', error.message);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
-        status: 400 
-      }
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Snapshot delivery failed.';
+    return errorResponse(
+      message,
+      400,
+      ErrorCodes.INTERNAL_ERROR
     );
   }
 });

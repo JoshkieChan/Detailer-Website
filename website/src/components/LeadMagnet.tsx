@@ -44,7 +44,6 @@ export const LeadMagnet = ({ redirectUrl, className = '' }: LeadMagnetProps) => 
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${supabaseAnonKey}`,
-          'apikey': supabaseAnonKey
         },
         body: JSON.stringify({ email: trimmedEmail })
       });

@@ -1,7 +1,9 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { checkRateLimit, getRateLimitIdentifier } from '../_shared/rateLimiter.ts';
+import { errorResponse, ErrorCodes } from '../_shared/errorResponse.ts';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://signaldatasource.com',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, webhook-signature, webhook-timestamp, webhook-id',
 };
 
@@ -49,6 +51,21 @@ const verifyWebhook = async ({
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
+  }
+
+  // Rate limiting: 50 requests per minute per IP (higher for webhooks)
+  const identifier = getRateLimitIdentifier(req);
+  const rateLimit = checkRateLimit(identifier, {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 50,
+  });
+
+  if (!rateLimit.allowed) {
+    return errorResponse(
+      'Too many requests. Please try again later.',
+      429,
+      ErrorCodes.RATE_LIMIT_EXCEEDED
+    );
   }
 
   try {
@@ -103,12 +120,12 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Webhook logging failed.';
-    console.error('payment-webhook failed', message);
-    return new Response(JSON.stringify({ error: message }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 400,
-    });
+    return errorResponse(
+      message,
+      400,
+      ErrorCodes.INTERNAL_ERROR
+    );
   }
 });

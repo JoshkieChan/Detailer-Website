@@ -2346,7 +2346,6 @@ select.input-error {
 .mx-auto { margin-left: auto; margin-right: auto; }
 .px-4 { padding-left: 1rem; padding-right: 1rem; }
 .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
-.sm\:py-16 { }
 @media (min-width: 640px) {
   .sm\:py-16 { padding-top: 4rem; padding-bottom: 4rem; }
   .sm\:p-6 { padding: 1.5rem; }

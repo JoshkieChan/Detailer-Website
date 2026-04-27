@@ -240,8 +240,8 @@ const OwnerSchedulePage = () => {
                     await deleteAllBookings({ passcode: ownerPasscode || '' });
                     setSystemMessage('All bookings deleted.');
                     await loadSchedule();
-                  } catch (e: any) {
-                    setSystemMessage(e.message || 'Failed to delete bookings');
+                  } catch (e: unknown) {
+                    setSystemMessage('Failed to delete booking: ' + (e instanceof Error ? e.message : 'Unknown error'));
                   } finally {
                     setIsSubmitting(false);
                   }
@@ -374,8 +374,8 @@ const OwnerSchedulePage = () => {
                                     await deleteOwnerEvent({ passcode: ownerPasscode || '', id: event.id, type: 'booking' });
                                     setSystemMessage('Booking deleted.');
                                     await loadSchedule();
-                                  } catch (e: any) {
-                                    setSystemMessage(e.message || 'Failed to delete booking');
+                                  } catch (err: unknown) {
+                                    setSystemMessage('Failed to delete booking: ' + (err instanceof Error ? err.message : 'Unknown error'));
                                   } finally {
                                     setIsSubmitting(false);
                                   }
@@ -419,8 +419,8 @@ const OwnerSchedulePage = () => {
                                 await deleteOwnerEvent({ passcode: ownerPasscode || '', id: event.id, type: 'blackout' });
                                 setSystemMessage('Blackout block deleted.');
                                 await loadSchedule();
-                              } catch (e: any) {
-                                setSystemMessage(e.message || 'Failed to delete blackout block');
+                              } catch (e: unknown) {
+                                setSystemMessage('Failed to delete blackout: ' + (e instanceof Error ? e.message : 'Unknown error'));
                               } finally {
                                 setIsSubmitting(false);
                               }
@@ -638,8 +638,8 @@ const OwnerSchedulePage = () => {
                 });
                 setSystemMessage('Manual booking saved.');
                 await loadSchedule();
-              } catch (err: any) {
-                setSystemMessage(err.message || 'Failed to save booking');
+              } catch (err: unknown) {
+                setSystemMessage('Failed to create manual booking: ' + (err instanceof Error ? err.message : 'Unknown error'));
               } finally {
                 setIsSubmitting(false);
               }
@@ -695,8 +695,8 @@ const OwnerSchedulePage = () => {
                 });
                 setSystemMessage('Blackout block saved.');
                 await loadSchedule();
-              } catch (err: any) {
-                setSystemMessage(err.message || 'Failed to save blackout block');
+              } catch (err: unknown) {
+                setSystemMessage('Failed to create blackout: ' + (err instanceof Error ? err.message : 'Unknown error'));
               } finally {
                 setIsSubmitting(false);
               }

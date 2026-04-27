@@ -1,15 +1,13 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { checkRateLimit, getRateLimitIdentifier } from '../_shared/rateLimiter.ts';
+import { errorResponse, ErrorCodes } from '../_shared/errorResponse.ts';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://signaldatasource.com',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-owner-passcode',
 };
 
-const getExpectedPasscode = () =>
-  Deno.env.get('OWNER_PASSCODE') ||
-  Deno.env.get('OWNER_MODE_PASSCODE') ||
-  Deno.env.get('VITE_OWNER_PASSWORD') ||
-  '';
+const getExpectedPasscode = () => Deno.env.get('OWNER_PASSCODE') || '';
 
 const isAuthorized = (req: Request) => {
   const passcode = req.headers.get('x-owner-passcode') || '';
@@ -31,11 +29,27 @@ Deno.serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  // Rate limiting: 20 requests per minute per IP
+  const identifier = getRateLimitIdentifier(req);
+  const rateLimit = checkRateLimit(identifier, {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 20,
+  });
+
+  if (!rateLimit.allowed) {
+    return errorResponse(
+      'Too many requests. Please try again later.',
+      429,
+      ErrorCodes.RATE_LIMIT_EXCEEDED
+    );
+  }
+
   if (!isAuthorized(req)) {
-    return new Response(JSON.stringify({ error: 'Owner passcode required.' }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 401,
-    });
+    return errorResponse(
+      'Owner passcode required.',
+      401,
+      ErrorCodes.UNAUTHORIZED
+    );
   }
 
   try {
@@ -157,15 +171,12 @@ Deno.serve(async (req) => {
         status: 200,
       }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Sanity check failed.';
-    console.error('sanity-check failed', message);
-    return new Response(
-      JSON.stringify({ error: message }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
-      }
+    return errorResponse(
+      message,
+      400,
+      ErrorCodes.INTERNAL_ERROR
     );
   }
 });
