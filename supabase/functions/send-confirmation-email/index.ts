@@ -99,10 +99,9 @@ Deno.serve(async (req) => {
 
     const resData = await res.json();
 
-    return errorResponse(
-      'Email sent successfully',
-      200,
-      ErrorCodes.VALIDATION_ERROR
+    return new Response(
+      JSON.stringify({ success: true }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Email sending failed.';
