@@ -972,11 +972,11 @@ label {
 
 @media (max-width: 375px) {
   .booking-form {
-    padding: 0.1rem !important;
+    padding: 0 !important;
   }
 
   .content-card {
-    padding: 0.1rem !important;
+    padding: 0 !important;
   }
 
   .booking-step h2 {
@@ -1002,6 +1002,10 @@ label {
   .page-shell {
     padding-left: 0 !important;
     padding-right: 0 !important;
+  }
+
+  .navbar-inner {
+    padding: 0 0.5rem !important;
   }
 }
 
