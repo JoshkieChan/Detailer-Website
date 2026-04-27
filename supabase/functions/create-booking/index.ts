@@ -207,6 +207,46 @@ Deno.serve(async (req) => {
       throw new Error(`Database Error: ${insertError.message}`);
     }
 
+    // Log capacity events for observability
+    const FULL_DAY_THRESHOLD_MINUTES = 600; // 10 hours
+    const DAILY_MAX_MINUTES = 720; // 12 hours
+
+    // Log full-day promotion event
+    if (calculatedTotalDuration >= FULL_DAY_THRESHOLD_MINUTES && calculatedTotalDuration <= DAILY_MAX_MINUTES) {
+      await supabase.from('booking_capacity_events').insert({
+        booking_id: insertResult.id,
+        event_type: 'full_day_promotion',
+        package: finalPackageId,
+        vehicle_size: finalVehicleType,
+        selected_addons: finalSelectedAddOns,
+        total_duration_minutes: calculatedTotalDuration,
+        day_1_date: finalServiceDate,
+        day_2_date: null,
+      });
+      console.log('Logged full-day promotion event', { booking_id: insertResult.id, total_duration_minutes: calculatedTotalDuration });
+    }
+
+    // Log multi-day booking event (Deep Reset + Large SUV/Truck > 12h)
+    if (
+      finalPackageId === 'deepReset' &&
+      finalVehicleType === 'largeSuvTruck' &&
+      calculatedTotalDuration > DAILY_MAX_MINUTES
+    ) {
+      // For now, log as single-day since multi-day split logic is not yet implemented in create-booking
+      // This will be updated when multi-day allocation is added
+      await supabase.from('booking_capacity_events').insert({
+        booking_id: insertResult.id,
+        event_type: 'multi_day_booking',
+        package: finalPackageId,
+        vehicle_size: finalVehicleType,
+        selected_addons: finalSelectedAddOns,
+        total_duration_minutes: calculatedTotalDuration,
+        day_1_date: finalServiceDate,
+        day_2_date: null, // Will be populated when multi-day split is implemented
+      });
+      console.log('Logged multi-day booking event', { booking_id: insertResult.id, total_duration_minutes: calculatedTotalDuration });
+    }
+
     return new Response(
       JSON.stringify({
         bookingId: insertResult.id,

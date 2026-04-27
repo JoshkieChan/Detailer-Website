@@ -13,7 +13,7 @@ import {
   type LocationType,
   type VehicleTypeId,
 } from '../data/bookingPricing';
-import { buildBookingWindow, getHourlyStartSlots, type SlotBookingPackageId, type AddOnId, ADD_ON_DURATIONS } from '../config/scheduler';
+import { buildBookingWindow, getHourlyStartSlots, type SlotBookingPackageId, type AddOnId, ADD_ON_DURATIONS, getTotalDuration } from '../config/scheduler';
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0);
@@ -173,6 +173,9 @@ const OwnerSchedulePage = () => {
         <h1 className="hero-title">Manual scheduling, blackout blocks, and booking visibility.</h1>
         <p className="hero-subtitle">
           Owner mode shows live bookings, blackout windows, notes, and payment state. Public users never see this data.
+        </p>
+        <p className="field-help" style={{ marginTop: '0.5rem' }}>
+          <strong>Owner capacity rules:</strong> The system books 08:00–20:00 with a 12-hour max per day. Every job's time is base package + add-ons by vehicle size. Any booking 10+ hours becomes a single-car day, and Deep Reset Large SUV/Truck can auto-span two days if total time exceeds 12 hours.
         </p>
       </section>
 
@@ -529,6 +532,13 @@ const OwnerSchedulePage = () => {
                   );
                 })}
               </div>
+              <p className="field-help" style={{ marginTop: '0.5rem', fontWeight: 600 }}>
+                Estimated total time: {(getTotalDuration({
+                  packageId: bookingForm.packageId as SlotBookingPackageId,
+                  vehicleType: bookingForm.vehicleType,
+                  selectedAddOns: bookingForm.selectedAddOns,
+                }) / 60).toFixed(1)} hours (base + add-ons). Bookings 10+ hours block the full day; Deep Large SUV/Truck may reserve two days.
+              </p>
             </label>
             <label>
               Start time
