@@ -899,6 +899,14 @@ label {
   .package-card-grid {
     grid-template-columns: 1fr;
   }
+
+  .booking-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .booking-sidebar {
+    min-width: 0 !important;
+  }
 }
 
 .layout {
