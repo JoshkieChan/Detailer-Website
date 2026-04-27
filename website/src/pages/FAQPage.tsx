@@ -204,7 +204,7 @@ const FAQPage = () => {
         <div className="text-center">
           <span className="eyebrow">FAQ</span>
           <div className="capacity-banner inline-block">
-            <CalendarCheck size={16} /> Currently accepting 2–3 customers per day, Monday–Saturday.
+            <CalendarCheck size={16} /> Limited vehicles per day so your car isn't rushed, Monday-Saturday.
           </div>
           <h1 className="hero-title">Questions before you book? Start here.</h1>
           <PageSubtitle>

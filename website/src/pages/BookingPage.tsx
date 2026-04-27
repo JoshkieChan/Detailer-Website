@@ -497,7 +497,7 @@ const BookingPage = () => {
         subtitle="Your 20% deposit secures the appointment and goes toward the final total. If scope or vehicle condition changes significantly, we confirm the updated price before work begins."
       >
         <div className="capacity-banner inline-block mb-05">
-          <CalendarCheck size={16} /> Currently accepting 2–3 customers per day, Monday–Saturday.
+          <CalendarCheck size={16} /> Limited vehicles per day so your car isn't rushed, Monday-Saturday.
         </div>
         {nextAvailableOpening ? (
           <p className="section-note next-opening-pill mt-2">
