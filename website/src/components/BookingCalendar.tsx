@@ -99,7 +99,7 @@ export const BookingCalendar = ({
         : false;
     const isDisabled = isPast || isSunday || (showNoSlots && isUnavailable);
     const isSelected = selectedDate === dateStr;
-    const dayBadge = dayBadges[dateStr];
+    const dayBadge = dayBadges?.[dateStr];
 
     days.push(
       <button

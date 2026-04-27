@@ -15,13 +15,11 @@ const getPointerPosition = (clientX: number, element: HTMLDivElement) => {
 interface BeforeAfterSliderProps {
   items: DetailingGalleryItem[];
   showDetails?: boolean;
-  ariaLabel?: string;
 }
 
 export const BeforeAfterSlider = ({
   items,
   showDetails = true,
-  ariaLabel = 'Before and after gallery comparison',
 }: BeforeAfterSliderProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [beforeSliderPosition, setBeforeSliderPosition] = useState(DEFAULT_POSITION);

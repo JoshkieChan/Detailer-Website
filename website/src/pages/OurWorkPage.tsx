@@ -98,7 +98,6 @@ const OurWorkPage = () => {
               <BeforeAfterSlider
                 items={[item]}
                 showDetails={false}
-                ariaLabel={`${item.heading} before and after comparison`}
               />
             </div>
           </article>
