@@ -159,7 +159,6 @@ export function getHelcimLink(params: {
   );
 
   if (matches.length !== 1) {
-    console.error('Invalid Helcim link lookup', params, matches);
     throw new Error('We could not route your deposit payment. Please contact SignalSource directly.');
   }
 
@@ -172,7 +171,6 @@ export function getDigitalProductLink(label: string): HelcimLinkConfig {
   );
 
   if (matches.length !== 1) {
-    console.error('Invalid Helcim digital product lookup', label, matches);
     throw new Error('We could not open the payment page for this guide right now.');
   }
 

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { ThemeProvider } from './components/ThemeContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
@@ -35,7 +36,8 @@ function App() {
   }, []);
 
   return (
-    <ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
 
         <Router>
           <Layout>
@@ -71,6 +73,7 @@ function App() {
         </>
       )}
     </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

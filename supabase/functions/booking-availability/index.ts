@@ -10,15 +10,11 @@ import {
 } from '../../../website/src/config/scheduler.ts';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://signaldatasource.com',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-owner-passcode',
 };
 
-const getOwnerPasscodeEnv = () =>
-  Deno.env.get('OWNER_PASSCODE') ||
-  Deno.env.get('OWNER_MODE_PASSCODE') ||
-  Deno.env.get('VITE_OWNER_PASSWORD') ||
-  '';
+const getOwnerPasscodeEnv = () => Deno.env.get('OWNER_PASSCODE') || '';
 
 const verifyOwnerPasscode = (req: Request) => {
   const passcode = req.headers.get('x-owner-passcode') || '';

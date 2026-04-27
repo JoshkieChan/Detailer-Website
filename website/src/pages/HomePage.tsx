@@ -64,7 +64,9 @@ const HomePage = () => {
   useEffect(() => {
     fetchAvailability('maintenance')
       .then((data) => setNextAvailableOpening(data.nextAvailableOpening))
-      .catch((error) => console.error('Failed to load next opening', error));
+      .catch(() => {
+        // Error silently handled - UI shows default message
+      });
   }, []);
 
   return (

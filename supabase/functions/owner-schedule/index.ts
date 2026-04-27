@@ -3,15 +3,11 @@ import { calculateBookingFinancials, isBookingPackageId, isLocationType, isVehic
 import { getTotalDuration, checkCapacityRules, type SlotBookingPackageId, type VehicleTypeId, type AddOnId, intervalsOverlap } from '../../../website/src/config/scheduler.ts';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://signaldatasource.com',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-owner-passcode',
 };
 
-const getExpectedPasscode = () =>
-  Deno.env.get('OWNER_PASSCODE') ||
-  Deno.env.get('OWNER_MODE_PASSCODE') ||
-  Deno.env.get('VITE_OWNER_PASSWORD') ||
-  '';
+const getExpectedPasscode = () => Deno.env.get('OWNER_PASSCODE') || '';
 
 const isAuthorized = (req: Request) => {
   const passcode = req.headers.get('x-owner-passcode') || '';
@@ -55,6 +51,9 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
     if (payload.action === 'create_blackout') {
+      if (!payload.startAt || !payload.endAt) {
+        throw new Error('startAt and endAt are required for blackout creation.');
+      }
       const { error } = await supabase.from('availability_blocks').insert([
         {
           start_at: payload.startAt,
@@ -105,6 +104,10 @@ Deno.serve(async (req) => {
         selectedAddOns,
         testMode,
       } = payload;
+
+      if (!fullName || !email || !phone || !packageId || !vehicleType || !locationType || !date || !startTime || !endTime) {
+        throw new Error('Missing required fields for manual booking.');
+      }
 
       if (!isBookingPackageId(packageId) || !isVehicleTypeId(vehicleType) || !isLocationType(locationType)) {
         throw new Error('Invalid manual booking selection.');
@@ -239,6 +242,9 @@ Deno.serve(async (req) => {
       if (!id || !type) {
         throw new Error('Event id and type required.');
       }
+      if (type !== 'booking' && type !== 'blackout') {
+        throw new Error('Invalid event type. Must be "booking" or "blackout".');
+      }
       
       const table = type === 'booking' ? 'bookings' : 'availability_blocks';
       const { error } = await supabase.from(table).delete().eq('id', id);
@@ -250,16 +256,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    if (payload.action === 'delete_all_bookings') {
-      // Delete all bookings (useful for clearing out test data)
-      const { error } = await supabase.from('bookings').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      
-      if (error) throw error;
-      return new Response(JSON.stringify({ ok: true }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      });
-    }
 
     if (payload.action === 'update_booking') {
       const { id, updates } = payload;

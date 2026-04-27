@@ -255,8 +255,7 @@ const BookingPage = () => {
         setAvailability(data);
         setAvailabilityError(null);
       })
-      .catch((error: Error) => {
-        console.error(error);
+      .catch(() => {
         setAvailabilityError('Could not load live availability right now.');
       });
   }, [validPackage, validVehicle, formData.selectedAddOns]);
@@ -409,13 +408,6 @@ const BookingPage = () => {
     }
 
     if (Math.abs(pricing.totalToday - pricing.helcimLink.amount) > 0.01) {
-      console.error('Helcim amount mismatch', {
-        packageId: validPackage,
-        locationType: validLocation,
-        vehicleType: validVehicle,
-        calculatedTotalToday: pricing.totalToday,
-        helcimLinkAmount: pricing.helcimLink.amount,
-      });
       setSystemError('We could not verify the deposit amount for this booking. Please contact SignalSource directly.');
       return;
     }
@@ -479,7 +471,6 @@ const BookingPage = () => {
 
       window.location.href = data.helcimDepositUrl;
     } catch (error) {
-      console.error(error);
       setSystemError(
         error instanceof Error
           ? error.message
