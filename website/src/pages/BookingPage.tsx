@@ -454,6 +454,8 @@ const BookingPage = () => {
           buffer_minutes: selectedWindow.bufferMinutes,
           blocked_until: selectedWindow.blockedUntil,
           // Pricing and metadata
+          base_price: pricing.basePrice,
+          addons_price: pricing.addOnsPrice,
           calculated_price: pricing.subtotal,
           deposit_amount: pricing.depositAmount,
           tax_amount: pricing.taxAmount,
@@ -866,16 +868,16 @@ const BookingPage = () => {
                       <strong>{formatCurrency(pricing.mobileFee)}</strong>
                     </div>
                   ) : null}
+                  <div className="summary-row">
+                    <span>Subtotal (base)</span>
+                    <strong>{formatCurrency(pricing.subtotal)}</strong>
+                  </div>
                   {pricing.addOnsPrice > 0 ? (
                     <div className="summary-row">
                       <span>Add-ons selected</span>
                       <strong>{formatCurrency(pricing.addOnsPrice)}</strong>
                     </div>
                   ) : null}
-                  <div className="summary-row">
-                    <span>Subtotal</span>
-                    <strong>{formatCurrency(pricing.subtotal)}</strong>
-                  </div>
                   <div className="summary-row">
                     <span>Tax</span>
                     <strong>{formatCurrency(pricing.taxAmount)}</strong>

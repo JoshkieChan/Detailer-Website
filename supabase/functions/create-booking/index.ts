@@ -77,6 +77,8 @@ Deno.serve(async (req) => {
       totalAmountCents,
       total_amount_cents,
       calculated_price,
+      base_price,
+      addons_price,
       deposit_amount,
       tax_amount,
       total_today,
@@ -182,6 +184,8 @@ Deno.serve(async (req) => {
               ? (membership_intent || membershipIntent)
               : 'none',
           calculated_price: calculated_price ?? pricing.subtotal,
+          base_price: base_price ?? pricing.basePrice,
+          addons_price: addons_price ?? pricing.addOnsPrice,
           total_amount: calculated_price ?? pricing.subtotal,
           deposit_amount: finalDepositAmount,
           tax_amount: tax_amount ?? pricing.taxAmount,

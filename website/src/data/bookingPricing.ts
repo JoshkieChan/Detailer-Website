@@ -13,13 +13,15 @@ export type AddOnId = 'paintProtection' | 'petHairRemoval' | 'engineBay' | 'head
 export const MOBILE_FEE = 30;
 export const OAK_HARBOR_TAX_RATE = 0.091;
 
-// Add-on pricing (flat rate regardless of vehicle size)
+// Add-on pricing
+// Paint Protection and Pet Hair Removal are size-based
+// Engine Bay and Headlight Restoration are flat rates
 // Prices in dollars
-export const ADD_ON_PRICES: Record<AddOnId, number> = {
-  paintProtection: 150,      // Light paint correction
-  petHairRemoval: 75,        // Severe pet hair removal
-  engineBay: 40,             // Light engine bay cleaning
-  headlightRestoration: 80,  // Headlight restoration
+export const ADD_ON_PRICES: Record<AddOnId, number | Record<VehicleTypeId, number>> = {
+  paintProtection: { sedan: 150, smallSuv: 225, largeSuvTruck: 300 },
+  petHairRemoval: { sedan: 75, smallSuv: 110, largeSuvTruck: 150 },
+  engineBay: 60,
+  headlightRestoration: 120,
 };
 
 export const bookingPackages: Record<
@@ -93,17 +95,29 @@ export const calculateBookingFinancials = ({
 }) => {
   const packagePrice = bookingPackages[packageId].vehiclePricing[vehicleType];
   const mobileFee = locationType === 'mobile' ? MOBILE_FEE : 0;
-  
-  // Calculate add-on pricing
+
+  // Base price is package + mobile fee only (for deposit calculation)
+  const basePrice = packagePrice + mobileFee;
+
+  // Calculate add-on pricing (only affects remaining balance)
   const addOnsPrice = selectedAddOns.reduce((sum, addOnId) => {
-    return sum + (ADD_ON_PRICES[addOnId] || 0);
+    const price = ADD_ON_PRICES[addOnId];
+    if (typeof price === 'number') {
+      return sum + price;
+    } else if (typeof price === 'object' && price !== null) {
+      return sum + (price[vehicleType] || 0);
+    }
+    return sum;
   }, 0);
-  
-  const subtotal = packagePrice + mobileFee + addOnsPrice;
-  const depositAmount = Number((subtotal * 0.2).toFixed(2));
+
+  // Deposit-side calculations based on base price only
+  const depositAmount = Number((basePrice * 0.2).toFixed(2));
   const taxAmount = Number((depositAmount * OAK_HARBOR_TAX_RATE).toFixed(2));
   const totalToday = Number((depositAmount + taxAmount).toFixed(2));
-  const remainingBalance = Number((subtotal - depositAmount).toFixed(2));
+
+  // Remaining balance includes add-ons
+  const remainingBalance = Number((basePrice + addOnsPrice - depositAmount).toFixed(2));
+
   const helcimLink = getHelcimLink({
     service: bookingPackages[packageId].label,
     location: locationTypeLabels[locationType],
@@ -113,8 +127,9 @@ export const calculateBookingFinancials = ({
   return {
     packagePrice,
     mobileFee,
+    basePrice,
     addOnsPrice,
-    subtotal,
+    subtotal: basePrice, // Display subtotal is base price only
     depositAmount,
     taxAmount,
     totalToday,

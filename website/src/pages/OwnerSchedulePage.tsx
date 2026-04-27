@@ -626,6 +626,8 @@ const OwnerSchedulePage = () => {
                     blockedUntil: window.blockedUntil,
                     serviceDurationMinutes: window.serviceDuration,
                     bufferMinutes: window.bufferMinutes,
+                    base_price: manualPricing.basePrice,
+                    addons_price: manualPricing.addOnsPrice,
                     calculated_price: manualPricing.subtotal,
                     deposit_amount: manualPricing.depositAmount,
                     tax_amount: manualPricing.taxAmount,
