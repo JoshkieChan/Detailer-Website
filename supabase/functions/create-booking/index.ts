@@ -10,8 +10,10 @@ import {
 } from '../../../website/src/data/bookingPricing.ts';
 import {
   getServiceDuration,
+  getTotalDuration,
   type VehicleTypeId as SchedulerVehicleTypeId,
   type SlotBookingPackageId,
+  type AddOnId,
 } from '../../../website/src/config/scheduler.ts';
 
 const corsHeaders = {
@@ -80,6 +82,8 @@ Deno.serve(async (req) => {
       total_today,
       remaining_balance,
       helcim_deposit_url,
+      selectedAddOns,
+      selected_addons,
     } = payload;
 
     const finalServiceDate = (service_date || serviceDate)?.toString().trim();
@@ -91,6 +95,7 @@ Deno.serve(async (req) => {
     const finalPackageId = (package_id || packageId)?.toString().trim();
     const finalVehicleType = (vehicle_type || vehicleType)?.toString().trim();
     const finalLocationType = (location_type || locationType)?.toString().trim();
+    const finalSelectedAddOns: AddOnId[] = (selected_addons || selectedAddOns || []) as AddOnId[];
 
     if (!finalFullName || !phone || !email || !finalServiceDate || !finalStartTime) {
       console.error('CRITICAL: Missing required booking fields', {
@@ -114,25 +119,16 @@ Deno.serve(async (req) => {
       locationType: finalLocationType,
     });
 
-    // Calculate service duration based on vehicle size (new model)
-    const calculatedServiceDuration = getServiceDuration(
-      finalPackageId as SlotBookingPackageId,
-      finalVehicleType as SchedulerVehicleTypeId
-    );
-
-    // Detect heavy add-ons from notes
-    const HEAVY_ADDON_KEYWORDS = ['paint correction', 'pet hair', 'headlight', 'headlights', 'restoration'];
-    const notesLower = (notes || '').toLowerCase();
-    const hasHeavyAddOns = HEAVY_ADDON_KEYWORDS.some(keyword => notesLower.includes(keyword));
-
-    // Calculate blocked duration (service + buffer + add-on time)
-    const bufferMinutes = 60;
-    const addOnMinutes = hasHeavyAddOns ? 60 : 0;
-    const calculatedBlockedDuration = calculatedServiceDuration + bufferMinutes + addOnMinutes;
+    // Calculate total duration (base + add-ons) using new model
+    const calculatedTotalDuration = getTotalDuration({
+      packageId: finalPackageId as SlotBookingPackageId,
+      vehicleType: finalVehicleType as SchedulerVehicleTypeId,
+      selectedAddOns: finalSelectedAddOns,
+    });
 
     // Use calculated duration if not provided in payload
-    const finalServiceDurationMinutes = payloadServiceDurationMinutes || calculatedServiceDuration;
-    const finalBufferMinutes = payloadBufferMinutes || bufferMinutes;
+    const finalServiceDurationMinutes = payloadServiceDurationMinutes || calculatedTotalDuration;
+    const finalBufferMinutes = payloadBufferMinutes || 60;
 
     // Use values from payload if they exist, otherwise use calculated values
     const finalDepositAmount = deposit_amount ?? pricing.depositAmount;
@@ -172,6 +168,7 @@ Deno.serve(async (req) => {
           blocked_until: finalBlockedUntil,
           service_duration_minutes: finalServiceDurationMinutes,
           buffer_minutes: finalBufferMinutes,
+          selected_addons: finalSelectedAddOns,
           mobile_fee_applied: finalLocationType === 'mobile',
           membership_intent:
             membership_intent === 'quarterly' ||

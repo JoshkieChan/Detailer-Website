@@ -5,7 +5,8 @@ import {
   type ScheduledInterval,
   type SlotBookingPackageId,
   type VehicleTypeId,
-  getServiceDuration,
+  type AddOnId,
+  getTotalDuration,
 } from '../../../website/src/config/scheduler.ts';
 
 const corsHeaders = {
@@ -51,6 +52,8 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const packageId = (url.searchParams.get('packageId') || 'maintenance') as SlotBookingPackageId;
     const vehicleType = (url.searchParams.get('vehicleType') || 'sedan') as VehicleTypeId;
+    const selectedAddOnsParam = url.searchParams.get('selectedAddOns');
+    const selectedAddOns: AddOnId[] = selectedAddOnsParam ? (selectedAddOnsParam.split(',') as AddOnId[]) : [];
     const ownerMode = url.searchParams.get('owner') === 'true';
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
@@ -131,7 +134,7 @@ Deno.serve(async (req) => {
       await Promise.all([
         supabase
           .from('bookings')
-          .select('service_date, start_time, end_time, blocked_until, payment_status, created_at, package_id, vehicle_type')
+          .select('service_date, start_time, end_time, blocked_until, payment_status, created_at, package_id, vehicle_type, selected_addons')
           .eq('payment_status', 'paid')
           .order('service_date', { ascending: true })
           .order('start_time', { ascending: true }),
@@ -148,6 +151,13 @@ Deno.serve(async (req) => {
 
     for (const booking of paidBookings || []) {
       if (!booking.service_date || !booking.start_time || !booking.end_time) continue;
+      const selectedAddOns: AddOnId[] = booking.selected_addons || [];
+      const totalDuration = getTotalDuration({
+        packageId: booking.package_id as SlotBookingPackageId,
+        vehicleType: booking.vehicle_type as VehicleTypeId,
+        selectedAddOns,
+      });
+
       intervalsByDate[booking.service_date] = intervalsByDate[booking.service_date] || [];
       intervalsByDate[booking.service_date].push({
         date: booking.service_date,
@@ -158,6 +168,8 @@ Deno.serve(async (req) => {
         paymentStatus: 'paid',
         packageId: booking.package_id as SlotBookingPackageId,
         vehicleType: booking.vehicle_type as VehicleTypeId,
+        selectedAddOns,
+        totalDurationMinutes: totalDuration,
       });
     }
 
@@ -184,13 +196,14 @@ Deno.serve(async (req) => {
         intervals: intervalsByDate[date],
         now,
         vehicleType,
+        selectedAddOns,
       })
     );
 
     // Explicitly check today (Pacific calendar day, consistent with isDateUnavailable)
     const todayStr = pacificDateString(now);
     if (!unavailableDates.includes(todayStr)) {
-      if (isDateUnavailable({ date: todayStr, packageId, intervals: intervalsByDate[todayStr] || [], now, vehicleType })) {
+      if (isDateUnavailable({ date: todayStr, packageId, intervals: intervalsByDate[todayStr] || [], now, vehicleType, selectedAddOns })) {
         unavailableDates.push(todayStr);
       }
     }
@@ -200,6 +213,7 @@ Deno.serve(async (req) => {
       packageId,
       intervals: allIntervals,
       vehicleType,
+      selectedAddOns,
     });
 
     return new Response(

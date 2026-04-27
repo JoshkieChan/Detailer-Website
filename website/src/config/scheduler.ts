@@ -1,5 +1,6 @@
 export type SlotBookingPackageId = 'maintenance' | 'deepReset';
 export type VehicleTypeId = 'sedan' | 'smallSuv' | 'largeSuvTruck';
+export type AddOnId = 'paintProtection' | 'petHairRemoval' | 'engineBay' | 'headlightRestoration';
 
 export interface ServiceTimingRule {
   label: string;
@@ -28,6 +29,31 @@ export const BASE_BLOCK_DURATIONS: Record<SlotBookingPackageId, Record<VehicleTy
   },
 };
 
+// Add-on durations by vehicle size (in minutes)
+// These are added to base duration to calculate total booking time
+export const ADD_ON_DURATIONS: Record<AddOnId, Record<VehicleTypeId, number>> = {
+  paintProtection: {
+    sedan: 120,      // 2.0 hours
+    smallSuv: 180,   // 3.0 hours
+    largeSuvTruck: 300, // 5.0 hours
+  },
+  petHairRemoval: {
+    sedan: 60,       // 1.0 hour
+    smallSuv: 120,   // 2.0 hours
+    largeSuvTruck: 180, // 3.0 hours
+  },
+  engineBay: {
+    sedan: 30,       // 0.5 hours (same for all sizes)
+    smallSuv: 30,
+    largeSuvTruck: 30,
+  },
+  headlightRestoration: {
+    sedan: 60,       // 1.0 hour (same for all sizes)
+    smallSuv: 60,
+    largeSuvTruck: 60,
+  },
+};
+
 // Legacy SERVICE_TIMING_RULES for backward compatibility (uses sedan duration as default)
 export const SERVICE_TIMING_RULES: Record<SlotBookingPackageId, ServiceTimingRule> = {
   maintenance: {
@@ -51,16 +77,34 @@ export const getServiceDuration = (packageId: SlotBookingPackageId, vehicleType:
   return BASE_BLOCK_DURATIONS[packageId][vehicleType];
 };
 
-// Get blocked duration (service + buffer already included in BASE_BLOCK_DURATIONS)
-// Add-ons are handled manually by owner - no automatic duration extensions
-export const getBlockedDuration = ({
+// Get total duration (base + add-ons) in minutes
+export const getTotalDuration = ({
   packageId,
   vehicleType,
+  selectedAddOns = [],
 }: {
   packageId: SlotBookingPackageId;
   vehicleType: VehicleTypeId;
+  selectedAddOns?: AddOnId[];
 }): number => {
-  return BASE_BLOCK_DURATIONS[packageId][vehicleType];
+  const baseDuration = BASE_BLOCK_DURATIONS[packageId][vehicleType];
+  const addOnDuration = selectedAddOns.reduce((total, addOnId) => {
+    return total + ADD_ON_DURATIONS[addOnId][vehicleType];
+  }, 0);
+  return baseDuration + addOnDuration;
+};
+
+// Get blocked duration (service + buffer + add-ons)
+export const getBlockedDuration = ({
+  packageId,
+  vehicleType,
+  selectedAddOns = [],
+}: {
+  packageId: SlotBookingPackageId;
+  vehicleType: VehicleTypeId;
+  selectedAddOns?: AddOnId[];
+}): number => {
+  return getTotalDuration({ packageId, vehicleType, selectedAddOns });
 };
 
 export interface ScheduledInterval {
@@ -73,6 +117,8 @@ export interface ScheduledInterval {
   paymentStatus?: string;
   packageId?: SlotBookingPackageId;
   vehicleType?: VehicleTypeId;
+  selectedAddOns?: AddOnId[];
+  totalDurationMinutes?: number;
 }
 
 export const minutesToTime = (minutes: number) => {
@@ -134,16 +180,18 @@ export const buildBookingWindow = ({
   packageId,
   startTime,
   vehicleType = 'sedan',
+  selectedAddOns = [],
 }: {
   date: string;
   packageId: SlotBookingPackageId;
   startTime: string;
   vehicleType?: VehicleTypeId;
+  selectedAddOns?: AddOnId[];
 }) => {
   const startMinutes = timeToMinutes(startTime);
-  const blockDuration = BASE_BLOCK_DURATIONS[packageId][vehicleType];
-  const endMinutes = startMinutes + blockDuration;
-  const blockedUntilMinutes = endMinutes; // Buffer already included in block duration
+  const totalDuration = getTotalDuration({ packageId, vehicleType, selectedAddOns });
+  const endMinutes = startMinutes + totalDuration;
+  const blockedUntilMinutes = endMinutes; // Buffer already included in base duration
 
   return {
     date,
@@ -153,11 +201,11 @@ export const buildBookingWindow = ({
     endMinutes,
     blockedUntil: minutesToTime(blockedUntilMinutes),
     blockedUntilMinutes,
-    serviceDuration: blockDuration,
+    serviceDuration: totalDuration,
     bufferMinutes: 60, // For display purposes only
-    addOnMinutes: 0,
+    addOnMinutes: selectedAddOns.reduce((total, addOnId) => total + ADD_ON_DURATIONS[addOnId][vehicleType], 0),
     vehicleType,
-    hasHeavyAddOns: false,
+    selectedAddOns,
   };
 };
 
@@ -169,70 +217,47 @@ export const intervalsOverlap = (
 ) => aStart < bEndExclusive && bStart < aEndExclusive;
 
 // Capacity rules for daily bookings
-// Business rule: Max 12 hours per day, max 1 Deep Reset per day
-// Large Deep (9h) blocks entire day
-// Small Deep (7h) allows max 1 Maintenance
-// Sedan Deep (5h) allows max 2 Maintenance if total ≤ 12h
+// Business rules:
+// - Max 12 hours per day (720 minutes)
+// - Full-day threshold: 10 hours (600 minutes) - booking ≥ 10h blocks entire day
+// - Max 1 Deep Reset per day
+// - Bookings must not overlap
 export const checkCapacityRules = ({
-  packageId,
-  vehicleType,
+  newBookingDuration,
   existingBookings,
 }: {
-  packageId: SlotBookingPackageId;
-  vehicleType: VehicleTypeId;
-  existingBookings: Array<{ packageId: SlotBookingPackageId; vehicleType: VehicleTypeId }>;
-}): { allowed: boolean; reason?: string } => {
-  const newBookingDuration = BASE_BLOCK_DURATIONS[packageId][vehicleType];
-  const isDeepReset = packageId === 'deepReset';
-  const isLargeDeep = isDeepReset && vehicleType === 'largeSuvTruck';
-  const isSmallDeep = isDeepReset && vehicleType === 'smallSuv';
-  const isSedanDeep = isDeepReset && vehicleType === 'sedan';
+  newBookingDuration: number;
+  existingBookings: Array<{ totalDurationMinutes?: number }>;
+}): { allowed: boolean; reason?: string; isFullDay?: boolean } => {
+  const FULL_DAY_THRESHOLD_MINUTES = 600; // 10 hours
+  const DAILY_MAX_MINUTES = 720; // 12 hours
 
-  // Count existing Deep Resets on this day
-  const existingDeepResets = existingBookings.filter(b => b.packageId === 'deepReset');
-  const existingMaintenance = existingBookings.filter(b => b.packageId === 'maintenance');
+  // Check if new booking is a full-day booking (≥ 10 hours)
+  const isFullDayBooking = newBookingDuration >= FULL_DAY_THRESHOLD_MINUTES;
 
-  // Rule: Max 1 Deep Reset per day
-  if (isDeepReset && existingDeepResets.length > 0) {
-    return { allowed: false, reason: 'Only one Deep Reset allowed per day' };
+  // If new booking is full-day, no other bookings allowed on that day
+  if (isFullDayBooking && existingBookings.length > 0) {
+    return { allowed: false, reason: 'This booking is a full-day job and cannot share the day with other bookings', isFullDay: true };
   }
 
-  // Rule: Large Deep (9h) blocks entire day - no other bookings allowed
-  if (isLargeDeep && existingBookings.length > 0) {
-    return { allowed: false, reason: 'Large Deep Reset blocks entire day' };
-  }
-
-  // If there's an existing Large Deep, no new bookings allowed
-  const hasExistingLargeDeep = existingDeepResets.some(b => b.vehicleType === 'largeSuvTruck');
-  if (hasExistingLargeDeep) {
-    return { allowed: false, reason: 'Existing Large Deep Reset blocks entire day' };
-  }
-
-  // Rule: Small Deep (7h) allows max 1 Maintenance
-  if (isSmallDeep && existingMaintenance.length > 0) {
-    return { allowed: false, reason: 'Small Deep Reset allows only one Maintenance job' };
-  }
-  if (isDeepReset === false && existingDeepResets.some(b => b.vehicleType === 'smallSuv')) {
-    return { allowed: false, reason: 'Existing Small Deep Reset allows only one Maintenance job' };
-  }
-
-  // Rule: Sedan Deep (5h) allows max 2 Maintenance if total ≤ 12h
-  if (isSedanDeep && existingMaintenance.length >= 2) {
-    return { allowed: false, reason: 'Sedan Deep Reset allows at most two Maintenance jobs' };
+  // Check if any existing booking is a full-day booking
+  const hasExistingFullDay = existingBookings.some(b => (b.totalDurationMinutes || 0) >= FULL_DAY_THRESHOLD_MINUTES);
+  if (hasExistingFullDay) {
+    return { allowed: false, reason: 'A full-day booking already exists on this day' };
   }
 
   // Calculate total booked hours for the day
   let totalBookedMinutes = newBookingDuration;
   existingBookings.forEach(booking => {
-    totalBookedMinutes += BASE_BLOCK_DURATIONS[booking.packageId][booking.vehicleType];
+    totalBookedMinutes += booking.totalDurationMinutes || 0;
   });
 
-  // Rule: Max 12 hours per day (720 minutes)
-  if (totalBookedMinutes > 720) {
+  // Rule: Max 12 hours per day
+  if (totalBookedMinutes > DAILY_MAX_MINUTES) {
     return { allowed: false, reason: 'Day would exceed 12-hour limit' };
   }
 
-  return { allowed: true };
+  return { allowed: true, isFullDay: isFullDayBooking };
 };
 
 export const isDateUnavailable = ({
@@ -241,12 +266,14 @@ export const isDateUnavailable = ({
   intervals,
   now = new Date(),
   vehicleType = 'sedan',
+  selectedAddOns = [],
 }: {
   date: string;
   packageId: SlotBookingPackageId;
   intervals: ScheduledInterval[];
   now?: Date;
   vehicleType?: VehicleTypeId;
+  selectedAddOns?: AddOnId[];
 }) => {
   const validSlots = getHourlyStartSlots(packageId, vehicleType);
 
@@ -271,12 +298,18 @@ export const isDateUnavailable = ({
   const [h, m] = pacificTime.split(':').map(Number);
   const currentMinutes = h * 60 + m;
 
+  // Calculate new booking total duration
+  const newBookingDuration = getTotalDuration({ packageId, vehicleType, selectedAddOns });
+
   // Extract existing bookings for this date to check capacity rules
   const existingBookings = intervals
     .filter(interval => interval.date === date)
     .map(interval => ({
-      packageId: interval.packageId as SlotBookingPackageId,
-      vehicleType: interval.vehicleType as VehicleTypeId,
+      totalDurationMinutes: interval.totalDurationMinutes || getTotalDuration({
+        packageId: interval.packageId as SlotBookingPackageId,
+        vehicleType: interval.vehicleType as VehicleTypeId,
+        selectedAddOns: interval.selectedAddOns || [],
+      }),
     }));
 
   return !validSlots.some((slot) => {
@@ -287,15 +320,14 @@ export const isDateUnavailable = ({
 
     // Check capacity rules first
     const capacityCheck = checkCapacityRules({
-      packageId,
-      vehicleType,
+      newBookingDuration,
       existingBookings,
     });
     if (!capacityCheck.allowed) {
       return false; // Slot not available due to capacity rules
     }
 
-    const slotWindow = buildBookingWindow({ date, packageId, startTime: slot.value, vehicleType });
+    const slotWindow = buildBookingWindow({ date, packageId, startTime: slot.value, vehicleType, selectedAddOns });
     return !intervals.some((interval) => {
       if (interval.date !== date) return false;
       return intervalsOverlap(
@@ -314,6 +346,7 @@ export const hasAvailableSlot = (args: {
   intervals: ScheduledInterval[];
   now?: Date;
   vehicleType?: VehicleTypeId;
+  selectedAddOns?: AddOnId[];
 }) => !isDateUnavailable(args);
 
 export const getNextAvailableOpening = ({
@@ -322,12 +355,14 @@ export const getNextAvailableOpening = ({
   intervals,
   daysToScan = 30,
   vehicleType = 'sedan',
+  selectedAddOns = [],
 }: {
   fromDate: Date;
   packageId: SlotBookingPackageId;
   intervals: ScheduledInterval[];
   daysToScan?: number;
   vehicleType?: VehicleTypeId;
+  selectedAddOns?: AddOnId[];
 }) => {
   const scanDate = new Date(fromDate);
   scanDate.setHours(0, 0, 0, 0);
@@ -356,7 +391,7 @@ export const getNextAvailableOpening = ({
         continue;
       }
 
-      const window = buildBookingWindow({ date, packageId, startTime: slot.value, vehicleType });
+      const window = buildBookingWindow({ date, packageId, startTime: slot.value, vehicleType, selectedAddOns });
       const overlaps = intervals.some((interval) => {
         if (interval.date !== date) return false;
         return intervalsOverlap(
@@ -379,4 +414,77 @@ export const getNextAvailableOpening = ({
   }
 
   return null;
+};
+
+// Check if booking is eligible for multi-day handling
+// Only Deep Reset + Large SUV/Truck with total duration > 12 hours
+export const isEligibleForMultiDay = ({
+  packageId,
+  vehicleType,
+  totalDurationMinutes,
+}: {
+  packageId: SlotBookingPackageId;
+  vehicleType: VehicleTypeId;
+  totalDurationMinutes: number;
+}): boolean => {
+  const DAILY_MAX_MINUTES = 720; // 12 hours
+  return (
+    packageId === 'deepReset' &&
+    vehicleType === 'largeSuvTruck' &&
+    totalDurationMinutes > DAILY_MAX_MINUTES
+  );
+};
+
+// Check if two consecutive days can accommodate a multi-day booking
+export const canFitMultiDayBooking = ({
+  startDate,
+  totalDurationMinutes,
+  intervalsByDate,
+}: {
+  startDate: string;
+  totalDurationMinutes: number;
+  intervalsByDate: Record<string, ScheduledInterval[]>;
+}): { canFit: boolean; day1Date: string; day2Date: string; day1Minutes: number; day2Minutes: number } => {
+  const DAILY_MAX_MINUTES = 720; // 12 hours
+
+  const day1Date = startDate;
+  const day2Date = new Date(startDate);
+  day2Date.setDate(day2Date.getDate() + 1);
+  const day2DateStr = day2Date.toISOString().slice(0, 10);
+
+  // Check if day 2 is Sunday
+  const day2Weekday = day2Date.getDay();
+  if (day2Weekday === 0) {
+    return { canFit: false, day1Date, day2Date: day2DateStr, day1Minutes: 0, day2Minutes: 0 };
+  }
+
+  // Calculate existing booked minutes for day 1
+  const day1Intervals = intervalsByDate[day1Date] || [];
+  const day1BookedMinutes = day1Intervals.reduce((total, interval) => {
+    return total + (interval.totalDurationMinutes || 0);
+  }, 0);
+
+  // Calculate existing booked minutes for day 2
+  const day2Intervals = intervalsByDate[day2DateStr] || [];
+  const day2BookedMinutes = day2Intervals.reduce((total, interval) => {
+    return total + (interval.totalDurationMinutes || 0);
+  }, 0);
+
+  // Calculate available minutes
+  const day1Available = DAILY_MAX_MINUTES - day1BookedMinutes;
+  const day2Available = DAILY_MAX_MINUTES - day2BookedMinutes;
+
+  // Check if booking can fit across two days
+  if (day1Available + day2Available >= totalDurationMinutes) {
+    // Allocate up to 12 hours on day 1, rest on day 2
+    const day1Minutes = Math.min(day1Available, DAILY_MAX_MINUTES);
+    const day2Minutes = totalDurationMinutes - day1Minutes;
+
+    // Check if day 2 can accommodate the remaining hours
+    if (day2Minutes <= day2Available) {
+      return { canFit: true, day1Date, day2Date: day2DateStr, day1Minutes, day2Minutes };
+    }
+  }
+
+  return { canFit: false, day1Date, day2Date: day2DateStr, day1Minutes: 0, day2Minutes: 0 };
 };

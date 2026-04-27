@@ -13,10 +13,34 @@ import {
   type LocationType,
   type VehicleTypeId,
 } from '../data/bookingPricing';
-import { buildBookingWindow, getHourlyStartSlots, type SlotBookingPackageId } from '../config/scheduler';
+import { buildBookingWindow, getHourlyStartSlots, type SlotBookingPackageId, type AddOnId, ADD_ON_DURATIONS } from '../config/scheduler';
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0);
+
+// Add-on options available for both Maintenance and Deep Reset
+const ADD_ON_OPTIONS: Array<{ id: AddOnId; label: string; description: string }> = [
+  {
+    id: 'paintProtection',
+    label: 'Light paint correction',
+    description: 'Light machine polishing to boost gloss and reduce light swirls',
+  },
+  {
+    id: 'petHairRemoval',
+    label: 'Severe pet hair removal',
+    description: 'Extra time and tools for heavy, embedded pet hair',
+  },
+  {
+    id: 'engineBay',
+    label: 'Light engine bay cleaning',
+    description: 'Cleaning of accessible plastics and painted surfaces',
+  },
+  {
+    id: 'headlightRestoration',
+    label: 'Headlight restoration',
+    description: 'Machine polishing of cloudy, oxidized headlight lenses',
+  },
+];
 
 const OwnerSchedulePage = () => {
   const [events, setEvents] = useState<OwnerScheduleEvent[]>([]);
@@ -42,6 +66,7 @@ const OwnerSchedulePage = () => {
     startTime: '08:00',
     notes: '',
     paymentStatus: 'pending_payment',
+    selectedAddOns: [] as AddOnId[],
   });
 
   const [blockForm, setBlockForm] = useState({
@@ -469,6 +494,42 @@ const OwnerSchedulePage = () => {
                 <option value="mobile">On-Island Mobile</option>
               </select>
             </label>
+            <label className="full-width">
+              Add-ons (optional)
+              <div className="addon-selector-list">
+                {ADD_ON_OPTIONS.map((addon) => {
+                  const isSelected = bookingForm.selectedAddOns.includes(addon.id);
+                  const addOnDuration = ADD_ON_DURATIONS[addon.id][bookingForm.vehicleType];
+                  const durationHours = (addOnDuration / 60).toFixed(1);
+                  return (
+                    <button
+                      key={addon.id}
+                      type="button"
+                      className={`addon-selector-row ${isSelected ? 'selected' : ''}`}
+                      onClick={() => {
+                        const newAddOns = isSelected
+                          ? bookingForm.selectedAddOns.filter((id) => id !== addon.id)
+                          : [...bookingForm.selectedAddOns, addon.id];
+                        setBookingForm({ ...bookingForm, selectedAddOns: newAddOns });
+                      }}
+                    >
+                      <div className="addon-selector-left">
+                        <div className={`addon-check ${isSelected ? 'selected' : ''}`}>
+                          {isSelected && <span>✓</span>}
+                        </div>
+                        <div className="addon-copy">
+                          <div className="addon-selector-title">
+                            <span>{addon.label}</span>
+                            <span className="addon-duration">+{durationHours}h</span>
+                          </div>
+                          <p className="field-help">{addon.description}</p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </label>
             <label>
               Start time
               <select
@@ -530,6 +591,8 @@ const OwnerSchedulePage = () => {
                   date: selectedDate,
                   packageId: bookingForm.packageId as SlotBookingPackageId,
                   startTime: bookingForm.startTime,
+                  vehicleType: bookingForm.vehicleType,
+                  selectedAddOns: bookingForm.selectedAddOns,
                 });
                 await createManualBooking({
                   passcode: ownerPasscode,

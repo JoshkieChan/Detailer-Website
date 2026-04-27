@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import {
   AlertCircle,
   CalendarCheck,
+  Check,
   ChevronDown,
   ChevronUp,
   ShieldCheck,
@@ -36,13 +37,36 @@ import {
   timeToMinutes,
   type ScheduledInterval,
   type SlotBookingPackageId,
+  type AddOnId,
+  ADD_ON_DURATIONS,
+  getTotalDuration,
 } from '../config/scheduler';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Heavy add-on keywords that require extra scheduling time
-// Add-ons are now handled manually by owner - no automatic duration adjustments
-// Customers should contact owner if they want add-ons
+// Add-on options available for both Maintenance and Deep Reset
+const ADD_ON_OPTIONS: Array<{ id: AddOnId; label: string; description: string }> = [
+  {
+    id: 'paintProtection',
+    label: 'Light paint correction',
+    description: 'Light machine polishing to boost gloss and reduce light swirls',
+  },
+  {
+    id: 'petHairRemoval',
+    label: 'Severe pet hair removal',
+    description: 'Extra time and tools for heavy, embedded pet hair',
+  },
+  {
+    id: 'engineBay',
+    label: 'Light engine bay cleaning',
+    description: 'Cleaning of accessible plastics and painted surfaces',
+  },
+  {
+    id: 'headlightRestoration',
+    label: 'Headlight restoration',
+    description: 'Machine polishing of cloudy, oxidized headlight lenses',
+  },
+];
 
 function validateFullName(v: string) {
   const trimmed = v.trim();
@@ -195,6 +219,7 @@ const BookingPage = () => {
     address: '',
     notes: '',
     membershipIntent: 'none' as MembershipIntent,
+    selectedAddOns: [] as AddOnId[],
   });
 
   const packageRef = useRef<HTMLDivElement>(null);
@@ -224,7 +249,8 @@ const BookingPage = () => {
 
     fetchAvailability(
       validPackage as SlotBookingPackageId,
-      validVehicle || 'sedan'
+      validVehicle || 'sedan',
+      formData.selectedAddOns
     )
       .then((data) => {
         setAvailability(data);
@@ -234,7 +260,7 @@ const BookingPage = () => {
         console.error(error);
         setAvailabilityError('Could not load live availability right now.');
       });
-  }, [validPackage, validVehicle, formData.notes]);
+  }, [validPackage, validVehicle, formData.selectedAddOns]);
 
 
   const hourlySlots = validPackage ? getHourlyStartSlots(validPackage as SlotBookingPackageId, validVehicle || 'sedan') : [];
@@ -268,6 +294,7 @@ const BookingPage = () => {
         packageId: validPackage as SlotBookingPackageId,
         startTime: slot.value,
         vehicleType: validVehicle || 'sedan',
+        selectedAddOns: formData.selectedAddOns,
       });
       const slotStart = timeToMinutes(slot.value);
 
@@ -324,6 +351,7 @@ const BookingPage = () => {
           packageId: validPackage as SlotBookingPackageId,
           startTime: formData.startTime,
           vehicleType: validVehicle || 'sedan',
+          selectedAddOns: formData.selectedAddOns,
         })
       : null;
 
@@ -338,6 +366,7 @@ const BookingPage = () => {
               intervals.map((interval) => ({ ...interval, date }))
             ) || [],
           vehicleType: validVehicle || 'sedan',
+          selectedAddOns: formData.selectedAddOns,
         })
       : null;
 
@@ -416,6 +445,7 @@ const BookingPage = () => {
           vehicleType: validVehicle,
           locationType: validLocation,
           membershipIntent: formData.membershipIntent,
+          selectedAddOns: formData.selectedAddOns,
           // Explicitly named fields for database compatibility
           service_date: formData.date,
           start_time: formData.startTime,
@@ -555,6 +585,47 @@ const BookingPage = () => {
               </div>
 
               <div className="input-group full-width">
+                <label>Add-ons (optional)</label>
+                <p className="field-help">Select any add-ons you'd like. These will add time to your booking and affect pricing.</p>
+                <div className="addon-selector-list">
+                  {ADD_ON_OPTIONS.map((addon) => {
+                    const isSelected = formData.selectedAddOns.includes(addon.id);
+                    const addOnDuration = validVehicle ? ADD_ON_DURATIONS[addon.id][validVehicle] : 0;
+                    const durationHours = (addOnDuration / 60).toFixed(1);
+                    return (
+                      <button
+                        key={addon.id}
+                        type="button"
+                        className={`addon-selector-row ${isSelected ? 'selected' : ''}`}
+                        onClick={() => {
+                          const newAddOns = isSelected
+                            ? formData.selectedAddOns.filter((id) => id !== addon.id)
+                            : [...formData.selectedAddOns, addon.id];
+                          setFormData({ ...formData, selectedAddOns: newAddOns });
+                        }}
+                        disabled={!validVehicle}
+                      >
+                        <div className="addon-selector-left">
+                          <div className={`addon-check ${isSelected ? 'selected' : ''}`}>
+                            {isSelected && <Check size={12} />}
+                          </div>
+                          <div className="addon-copy">
+                            <div className="addon-selector-title">
+                              <span>{addon.label}</span>
+                              {validVehicle && (
+                                <span className="addon-duration">+{durationHours}h</span>
+                              )}
+                            </div>
+                            <p className="field-help">{addon.description}</p>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="input-group full-width">
                 <label>Preferred day</label>
                 <div className="booking-calendar-panel">
                   <BookingCalendar
@@ -563,6 +634,7 @@ const BookingPage = () => {
                     unavailableDates={availability.unavailableDates}
                     slotPackageId={validPackage ?? undefined}
                     slotVehicleType={validVehicle ?? 'sedan'}
+                    slotSelectedAddOns={formData.selectedAddOns}
                     intervalsByDate={calendarIntervalsByDate}
                     showNoSlots={showNoSlots}
                   />

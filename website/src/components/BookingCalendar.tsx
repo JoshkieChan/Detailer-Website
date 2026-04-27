@@ -17,6 +17,7 @@ interface BookingCalendarProps {
   /** When set with intervalsByDate, days with no valid start times match public availability logic. */
   slotPackageId?: SlotBookingPackageId;
   slotVehicleType?: VehicleTypeId;
+  slotSelectedAddOns?: import('../config/scheduler').AddOnId[];
   intervalsByDate?: Record<string, ScheduledInterval[]>;
   isExpanded?: boolean;
   showNoSlots?: boolean;
@@ -32,6 +33,7 @@ export const BookingCalendar = ({
   disableSundays = true,
   slotPackageId,
   slotVehicleType = 'sedan',
+  slotSelectedAddOns = [],
   intervalsByDate,
   isExpanded = false,
   showNoSlots = true,
@@ -90,6 +92,7 @@ export const BookingCalendar = ({
             intervals: intervalsByDate[dateStr] ?? [],
             now,
             vehicleType: slotVehicleType,
+            selectedAddOns: slotSelectedAddOns,
           })
         : false;
     const isDisabled = isPast || isSunday || (showNoSlots && isUnavailable);
