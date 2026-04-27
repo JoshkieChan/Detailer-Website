@@ -50,11 +50,27 @@ Deno.serve(async (req) => {
     }
 
     const url = new URL(req.url);
-    const packageId = (url.searchParams.get('packageId') || 'maintenance') as SlotBookingPackageId;
-    const vehicleType = (url.searchParams.get('vehicleType') || 'sedan') as VehicleTypeId;
-    const selectedAddOnsParam = url.searchParams.get('selectedAddOns');
-    const selectedAddOns: AddOnId[] = selectedAddOnsParam ? (selectedAddOnsParam.split(',') as AddOnId[]) : [];
+    const packageId = url.searchParams.get('packageId') || '';
+    const vehicleType = url.searchParams.get('vehicleType') || 'sedan';
+    const selectedAddOnsParam = url.searchParams.get('selectedAddOns') || '';
     const ownerMode = url.searchParams.get('owner') === 'true';
+
+    // Validate packageId
+    const validPackageIds: SlotBookingPackageId[] = ['maintenance', 'deepReset'];
+    if (!validPackageIds.includes(packageId as SlotBookingPackageId)) {
+      throw new Error('Invalid package ID. Must be maintenance or deepReset.');
+    }
+
+    // Validate vehicleType
+    const validVehicleTypes: VehicleTypeId[] = ['sedan', 'smallSuv', 'largeSuvTruck'];
+    if (!validVehicleTypes.includes(vehicleType as VehicleTypeId)) {
+      throw new Error('Invalid vehicle type. Must be sedan, smallSuv, or largeSuvTruck.');
+    }
+
+    // Validate selectedAddOns
+    const validAddOnIds: AddOnId[] = ['paintProtection', 'petHairRemoval', 'engineBay', 'headlightRestoration'];
+    const rawSelectedAddOns = selectedAddOnsParam ? selectedAddOnsParam.split(',').map((s) => s.trim()) : [];
+    const selectedAddOns: AddOnId[] = rawSelectedAddOns.filter((id: string) => validAddOnIds.includes(id as AddOnId)) as AddOnId[];
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 

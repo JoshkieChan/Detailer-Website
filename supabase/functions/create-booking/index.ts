@@ -95,7 +95,11 @@ Deno.serve(async (req) => {
     const finalPackageId = (package_id || packageId)?.toString().trim();
     const finalVehicleType = (vehicle_type || vehicleType)?.toString().trim();
     const finalLocationType = (location_type || locationType)?.toString().trim();
-    const finalSelectedAddOns: AddOnId[] = (selected_addons || selectedAddOns || []) as AddOnId[];
+    const rawSelectedAddOns = (selected_addons || selectedAddOns || []) as AddOnId[];
+
+    // Validate add-on IDs
+    const validAddOnIds: AddOnId[] = ['paintProtection', 'petHairRemoval', 'engineBay', 'headlightRestoration'];
+    const finalSelectedAddOns: AddOnId[] = rawSelectedAddOns.filter((id: string) => validAddOnIds.includes(id as AddOnId)) as AddOnId[];
 
     if (!finalFullName || !phone || !email || !finalServiceDate || !finalStartTime) {
       console.error('CRITICAL: Missing required booking fields', {

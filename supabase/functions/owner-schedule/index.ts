@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 import { calculateBookingFinancials, isBookingPackageId, isLocationType, isVehicleTypeId, locationTypeLabels, vehicleTypeLabels, bookingPackages } from '../../../website/src/data/bookingPricing.ts';
+import { getTotalDuration, checkCapacityRules, type SlotBookingPackageId, type VehicleTypeId, type AddOnId, intervalsOverlap } from '../../../website/src/config/scheduler.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -99,10 +100,71 @@ Deno.serve(async (req) => {
         remainingBalance,
         total_amount_cents,
         totalAmountCents,
+        selectedAddOns,
       } = payload;
 
       if (!isBookingPackageId(packageId) || !isVehicleTypeId(vehicleType) || !isLocationType(locationType)) {
         throw new Error('Invalid manual booking selection.');
+      }
+
+      // Validate add-on IDs
+      const validAddOnIds: AddOnId[] = ['paintProtection', 'petHairRemoval', 'engineBay', 'headlightRestoration'];
+      const finalSelectedAddOns: AddOnId[] = (selectedAddOns || [])
+        .filter((id: string) => validAddOnIds.includes(id as AddOnId))
+        .map((id: string) => id as AddOnId);
+
+      // Calculate total duration using scheduler logic
+      const totalDuration = getTotalDuration({
+        packageId: packageId as SlotBookingPackageId,
+        vehicleType: vehicleType as VehicleTypeId,
+        selectedAddOns: finalSelectedAddOns,
+      });
+
+      // Fetch existing paid bookings for capacity check
+      const { data: existingBookings, error: fetchError } = await supabase
+        .from('bookings')
+        .select('service_date, start_time, end_time, blocked_until, package_id, vehicle_type, selected_addons')
+        .eq('payment_status', 'paid')
+        .eq('service_date', date);
+
+      if (fetchError) throw fetchError;
+
+      // Calculate total duration for existing bookings
+      const existingBookingsWithDuration = (existingBookings || []).map((booking: any) => ({
+        totalDurationMinutes: getTotalDuration({
+          packageId: booking.package_id as SlotBookingPackageId,
+          vehicleType: booking.vehicle_type as VehicleTypeId,
+          selectedAddOns: booking.selected_addons || [],
+        }),
+      }));
+
+      // Check capacity rules
+      const capacityCheck = checkCapacityRules({
+        newBookingDuration: totalDuration,
+        existingBookings: existingBookingsWithDuration,
+      });
+
+      if (!capacityCheck.allowed) {
+        throw new Error(capacityCheck.reason || 'Booking would violate capacity rules.');
+      }
+
+      // Check for overlap with existing bookings
+      const parseTime = (timeStr: string) => {
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        return hours * 60 + minutes;
+      };
+
+      const newStartMinutes = parseTime(startTime);
+      const newEndMinutes = parseTime(endTime);
+
+      for (const booking of existingBookings || []) {
+        if (!booking.start_time || !booking.end_time) continue;
+        const existingStart = parseTime(booking.start_time);
+        const existingEnd = parseTime(booking.end_time);
+        
+        if (intervalsOverlap(newStartMinutes, newEndMinutes, existingStart, existingEnd)) {
+          throw new Error('Booking time overlaps with existing booking.');
+        }
       }
 
       const pricing = calculateBookingFinancials({
@@ -138,7 +200,7 @@ Deno.serve(async (req) => {
           end_time: endTime,
           service_time: startTime,
           blocked_until: blockedUntil,
-          service_duration_minutes: serviceDurationMinutes,
+          service_duration_minutes: totalDuration,
           buffer_minutes: bufferMinutes,
           location_type: locationType,
           mobile_fee_applied: locationType === 'mobile',
@@ -154,6 +216,7 @@ Deno.serve(async (req) => {
           payment_status: paymentStatus || 'pending_payment',
           total_amount_cents: cents,
           status: 'confirmed',
+          selected_addons: finalSelectedAddOns,
         },
       ]);
 
