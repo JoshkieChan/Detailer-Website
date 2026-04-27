@@ -183,7 +183,7 @@ const OwnerSchedulePage = () => {
         <p className="hero-subtitle">
           Owner mode shows live bookings, blackout windows, notes, and payment state. Public users never see this data.
         </p>
-        <p className="field-help" style={{ marginTop: '0.5rem' }}>
+        <p className="field-help text-center" style={{ marginTop: '0.5rem' }}>
           <strong>Owner capacity rules:</strong> The system books 08:00–20:00 with a 12-hour max per day. Every job's time is base package + add-ons by vehicle size. Any booking 10+ hours becomes a single-car day, and Deep Reset Large SUV/Truck can auto-span two days if total time exceeds 12 hours.
         </p>
       </section>
