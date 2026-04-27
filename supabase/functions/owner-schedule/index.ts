@@ -4,6 +4,9 @@ import { getTotalDuration, checkCapacityRules, type SlotBookingPackageId, type V
 import { checkRateLimit, getRateLimitIdentifier } from '../_shared/rateLimiter.ts';
 import { errorResponse, successResponse, ErrorCodes } from '../_shared/errorResponse.ts';
 
+// Note: Relative imports from website are used because these functions/types are shared
+// between the Edge Function and the website. This is acceptable for this architecture.
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://signaldatasource.com',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-owner-passcode',
@@ -155,11 +158,15 @@ Deno.serve(async (req) => {
       if (fetchError) throw fetchError;
 
       // Calculate total duration for existing bookings
-      const existingBookingsWithDuration = (existingBookings || []).map((booking: any) => ({
+      const existingBookingsWithDuration = (existingBookings || []).map((booking: {
+        package_id: string;
+        vehicle_type: string;
+        selected_addons: string[];
+      }) => ({
         totalDurationMinutes: getTotalDuration({
           packageId: booking.package_id as SlotBookingPackageId,
           vehicleType: booking.vehicle_type as VehicleTypeId,
-          selectedAddOns: booking.selected_addons || [],
+          selectedAddOns: (booking.selected_addons || []) as AddOnId[],
         }),
       }));
 

@@ -630,6 +630,9 @@ const BookingPage = () => {
                     slotSelectedAddOns={formData.selectedAddOns}
                     intervalsByDate={calendarIntervalsByDate}
                     showNoSlots={showNoSlots}
+                    onSlotUnavailable={() => {
+                      setSystemError('This date is fully booked. No available time slots remain for the selected service package and vehicle configuration.');
+                    }}
                   />
                 </div>
                 <FieldError msg={fieldErrors.date} />

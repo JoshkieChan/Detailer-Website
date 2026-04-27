@@ -22,6 +22,7 @@ interface BookingCalendarProps {
   isExpanded?: boolean;
   showNoSlots?: boolean;
   dayBadges?: Record<string, string>;
+  onSlotUnavailable?: () => void;
 }
 
 export const BookingCalendar = ({
@@ -32,12 +33,13 @@ export const BookingCalendar = ({
   disablePast = true,
   disableSundays = true,
   slotPackageId,
-  slotVehicleType = 'sedan',
-  slotSelectedAddOns = [],
+  slotVehicleType,
+  slotSelectedAddOns,
   intervalsByDate,
   isExpanded = false,
-  showNoSlots = true,
-  dayBadges = {},
+  showNoSlots = false,
+  dayBadges,
+  onSlotUnavailable,
 }: BookingCalendarProps) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
@@ -107,7 +109,7 @@ export const BookingCalendar = ({
         disabled={isDisabled}
         onClick={() => {
           if (showNoSlots && noSlotsForPackage && !isSunday) {
-            alert('This date is fully booked. No available time slots remain for the selected service package and vehicle configuration.');
+            onSlotUnavailable?.();
           } else {
             onChange(dateStr);
           }

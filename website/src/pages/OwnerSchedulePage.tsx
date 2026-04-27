@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CalendarDays, PlusSquare, ShieldCheck } from 'lucide-react';
 import { BookingCalendar } from '../components/BookingCalendar';
 import { OwnerGate } from '../components/OwnerGate';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { clearStoredOwnerPasscode, getStoredOwnerPasscode } from '../lib/ownerSession';
 import { fetchOwnerSchedule, type OwnerScheduleEvent } from '../api/availability';
 import { createAvailabilityBlock, createManualBooking, verifyOwnerPasscode, deleteOwnerEvent, deleteAllBookings, updateManualBooking } from '../api/ownerSchedule';
@@ -75,6 +76,13 @@ const OwnerSchedulePage = () => {
     endAt: `${new Date().toISOString().slice(0, 10)}T09:00`,
     reason: '',
   });
+
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
 
   const ownerPasscode = getStoredOwnerPasscode();
 
@@ -233,19 +241,25 @@ const OwnerSchedulePage = () => {
               className="btn outline-lime" 
               disabled={isSubmitting}
               style={{ minHeight: '36px', padding: '0.5rem 1rem', fontSize: '0.85rem', borderColor: 'var(--color-danger)', color: 'var(--color-danger)' }}
-              onClick={async () => {
-                if (window.confirm('Are you sure you want to delete ALL bookings from the system? This cannot be undone.')) {
-                  setIsSubmitting(true);
-                  try {
-                    await deleteAllBookings({ passcode: ownerPasscode || '' });
-                    setSystemMessage('All bookings deleted.');
-                    await loadSchedule();
-                  } catch (e: unknown) {
-                    setSystemMessage('Failed to delete booking: ' + (e instanceof Error ? e.message : 'Unknown error'));
-                  } finally {
-                    setIsSubmitting(false);
-                  }
-                }
+              onClick={() => {
+                setConfirmDialog({
+                  isOpen: true,
+                  title: 'Delete All Bookings',
+                  message: 'Are you sure you want to delete ALL bookings from the system? This cannot be undone.',
+                  onConfirm: async () => {
+                    setIsSubmitting(true);
+                    try {
+                      await deleteAllBookings({ passcode: ownerPasscode || '' });
+                      setSystemMessage('All bookings deleted.');
+                      await loadSchedule();
+                    } catch (e: unknown) {
+                      setSystemMessage('Failed to delete booking: ' + (e instanceof Error ? e.message : 'Unknown error'));
+                    } finally {
+                      setIsSubmitting(false);
+                    }
+                    setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+                  },
+                });
               }}
             >
               {isSubmitting ? 'Deleting all...' : 'Delete all bookings'}
@@ -367,19 +381,29 @@ const OwnerSchedulePage = () => {
                               className="btn ghost" 
                               disabled={isSubmitting}
                               style={{ color: 'var(--color-danger)', borderColor: 'var(--color-danger-soft)', padding: '0.4rem 0.8rem', minHeight: '32px', fontSize: '0.85rem' }}
-                              onClick={async () => {
-                                if (window.confirm('Delete this booking?')) {
-                                  setIsSubmitting(true);
-                                  try {
-                                    await deleteOwnerEvent({ passcode: ownerPasscode || '', id: event.id, type: 'booking' });
-                                    setSystemMessage('Booking deleted.');
-                                    await loadSchedule();
-                                  } catch (err: unknown) {
-                                    setSystemMessage('Failed to delete booking: ' + (err instanceof Error ? err.message : 'Unknown error'));
-                                  } finally {
-                                    setIsSubmitting(false);
-                                  }
-                                }
+                              onClick={() => {
+                                setConfirmDialog({
+                                  isOpen: true,
+                                  title: 'Delete Booking',
+                                  message: 'Delete this booking?',
+                                  onConfirm: async () => {
+                                    setIsSubmitting(true);
+                                    try {
+                                      await deleteOwnerEvent({
+                                        passcode: ownerPasscode || '',
+                                        id: event.id,
+                                        type: 'booking',
+                                      });
+                                      setSystemMessage('Booking deleted.');
+                                      await loadSchedule();
+                                    } catch (e: unknown) {
+                                      setSystemMessage('Failed to delete booking: ' + (e instanceof Error ? e.message : 'Unknown error'));
+                                    } finally {
+                                      setIsSubmitting(false);
+                                    }
+                                    setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+                                  },
+                                });
                               }}
                             >
                               {isSubmitting ? 'Deleting...' : 'Delete booking'}
@@ -412,19 +436,29 @@ const OwnerSchedulePage = () => {
                           className="btn ghost" 
                           disabled={isSubmitting}
                           style={{ color: 'var(--color-danger)', borderColor: 'var(--color-danger-soft)', padding: '0.4rem 0.8rem', minHeight: '32px', fontSize: '0.85rem' }}
-                          onClick={async () => {
-                            if (window.confirm('Delete this blackout block?')) {
-                              setIsSubmitting(true);
-                              try {
-                                await deleteOwnerEvent({ passcode: ownerPasscode || '', id: event.id, type: 'blackout' });
-                                setSystemMessage('Blackout block deleted.');
-                                await loadSchedule();
-                              } catch (e: unknown) {
-                                setSystemMessage('Failed to delete blackout: ' + (e instanceof Error ? e.message : 'Unknown error'));
-                              } finally {
-                                setIsSubmitting(false);
-                              }
-                            }
+                          onClick={() => {
+                            setConfirmDialog({
+                              isOpen: true,
+                              title: 'Delete Blackout Block',
+                              message: 'Delete this blackout block?',
+                              onConfirm: async () => {
+                                setIsSubmitting(true);
+                                try {
+                                  await deleteOwnerEvent({
+                                    passcode: ownerPasscode || '',
+                                    id: event.id,
+                                    type: 'blackout',
+                                  });
+                                  setSystemMessage('Blackout block deleted.');
+                                  await loadSchedule();
+                                } catch (e: unknown) {
+                                  setSystemMessage('Failed to delete blackout block: ' + (e instanceof Error ? e.message : 'Unknown error'));
+                                } finally {
+                                  setIsSubmitting(false);
+                                }
+                                setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+                              },
+                            });
                           }}
                         >
                           {isSubmitting ? 'Deleting...' : 'Delete block'}
@@ -706,6 +740,14 @@ const OwnerSchedulePage = () => {
           </button>
         </article>
       </section>
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog({ isOpen: false, title: '', message: '', onConfirm: () => {} })}
+      />
 
       <style>{`
         .owner-calendar-shell {

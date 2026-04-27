@@ -204,15 +204,6 @@ Deno.serve(async (req) => {
       .single();
 
     if (insertError) {
-      console.error('create-booking insert failed', {
-        error: insertError,
-        insertedRow: {
-          full_name: finalFullName,
-          service_date: finalServiceDate,
-          start_time: finalStartTime,
-          package_id: finalPackageId,
-        },
-      });
       throw new Error(`Database Error: ${insertError.message}`);
     }
 
