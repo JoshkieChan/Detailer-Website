@@ -119,7 +119,7 @@ const PricingPage = () => {
 
           <article className="content-card reveal" data-reveal-delay="1">
             <div className="addon-item">
-              <h3 className="addon-title">Engine bay tidying – from $40–$80</h3>
+              <h3 className="addon-title">Engine bay tidying – $60</h3>
               <p className="addon-description">Light engine bay cleaning of accessible plastics and painted surfaces using diluted APC, gentle agitation, and a low‑pressure rinse, followed by drying.</p>
             </div>
           </article>
@@ -133,7 +133,7 @@ const PricingPage = () => {
 
           <article className="content-card reveal" data-reveal-delay="3">
             <div className="addon-item">
-              <h3 className="addon-title">Headlight restoration/work – from $80–$150</h3>
+              <h3 className="addon-title">Headlight restoration/work – $120</h3>
               <p className="addon-description">Machine polishing and refinement of cloudy, oxidized, or hazy headlight lenses where improvement is realistically achievable.</p>
             </div>
           </article>
