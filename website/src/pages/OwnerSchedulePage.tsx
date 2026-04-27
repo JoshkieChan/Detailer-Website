@@ -304,8 +304,8 @@ const OwnerSchedulePage = () => {
                                   setSystemMessage('Booking updated.');
                                   setEditingId(null);
                                   await loadSchedule();
-                                } catch (err: any) {
-                                  setSystemMessage(err.message || 'Update failed');
+                                } catch (err: unknown) {
+                                  setSystemMessage(err instanceof Error ? err.message : 'Update failed');
                                 } finally {
                                   setIsSubmitting(false);
                                 }

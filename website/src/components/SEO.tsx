@@ -45,7 +45,7 @@ export const SEO = ({
       {noindex && <meta name="robots" content="noindex, nofollow" />}
       
       {/* Canonical URL */}
-      <link rel="canonical" href={window.location.href} />
+      {typeof window !== 'undefined' && <link rel="canonical" href={window.location.href} />}
     </Helmet>
   );
 };
