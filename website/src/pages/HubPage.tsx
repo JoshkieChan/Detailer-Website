@@ -7,7 +7,7 @@ import heroImage from '../assets/hero.png';
 const HubPage = () => {
   return (
     <div className="page-shell hub-page">
-      <header className="page-hero hub-hero reveal">
+      <header className="hub-hero reveal">
         <img
           src={heroImage}
           alt="SignalSource detailing background"
@@ -244,6 +244,7 @@ const HubPage = () => {
           display: flex;
           align-items: center;
           justify-content: center;
+          background: #0f1720;
         }
 
         .hub-hero-bg-image {
@@ -259,7 +260,7 @@ const HubPage = () => {
           position: absolute;
           inset: 0;
           z-index: 1;
-          background: linear-gradient(rgba(15, 23, 32, 0.55) 0%, rgba(15, 23, 32, 0.8) 100%);
+          background: linear-gradient(rgba(15, 23, 32, 0.65) 0%, rgba(15, 23, 32, 0.88) 100%);
         }
 
         .hub-hero-content {
@@ -279,13 +280,8 @@ const HubPage = () => {
           color: var(--color-button-primary-text);
         }
 
-        .page-hero {
-          position: relative;
-        }
-
-        .text-center {
-          position: relative;
-          z-index: 1;
+        .hub-hero {
+          margin-bottom: 3rem;
         }
       `}</style>
     </div>
