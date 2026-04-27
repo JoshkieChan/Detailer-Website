@@ -908,6 +908,10 @@ label {
   .booking-sidebar {
     min-width: 0 !important;
   }
+
+  .compact-hero {
+    max-width: 100% !important;
+  }
 }
 
 @media (max-width: 480px) {
