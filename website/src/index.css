@@ -889,7 +889,11 @@ label {
   }
 
   .booking-form {
-    padding: 1rem;
+    padding: 1rem !important;
+  }
+
+  .content-card {
+    padding: 1rem !important;
   }
 
   .package-card-grid {
