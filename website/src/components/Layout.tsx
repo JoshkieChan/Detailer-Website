@@ -4,6 +4,7 @@ import { Menu, X, Moon, Sun, Monitor } from 'lucide-react';
 import { useTheme } from './ThemeContext';
 import logoWhiteSrc from '../assets/logo-white.png';
 import logoBlackSrc from '../assets/logo-black.png';
+import './Layout.css';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

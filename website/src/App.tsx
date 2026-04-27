@@ -1,8 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import { HelmetProvider } from 'react-helmet-async';
 import { ThemeProvider } from './components/ThemeContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { SEO } from './components/SEO';
 
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
@@ -37,42 +39,41 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <ThemeProvider>
-
-        <Router>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<HubPage />} />
-              <Route path="/detailing" element={<HomePage />} />
-              <Route path="/services" element={<ServicesPage />} />
-              <Route path="/pricing" element={<PricingPage />} />
-              <Route path="/memberships" element={<MembershipsPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/faq" element={<FAQPage />} />
-              {/* Keep /hub as an alias if needed, though / is the primary now. */}
-              <Route path="/hub" element={<HubPage />} />
-              <Route path="/systems" element={<SystemsPage />} />
-              <Route path="/systems/examples/digital-assets" element={<DigitalAssetsExamples />} />
-              <Route path="/systems/examples/local-systems" element={<LocalSystemsExamples />} />
-              <Route path="/booking" element={<BookingPage />} />
-              <Route path="/booking/thanks" element={<BookingThanksPage />} />
-              <Route path="/booking/confirmation" element={<ConfirmationPage />} />
-              <Route path="/owner/schedule" element={<OwnerSchedulePage />} />
-              <Route path="/our-work" element={<OurWorkPage />} />
-              <Route path="/snapshot/order" element={<TripwirePage />} />
-              <Route path="/privacy" element={<PrivacyPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-            </Routes>
-          </Layout>
-        </Router>
-
-      {loadAnalytics && (
-        <>
-          <Analytics />
-          <SpeedInsights />
-        </>
-      )}
-    </ThemeProvider>
+      <HelmetProvider>
+        <ThemeProvider>
+          <Router>
+            <Layout>
+              <Routes>
+                <Route path="/detailing" element={<><SEO /><HomePage /></>} />
+                <Route path="/services" element={<><SEO title="Services" description="Professional car detailing services including interior, exterior, paint correction, and maintenance packages." /><ServicesPage /></>} />
+                <Route path="/our-work" element={<><SEO title="Our Work" description="View our portfolio of professionally detailed vehicles in Oak Harbor, WA." /><OurWorkPage /></>} />
+                <Route path="/pricing" element={<><SEO title="Pricing" description="Transparent pricing for all car detailing packages. Maintenance, deep reset, and add-on services." /><PricingPage /></>} />
+                <Route path="/memberships" element={<><SEO title="Memberships" description="Join our car detailing membership program for regular maintenance and exclusive benefits." /><MembershipsPage /></>} />
+                <Route path="/about" element={<><SEO title="About" description="Learn about SignalSource, our professional car detailing services in Oak Harbor, WA." /><AboutPage /></>} />
+                <Route path="/faq" element={<><SEO title="FAQ" description="Frequently asked questions about our car detailing services, pricing, and booking process." /><FAQPage /></>} />
+                <Route path="/hub" element={<><SEO title="Hub" description="Access all SignalSource resources and information from one central hub." /><HubPage /></>} />
+                <Route path="/systems" element={<><SEO title="Systems" description="Information about our detailing systems and processes." /><SystemsPage /></>} />
+                <Route path="/booking" element={<><SEO title="Book Now" description="Schedule your professional car detailing appointment in Oak Harbor, WA." /><BookingPage /></>} />
+                <Route path="/privacy" element={<><SEO title="Privacy Policy" description="SignalSource privacy policy for car detailing services." /><PrivacyPage /></>} />
+                <Route path="/terms" element={<><SEO title="Terms of Service" description="SignalSource terms of service for car detailing bookings." /><TermsPage /></>} />
+                <Route path="/owner/schedule" element={<><SEO title="Owner Schedule" description="Owner schedule management for SignalSource car detailing." noindex /><OwnerSchedulePage /></>} />
+                <Route path="/" element={<><SEO /><HomePage /></>} />
+                <Route path="/systems/examples/digital-assets" element={<DigitalAssetsExamples />} />
+                <Route path="/systems/examples/local-systems" element={<LocalSystemsExamples />} />
+                <Route path="/booking/thanks" element={<BookingThanksPage />} />
+                <Route path="/booking/confirmation" element={<ConfirmationPage />} />
+                <Route path="/snapshot/order" element={<TripwirePage />} />
+              </Routes>
+            </Layout>
+          </Router>
+          {loadAnalytics && (
+            <>
+              <Analytics />
+              <SpeedInsights />
+            </>
+          )}
+        </ThemeProvider>
+      </HelmetProvider>
     </ErrorBoundary>
   );
 }
