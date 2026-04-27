@@ -295,12 +295,12 @@ Deno.serve(async (req) => {
     }
 
     throw new Error('Unsupported owner action.');
-  } catch (error) {
+  } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Owner schedule action failed.';
-    console.error('owner-schedule failed', message);
-    return new Response(JSON.stringify({ error: message }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 400,
-    });
+    return errorResponse(
+      message,
+      400,
+      ErrorCodes.INTERNAL_ERROR
+    );
   }
 });

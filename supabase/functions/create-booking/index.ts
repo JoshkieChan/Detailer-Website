@@ -58,12 +58,6 @@ Deno.serve(async (req) => {
     }
 
     const payload = await req.json();
-    console.log('--- create-booking payload received ---', {
-      timestamp: new Date().toISOString(),
-      payloadKeys: Object.keys(payload),
-      serviceDate: payload.service_date || payload.serviceDate,
-      startTime: payload.start_time || payload.startTime,
-    });
 
     const {
       fullName,
@@ -121,15 +115,11 @@ Deno.serve(async (req) => {
     const finalSelectedAddOns: AddOnId[] = rawSelectedAddOns.filter((id: string) => validAddOnIds.includes(id as AddOnId)) as AddOnId[];
 
     if (!finalFullName || !phone || !email || !finalServiceDate || !finalStartTime) {
-      console.error('CRITICAL: Missing required booking fields', {
-        finalFullName: !!finalFullName,
-        phone: !!phone,
-        email: !!email,
-        finalServiceDate: !!finalServiceDate,
-        finalStartTime: !!finalStartTime,
-        rawPayload: payload,
-      });
-      throw new Error(`Missing required timing fields. Received Date: [${finalServiceDate}], Time: [${finalStartTime}]`);
+      return errorResponse(
+        'Missing required booking fields',
+        400,
+        ErrorCodes.VALIDATION_ERROR
+      );
     }
 
     if (!isBookingPackageId(finalPackageId) || !isVehicleTypeId(finalVehicleType) || !isLocationType(finalLocationType)) {
@@ -159,16 +149,10 @@ Deno.serve(async (req) => {
     const finalHelcimUrl = helcim_deposit_url || pricing.helcimLink.url;
 
     if (Math.abs(finalTotalToday - pricing.helcimLink.amount) > 0.01) {
-      console.error('Helcim amount mismatch', {
-        packageId: finalPackageId,
-        calculated: pricing.totalToday,
-        received: finalTotalToday,
-      });
       throw new Error('Deposit amount mismatch. Please try refreshing the page.');
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
-    console.log('Attempting database insert', { service_date: finalServiceDate, start_time: finalStartTime });
 
     const { data: insertResult, error: insertError } = await supabase
       .from('bookings')
@@ -248,7 +232,6 @@ Deno.serve(async (req) => {
         day_1_date: finalServiceDate,
         day_2_date: null,
       });
-      console.log('Logged full-day promotion event', { booking_id: insertResult.id, total_duration_minutes: calculatedTotalDuration });
     }
 
     // Log multi-day booking event (Deep Reset + Large SUV/Truck > 12h)
@@ -269,7 +252,6 @@ Deno.serve(async (req) => {
         day_1_date: finalServiceDate,
         day_2_date: null, // Will be populated when multi-day split is implemented
       });
-      console.log('Logged multi-day booking event', { booking_id: insertResult.id, total_duration_minutes: calculatedTotalDuration });
     }
 
     return new Response(
@@ -283,13 +265,13 @@ Deno.serve(async (req) => {
         status: 200,
       }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown booking error.';
-    console.error('CRITICAL create-booking error:', message);
-    return new Response(JSON.stringify({ error: message }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 400,
-    });
+    return errorResponse(
+      message,
+      400,
+      ErrorCodes.INTERNAL_ERROR
+    );
   }
 });
 
