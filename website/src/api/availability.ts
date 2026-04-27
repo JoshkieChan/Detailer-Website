@@ -80,6 +80,7 @@ export interface OwnerScheduleEvent {
   remainingBalance?: number;
   reason?: string;
   source?: string;
+  testMode?: boolean;
 }
 
 export const fetchOwnerSchedule = async (passcode: string): Promise<OwnerScheduleEvent[]> => {

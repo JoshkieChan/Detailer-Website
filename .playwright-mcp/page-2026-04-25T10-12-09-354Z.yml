@@ -1,0 +1,188 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "SignalSource logo SIGNALSOURCE" [ref=e6] [cursor=pointer]:
+        - /url: /detailing
+        - img "SignalSource logo" [ref=e7]
+        - generic [ref=e8]: SIGNALSOURCE
+      - navigation [ref=e9]:
+        - link "Services" [ref=e10] [cursor=pointer]:
+          - /url: /services
+        - link "Our Work" [ref=e11] [cursor=pointer]:
+          - /url: /our-work
+        - link "Pricing" [ref=e12] [cursor=pointer]:
+          - /url: /pricing
+        - link "Memberships" [ref=e13] [cursor=pointer]:
+          - /url: /memberships
+        - link "About" [ref=e14] [cursor=pointer]:
+          - /url: /about
+        - link "More" [ref=e15] [cursor=pointer]:
+          - /url: /hub
+        - link "FAQ" [ref=e16] [cursor=pointer]:
+          - /url: /faq
+        - 'button "Current theme: dark. Click to switch." [ref=e17] [cursor=pointer]':
+          - img [ref=e18]
+  - main [ref=e20]:
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - generic [ref=e23]:
+          - generic [ref=e24]: Our Work
+          - heading "Real detailing results from Oak Harbor and Whidbey Island." [level=1] [ref=e25]
+          - paragraph [ref=e26]: "A recent Subaru Outback reset, shown the way customers actually care about it: what it looked like before, what it looked like after, and what changed."
+          - generic [ref=e27]:
+            - link "Configure Your Detail" [ref=e28] [cursor=pointer]:
+              - /url: /booking
+            - link "See Pricing" [ref=e29] [cursor=pointer]:
+              - /url: /pricing
+        - generic [ref=e30]:
+          - img "Clean Subaru Outback driver cabin after the interior reset." [ref=e31]
+          - generic [ref=e32]:
+            - generic [ref=e33]:
+              - img [ref=e34]
+              - text: Garage studio service in Oak Harbor
+            - paragraph [ref=e38]: Featured reset with real before-and-after documentation from the same vehicle.
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e41]: Featured Reset
+          - heading "Subaru Outback | interior and exterior baseline reset" [level=2] [ref=e42]
+          - paragraph [ref=e43]: "This job focused on the areas daily drivers usually feel first: dirty rear floors, cluttered storage spaces, dusty exterior surfaces, and wheels that make the whole vehicle look tired."
+        - generic [ref=e44]:
+          - generic [ref=e45]:
+            - img [ref=e46]
+            - generic [ref=e49]: Real vehicle, real turnaround, no stock photography.
+          - generic [ref=e50]:
+            - img [ref=e51]
+            - generic [ref=e54]: Matched before/after comparisons for the areas customers notice fastest.
+      - generic [ref=e55]:
+        - article [ref=e56]:
+          - generic [ref=e57]:
+            - generic [ref=e58]: Interior reset
+            - heading "Rear floor reset" [level=2] [ref=e59]
+            - paragraph [ref=e60]: Pet hair, debris, and buildup cleared out so the rear cabin feels clean again.
+            - list [ref=e61]:
+              - listitem [ref=e62]:
+                - img [ref=e63]
+                - generic [ref=e66]: Lifted pet hair and loose debris from the rear footwell.
+              - listitem [ref=e67]:
+                - img [ref=e68]
+                - generic [ref=e71]: Restored the carpeted area to a clean baseline for everyday use.
+              - listitem [ref=e72]:
+                - img [ref=e73]
+                - generic [ref=e76]: Finished with a sharper, more intentional interior handoff.
+          - generic "Rear floor reset before and after comparison" [ref=e79]:
+            - img "Dirty rear floor area in a Subaru Outback with visible pet hair and debris before detailing." [ref=e80]
+            - img [ref=e82]
+            - generic [ref=e83]: Before
+            - generic [ref=e84]: After
+            - slider [ref=e85]
+        - article [ref=e88]:
+          - generic [ref=e89]:
+            - generic [ref=e90]: Storage reset
+            - heading "Center console reset" [level=2] [ref=e91]
+            - paragraph [ref=e92]: Storage area cleared, cleaned, and handed back ready for normal use.
+            - list [ref=e93]:
+              - listitem [ref=e94]:
+                - img [ref=e95]
+                - generic [ref=e98]: Removed clutter and wiped down high-touch interior surfaces.
+              - listitem [ref=e99]:
+                - img [ref=e100]
+                - generic [ref=e103]: Cleaned the storage well so it felt ready to use again right away.
+              - listitem [ref=e104]:
+                - img [ref=e105]
+                - generic [ref=e108]: Brought the console area back in line with the rest of the cabin.
+          - generic "Center console reset before and after comparison" [ref=e111]:
+            - img "Center console storage area in a Subaru Outback filled with loose items before detailing." [ref=e112]
+            - img [ref=e114]
+            - generic [ref=e115]: Before
+            - generic [ref=e116]: After
+            - slider [ref=e117]
+        - article [ref=e120]:
+          - generic [ref=e121]:
+            - generic [ref=e122]: Exterior finish
+            - heading "Wheel detail reset" [level=2] [ref=e123]
+            - paragraph [ref=e124]: Heavy brake dust and road film cleaned off for a noticeably sharper finish.
+            - list [ref=e125]:
+              - listitem [ref=e126]:
+                - img [ref=e127]
+                - generic [ref=e130]: Cut through built-up brake dust and road grime on the face of the wheel.
+              - listitem [ref=e131]:
+                - img [ref=e132]
+                - generic [ref=e135]: Brought back contrast in the finish for a cleaner exterior handoff.
+              - listitem [ref=e136]:
+                - img [ref=e137]
+                - generic [ref=e140]: Helped the whole vehicle read cleaner at a glance.
+          - generic "Wheel detail reset before and after comparison" [ref=e143]:
+            - img "Subaru Outback wheel covered in brake dust and road film before detailing." [ref=e144]
+            - img [ref=e146]
+            - generic [ref=e147]: Before
+            - generic [ref=e148]: After
+            - slider [ref=e149]
+      - generic [ref=e152]:
+        - generic [ref=e153]:
+          - generic [ref=e154]: More Angles
+          - heading "Additional proof from the same vehicle" [level=2] [ref=e155]
+          - paragraph [ref=e156]: A few extra shots from the same reset so you can see the starting condition and the final finish across the cabin and exterior.
+        - generic [ref=e157]:
+          - figure [ref=e158]:
+            - img "Dust sitting across the hood of a black Subaru Outback before detailing." [ref=e159]
+          - figure [ref=e160]:
+            - img "Dust and residue on the rear glass and paint of a Subaru Outback before detailing." [ref=e161]
+          - figure [ref=e162]:
+            - img "Clean Subaru Outback driver cabin after the interior reset." [ref=e163]
+          - figure [ref=e164]:
+            - img "Clean rear floor area in the Subaru Outback after detailing." [ref=e165]
+          - figure [ref=e166]:
+            - img "Clean Subaru Outback cargo area after the detailing reset." [ref=e167]
+          - figure [ref=e168]:
+            - img "Finished Subaru Outback wheel after brake dust and road film were removed." [ref=e169]
+      - generic [ref=e170]:
+        - generic [ref=e171]: Ready To Book
+        - heading "Want this kind of reset for your vehicle?" [level=2] [ref=e172]
+        - paragraph [ref=e173]: Choose your package, add any extras, and see today's deposit before you book.
+        - generic [ref=e174]:
+          - link "Configure Your Detail" [ref=e175] [cursor=pointer]:
+            - /url: /booking
+          - link "See Pricing" [ref=e176] [cursor=pointer]:
+            - /url: /pricing
+  - contentinfo [ref=e177]:
+    - generic [ref=e179]:
+      - heading "SIGNALSOURCE" [level=2] [ref=e180]
+      - paragraph [ref=e181]: Serving Oak Harbor, NAS Whidbey & surrounding areas.
+      - paragraph [ref=e182]: By appointment only • Monday–Saturday
+      - paragraph [ref=e183]: Fully Licensed & Insured • Whidbey Island, WA
+      - generic [ref=e184]:
+        - link "(904) 993-7503" [ref=e185] [cursor=pointer]:
+          - /url: tel:+19049937503
+        - generic [ref=e186]: •
+        - link "Chat on WhatsApp" [ref=e187] [cursor=pointer]:
+          - /url: https://wa.me/19049937503
+        - generic [ref=e188]: •
+        - link "jcab@signaldatasource.com" [ref=e189] [cursor=pointer]:
+          - /url: mailto:jcab@signaldatasource.com
+      - generic [ref=e190]:
+        - link "View us on Google" [ref=e191] [cursor=pointer]:
+          - /url: https://share.google/V0X0bd8dwXfPsFF5M
+          - img [ref=e192]
+          - generic [ref=e195]: View us on Google
+        - link "SignalSource on Facebook" [ref=e196] [cursor=pointer]:
+          - /url: https://www.facebook.com/profile.php?id=100085398643282
+          - img [ref=e197]
+          - generic [ref=e199]: SignalSource on Facebook
+        - link "SignalSource on Instagram" [ref=e200] [cursor=pointer]:
+          - /url: https://www.instagram.com/signal__source/
+          - img [ref=e201]
+          - generic [ref=e204]: SignalSource on Instagram
+        - link "SignalSource on Nextdoor" [ref=e205] [cursor=pointer]:
+          - /url: https://nextdoor.com/page/signalsource-oak-harbor-wa
+          - img [ref=e206]
+          - generic [ref=e211]: SignalSource on Nextdoor
+      - paragraph [ref=e212]: © 2026 SignalSource. All rights reserved.
+      - generic [ref=e213]:
+        - link "Privacy Policy" [ref=e214] [cursor=pointer]:
+          - /url: /privacy
+        - generic [ref=e215]: •
+        - link "Terms of Service" [ref=e216] [cursor=pointer]:
+          - /url: /terms
+        - generic [ref=e217]: •
+        - link "Owner sign-in" [ref=e218] [cursor=pointer]:
+          - /url: /owner/schedule

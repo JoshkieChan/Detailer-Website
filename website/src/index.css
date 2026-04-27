@@ -407,6 +407,27 @@ button {
   margin: 2.5rem 0;
 }
 
+/* Test booking styling */
+.test-booking {
+  border: 2px dashed var(--color-accent-support);
+  background: var(--color-background-soft);
+}
+
+.test-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: var(--color-accent-support);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+
 .capacity-banner,
 .badge-popular,
 .tag-pill,

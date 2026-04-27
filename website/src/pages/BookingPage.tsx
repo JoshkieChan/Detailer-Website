@@ -39,7 +39,6 @@ import {
   type SlotBookingPackageId,
   type AddOnId,
   ADD_ON_DURATIONS,
-  getTotalDuration,
 } from '../config/scheduler';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -338,6 +337,7 @@ const BookingPage = () => {
           packageId: validPackage,
           vehicleType: validVehicle,
           locationType: validLocation,
+          selectedAddOns: formData.selectedAddOns,
         })
       : null;
 
@@ -864,6 +864,12 @@ const BookingPage = () => {
                     <div className="summary-row">
                       <span>On-Island Mobile Fee</span>
                       <strong>{formatCurrency(pricing.mobileFee)}</strong>
+                    </div>
+                  ) : null}
+                  {pricing.addOnsPrice > 0 ? (
+                    <div className="summary-row">
+                      <span>Add-ons selected</span>
+                      <strong>{formatCurrency(pricing.addOnsPrice)}</strong>
                     </div>
                   ) : null}
                   <div className="summary-row">

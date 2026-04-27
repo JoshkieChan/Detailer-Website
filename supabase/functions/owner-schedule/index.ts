@@ -101,6 +101,7 @@ Deno.serve(async (req) => {
         total_amount_cents,
         totalAmountCents,
         selectedAddOns,
+        testMode,
       } = payload;
 
       if (!isBookingPackageId(packageId) || !isVehicleTypeId(vehicleType) || !isLocationType(locationType)) {
@@ -120,11 +121,12 @@ Deno.serve(async (req) => {
         selectedAddOns: finalSelectedAddOns,
       });
 
-      // Fetch existing paid bookings for capacity check
+      // Fetch existing paid bookings for capacity check (excluding test mode)
       const { data: existingBookings, error: fetchError } = await supabase
         .from('bookings')
         .select('service_date, start_time, end_time, blocked_until, package_id, vehicle_type, selected_addons')
         .eq('payment_status', 'paid')
+        .eq('test_mode', false)
         .eq('service_date', date);
 
       if (fetchError) throw fetchError;
@@ -217,6 +219,7 @@ Deno.serve(async (req) => {
           total_amount_cents: cents,
           status: 'confirmed',
           selected_addons: finalSelectedAddOns,
+          test_mode: testMode || false,
         },
       ]);
 

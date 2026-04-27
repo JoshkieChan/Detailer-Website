@@ -1,0 +1,294 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "SignalSource logo SIGNALSOURCE" [ref=e6] [cursor=pointer]:
+        - /url: /detailing
+        - img "SignalSource logo" [ref=e7]
+        - generic [ref=e8]: SIGNALSOURCE
+      - navigation [ref=e9]:
+        - link "Services" [ref=e10] [cursor=pointer]:
+          - /url: /services
+        - link "Our Work" [ref=e11] [cursor=pointer]:
+          - /url: /our-work
+        - link "Pricing" [ref=e12] [cursor=pointer]:
+          - /url: /pricing
+        - link "Memberships" [ref=e13] [cursor=pointer]:
+          - /url: /memberships
+        - link "About" [ref=e14] [cursor=pointer]:
+          - /url: /about
+        - link "More" [ref=e15] [cursor=pointer]:
+          - /url: /hub
+        - link "FAQ" [ref=e16] [cursor=pointer]:
+          - /url: /faq
+        - 'button "Current theme: dark. Click to switch." [ref=e17] [cursor=pointer]':
+          - img [ref=e18]
+  - main [ref=e20]:
+    - generic [ref=e21]:
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - img [ref=e26]
+          - text: Currently accepting 2–3 customers per day, Monday–Saturday.
+        - heading "Whidbey Island detailing for drivers who want it done right the first time." [level=1] [ref=e29]
+        - paragraph [ref=e30]: SignalSource is a systems-driven local shop in Oak Harbor. We clean, protect, and maintain daily drivers without wasting your day or leaving you guessing on price.
+        - generic [ref=e31]:
+          - link "Configure Your Detail" [ref=e32] [cursor=pointer]:
+            - /url: /booking
+          - link "See Pricing" [ref=e33] [cursor=pointer]:
+            - /url: /pricing
+        - paragraph [ref=e34]: A 20% deposit secures the appointment and goes toward the final total.
+      - generic [ref=e37]:
+        - paragraph [ref=e38]: “Easy to book, clear on price, and the car looked right when I got it back.”
+        - generic [ref=e39]:
+          - img [ref=e40]
+          - img [ref=e42]
+          - img [ref=e44]
+          - img [ref=e46]
+          - img [ref=e48]
+          - generic [ref=e50]: 5.0★ local reviews — NAS Whidbey & Oak Harbor
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e53]:
+            - generic [ref=e54]: Our Work
+            - heading "See what a real reset looks like." [level=2] [ref=e55]
+            - paragraph [ref=e56]: Before-and-after results from a recent Subaru Outback detail in Oak Harbor. Real vehicle, real turnaround, no stock photos.
+            - generic [ref=e57]:
+              - link "See Full Gallery" [ref=e58] [cursor=pointer]:
+                - /url: /our-work
+              - link "Configure Your Detail" [ref=e59] [cursor=pointer]:
+                - /url: /booking
+          - generic [ref=e61]:
+            - generic [ref=e62]:
+              - generic [ref=e63]: Interior reset
+              - generic [ref=e64]:
+                - button "Show previous comparison" [ref=e65] [cursor=pointer]:
+                  - img [ref=e66]
+                - generic [ref=e68]: 1 / 3
+                - button "Show next comparison" [ref=e69] [cursor=pointer]:
+                  - img [ref=e70]
+            - generic "SignalSource Subaru Outback gallery preview" [ref=e72]:
+              - img "Dirty rear floor area in a Subaru Outback with visible pet hair and debris before detailing." [ref=e73]
+              - img [ref=e75]
+              - generic [ref=e76]: Before
+              - generic [ref=e77]: After
+              - slider [ref=e78]
+            - generic [ref=e81]:
+              - generic [ref=e82]:
+                - heading "Rear floor reset" [level=3] [ref=e83]
+                - paragraph [ref=e84]: Pet hair, debris, and buildup cleared out so the rear cabin feels clean again.
+              - list [ref=e85]:
+                - listitem [ref=e86]:
+                  - generic [ref=e88]: Lifted pet hair and loose debris from the rear footwell.
+                - listitem [ref=e89]:
+                  - generic [ref=e91]: Restored the carpeted area to a clean baseline for everyday use.
+                - listitem [ref=e92]:
+                  - generic [ref=e94]: Finished with a sharper, more intentional interior handoff.
+            - generic "Gallery comparison selection" [ref=e95]:
+              - button "Show Rear floor reset" [pressed] [ref=e96] [cursor=pointer]
+              - button "Show Center console reset" [ref=e97] [cursor=pointer]
+              - button "Show Wheel detail reset" [ref=e98] [cursor=pointer]
+        - generic [ref=e99]:
+          - article [ref=e100]:
+            - img "Clean Subaru Outback driver cabin after the detailing reset." [ref=e101]
+            - generic [ref=e102]:
+              - heading "Interior reset" [level=3] [ref=e103]
+              - paragraph [ref=e104]: Floors, storage areas, and touchpoints brought back to a clean baseline.
+          - article [ref=e105]:
+            - img "Finished Subaru Outback wheel after detailing." [ref=e106]
+            - generic [ref=e107]:
+              - heading "Exterior finish" [level=3] [ref=e108]
+              - paragraph [ref=e109]: Wheels, paint, and trim cleaned up for a sharper handoff.
+      - generic [ref=e110]:
+        - generic [ref=e111]:
+          - generic [ref=e112]: Choose Your Tier
+          - heading "Two clear detailing tiers for Whidbey Island vehicles." [level=2] [ref=e113]
+          - paragraph [ref=e114]: Choose the level your vehicle actually needs. If you need extras like light engine bay tidying, severe pet hair, or headlight work, mention it in your booking notes. We'll review your photos and confirm what's realistic and the total price before your appointment. Engine bay work is limited to light dusting and wipe-down only; we do not offer deep degreasing or engine detailing at this time.
+        - generic [ref=e115]:
+          - article [ref=e116]:
+            - generic [ref=e118]:
+              - heading "Maintenance Detail" [level=3] [ref=e120]
+              - paragraph [ref=e121]: For commuters, base families, and daily drivers that already have a decent baseline, this keeps the vehicle sharp with premium upkeep instead of waiting for it to slide backward again.
+            - list [ref=e122]:
+              - listitem [ref=e123]:
+                - img [ref=e124]
+                - generic [ref=e127]: Foam pre‑wash and two‑bucket contact wash
+              - listitem [ref=e128]:
+                - img [ref=e129]
+                - generic [ref=e132]: Wheels and tires cleaned and dressed
+              - listitem [ref=e133]:
+                - img [ref=e134]
+                - generic [ref=e137]: Door jambs wiped (light level)
+              - listitem [ref=e138]:
+                - img [ref=e139]
+                - generic [ref=e142]: Interior vacuum and light wipe‑down of high‑touch areas
+              - listitem [ref=e143]:
+                - img [ref=e144]
+                - generic [ref=e147]: Streak‑free glass inside and out
+              - listitem [ref=e148]:
+                - img [ref=e149]
+                - generic [ref=e152]: Built to preserve the value of a clean baseline between resets
+            - generic [ref=e153]:
+              - generic [ref=e154]:
+                - generic [ref=e155]: From
+                - generic [ref=e156]: $225 (sedans)
+              - paragraph [ref=e157]: Typical price depends on vehicle size and buildup. Sedans start at $225. Larger vehicles and SUVs/trucks cost more. Final price is confirmed before work begins.
+            - link "Book Maintenance Detail" [ref=e158] [cursor=pointer]:
+              - /url: /booking?package=maintenance
+          - article [ref=e159]:
+            - generic [ref=e161]:
+              - generic [ref=e162]:
+                - heading "Deep Reset Detail" [level=3] [ref=e163]
+                - generic [ref=e164]: Most booked
+              - paragraph [ref=e165]: For family haulers, commuter cars, and hard-used vehicles that have gotten away from you, this is the heavier reset built to restore the interior, paint feel, and overall handoff quality.
+            - list [ref=e166]:
+              - listitem [ref=e167]:
+                - img [ref=e168]
+                - generic [ref=e171]: Pre‑wash foam and two‑bucket contact wash
+              - listitem [ref=e172]:
+                - img [ref=e173]
+                - generic [ref=e176]: Iron remover and clay decontamination on paint
+              - listitem [ref=e177]:
+                - img [ref=e178]
+                - generic [ref=e181]: Deep wheel and tire cleaning, including inner barrels
+              - listitem [ref=e182]:
+                - img [ref=e183]
+                - generic [ref=e186]: Full interior vacuum plus crevice and brush work on plastics and seams
+              - listitem [ref=e187]:
+                - img [ref=e188]
+                - generic [ref=e191]: Fabric seat and carpet cleaning with extraction, where safely possible
+              - listitem [ref=e192]:
+                - img [ref=e193]
+                - generic [ref=e196]: Bissell upholstery extraction and McCulloch steam treatment where safely appropriate
+              - listitem [ref=e197]:
+                - img [ref=e198]
+                - generic [ref=e201]: Interior plastic/trim protection
+              - listitem [ref=e202]:
+                - img [ref=e203]
+                - generic [ref=e206]: Glass deep clean plus ceramic glass treatment
+            - generic [ref=e207]:
+              - paragraph [ref=e208]:
+                - strong [ref=e209]: Optional add-ons
+              - paragraph [ref=e210]: Light paint correction (machine polishing to reduce swirls and minor surface scratches in the clear coat) is available on a case‑by‑case basis after inspection. It does not repair dents or deep damage.
+              - paragraph [ref=e211]:
+                - strong [ref=e212]: Weather and paint safety
+                - text: In extreme heat or full sun with no shade, we may adjust or reschedule the decontamination and polishing steps to protect your paint. We’ll always talk this through with you on the day of service so you know exactly what will be done.
+            - generic [ref=e213]:
+              - generic [ref=e214]:
+                - generic [ref=e215]: From
+                - generic [ref=e216]: $400 (sedans)
+              - paragraph [ref=e217]: Typical price depends on size, condition, and buildup. Sedans start at $400. SUVs, trucks, and heavily soiled vehicles are priced higher. Final price is confirmed before work begins.
+            - link "Book Deep Reset" [ref=e218] [cursor=pointer]:
+              - /url: /booking?package=deep-reset
+        - generic [ref=e219]:
+          - heading "Products we use (without the chemistry lesson)" [level=3] [ref=e220]
+          - paragraph [ref=e221]:
+            - text: "We use modern pH‑balanced wash soaps, dedicated wheel and tire cleaners, interior‑safe cleaners, iron removers, and clay to safely deep‑clean without beating up your clear coat or interior. That means:"
+            - text: – Brake dust and brown, baked-on tire grime broken down instead of just pushed around
+            - text: – Traffic film, road grime, and fallout removed so the paint feels smooth again
+            - text: – Interiors cleaned with products safe for modern plastics, vinyl, and leather
+            - text: – Light to moderate fabric staining treated where safely extractable
+            - text: – Glass haze, fingerprints, and bug residue removed, with ceramic glass treatment to help water bead and make future washes easier
+        - paragraph [ref=e222]:
+          - strong [ref=e223]: Need extras?
+          - text: If you need extras like light engine bay tidying, severe pet hair, or headlight work, mention it in your booking notes. We’ll review your photos and confirm what’s realistic and the total price before your appointment. Engine bay work is limited to light dusting and wipe‑down of accessible areas only; we do not offer deep degreasing or full engine detailing at this time.
+      - generic [ref=e224]:
+        - generic [ref=e225]:
+          - generic [ref=e226]: Service Modes
+          - heading "Garage studio for heavier work. On-Island Mobile for convenience." [level=2] [ref=e227]
+        - generic [ref=e228]:
+          - article [ref=e229]:
+            - generic [ref=e230]:
+              - img [ref=e231]
+              - text: Garage Studio
+            - heading "Better for resets, protection work, and longer jobs." [level=3] [ref=e234]
+            - paragraph [ref=e235]: Drop-off service near Erie Street in Oak Harbor. Exact address is shared after booking. If the vehicle needs controlled lighting, reliable power, weather protection, or a longer reset, the studio is the better call.
+          - article [ref=e236]:
+            - generic [ref=e237]:
+              - img [ref=e238]
+              - text: On-Island Mobile
+            - heading "Better when home or work service makes more sense." [level=3] [ref=e242]
+            - paragraph [ref=e243]: Available within roughly a 25–30 mile radius of Oak Harbor, including NAS Whidbey, Coupeville, Deception Pass, and nearby areas. No heavy machine polishing or multi-day jobs on mobile appointments.
+      - generic [ref=e244]:
+        - generic [ref=e245]:
+          - generic [ref=e246]: Maintenance Plans
+          - heading "Keep the vehicle from sliding backward." [level=2] [ref=e247]
+        - article [ref=e249]:
+          - generic [ref=e250]: Membership
+          - paragraph [ref=e251]: Maintenance plans are for customers who already have a clean baseline and want predictable upkeep without re-deciding every month.
+          - paragraph [ref=e252]: Keep it dialed from $60/mo with member-first scheduling and fewer “it's trashed again” surprises.
+          - list [ref=e253]:
+            - listitem [ref=e254]:
+              - img [ref=e255]
+              - generic [ref=e258]: Best for daily drivers after a Deep Reset service
+            - listitem [ref=e259]:
+              - img [ref=e260]
+              - generic [ref=e263]: Guaranteed spots, easier upkeep, and less mental load than ad-hoc booking
+          - link "View Plans" [ref=e264] [cursor=pointer]:
+            - /url: /memberships
+      - generic [ref=e265]:
+        - generic [ref=e266]:
+          - generic [ref=e267]: Scope & Boundaries
+          - heading "What we don't do." [level=2] [ref=e268]
+        - generic [ref=e269]:
+          - paragraph [ref=e270]:
+            - text: "To keep our quality consistent, we focus on high-end maintenance and resets. We do not offer:"
+            - text: – Full ceramic coatings (we use spray‑on protection and ceramic glass treatments instead)
+            - text: – Full interior mold remediation
+            - text: – Deep engine bay degreasing or pressure‑washing (light dusting and wipe‑down only)
+            - text: – Deep stain or paint damage repair (light correction is available, but deep gouges or failed clear coat require a body shop)
+            - text: – We also do not repair dents, bent metal, or perform collision repair.
+          - link "Have more questions? Read our full FAQ →" [ref=e272] [cursor=pointer]:
+            - /url: /faq
+      - generic [ref=e273]:
+        - generic [ref=e274]:
+          - img [ref=e275]
+          - text: Ready To Book
+        - heading "Pick your tier and lock in your spot." [level=2] [ref=e279]
+        - paragraph [ref=e280]: You'll see today's 20% deposit before you submit. If you still need to compare options first, read the service details or pricing before booking.
+        - generic [ref=e281]:
+          - link "Pay 20% Deposit & Book" [ref=e282] [cursor=pointer]:
+            - /url: /booking
+          - link "See Service Details & Pricing" [ref=e283] [cursor=pointer]:
+            - /url: /services
+        - paragraph [ref=e284]: The 20% deposit goes toward your final total, not on top. Final pricing is confirmed before work begins if scope or vehicle condition changes.
+  - contentinfo [ref=e285]:
+    - generic [ref=e287]:
+      - heading "SIGNALSOURCE" [level=2] [ref=e288]
+      - paragraph [ref=e289]: Serving Oak Harbor, NAS Whidbey & surrounding areas.
+      - paragraph [ref=e290]: By appointment only • Monday–Saturday
+      - paragraph [ref=e291]: Fully Licensed & Insured • Whidbey Island, WA
+      - generic [ref=e292]:
+        - link "(904) 993-7503" [ref=e293] [cursor=pointer]:
+          - /url: tel:+19049937503
+        - generic [ref=e294]: •
+        - link "Chat on WhatsApp" [ref=e295] [cursor=pointer]:
+          - /url: https://wa.me/19049937503
+        - generic [ref=e296]: •
+        - link "jcab@signaldatasource.com" [ref=e297] [cursor=pointer]:
+          - /url: mailto:jcab@signaldatasource.com
+      - generic [ref=e298]:
+        - link "View us on Google" [ref=e299] [cursor=pointer]:
+          - /url: https://share.google/V0X0bd8dwXfPsFF5M
+          - img [ref=e300]
+          - generic [ref=e303]: View us on Google
+        - link "SignalSource on Facebook" [ref=e304] [cursor=pointer]:
+          - /url: https://www.facebook.com/profile.php?id=100085398643282
+          - img [ref=e305]
+          - generic [ref=e307]: SignalSource on Facebook
+        - link "SignalSource on Instagram" [ref=e308] [cursor=pointer]:
+          - /url: https://www.instagram.com/signal__source/
+          - img [ref=e309]
+          - generic [ref=e312]: SignalSource on Instagram
+        - link "SignalSource on Nextdoor" [ref=e313] [cursor=pointer]:
+          - /url: https://nextdoor.com/page/signalsource-oak-harbor-wa
+          - img [ref=e314]
+          - generic [ref=e319]: SignalSource on Nextdoor
+      - paragraph [ref=e320]: © 2026 SignalSource. All rights reserved.
+      - generic [ref=e321]:
+        - link "Privacy Policy" [ref=e322] [cursor=pointer]:
+          - /url: /privacy
+        - generic [ref=e323]: •
+        - link "Terms of Service" [ref=e324] [cursor=pointer]:
+          - /url: /terms
+        - generic [ref=e325]: •
+        - link "Owner sign-in" [ref=e326] [cursor=pointer]:
+          - /url: /owner/schedule

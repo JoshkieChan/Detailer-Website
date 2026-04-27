@@ -67,6 +67,7 @@ const OwnerSchedulePage = () => {
     notes: '',
     paymentStatus: 'pending_payment',
     selectedAddOns: [] as AddOnId[],
+    testMode: false,
   });
 
   const [blockForm, setBlockForm] = useState({
@@ -259,7 +260,10 @@ const OwnerSchedulePage = () => {
                 <div className="owner-detail-block">
                   <h3>Bookings ({bookingEventsForSelectedDay.length})</h3>
                   {bookingEventsForSelectedDay.map((event) => (
-                    <article className="owner-event-card booking-card" key={event.id}>
+                    <article className={`owner-event-card booking-card ${event.testMode ? 'test-booking' : ''}`} key={event.id}>
+                      {event.testMode && (
+                        <div className="test-badge">TEST</div>
+                      )}
                       {editingId === event.id ? (
                         <div className="owner-edit-form">
                           <h4 style={{ marginBottom: '1rem' }}>Edit Booking</h4>
@@ -553,6 +557,14 @@ const OwnerSchedulePage = () => {
                 ))}
               </select>
             </label>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={bookingForm.testMode}
+                onChange={(event) => setBookingForm({ ...bookingForm, testMode: event.target.checked })}
+              />
+              <span>Create as test booking (does not affect availability)</span>
+            </label>
             <label>
               Payment status
               <select
@@ -610,6 +622,7 @@ const OwnerSchedulePage = () => {
                     ...bookingForm,
                     date: selectedDate,
                     endTime: window.endTime,
+                    testMode: bookingForm.testMode,
                     blockedUntil: window.blockedUntil,
                     serviceDurationMinutes: window.serviceDuration,
                     bufferMinutes: window.bufferMinutes,

@@ -8,9 +8,19 @@ import {
 export type BookingPackageId = 'maintenance' | 'deepReset';
 export type VehicleTypeId = 'sedan' | 'smallSuv' | 'largeSuvTruck';
 export type LocationType = 'garage' | 'mobile';
+export type AddOnId = 'paintProtection' | 'petHairRemoval' | 'engineBay' | 'headlightRestoration';
 
 export const MOBILE_FEE = 30;
 export const OAK_HARBOR_TAX_RATE = 0.091;
+
+// Add-on pricing (flat rate regardless of vehicle size)
+// Prices in dollars
+export const ADD_ON_PRICES: Record<AddOnId, number> = {
+  paintProtection: 150,      // Light paint correction
+  petHairRemoval: 75,        // Severe pet hair removal
+  engineBay: 40,             // Light engine bay cleaning
+  headlightRestoration: 80,  // Headlight restoration
+};
 
 export const bookingPackages: Record<
   BookingPackageId,
@@ -74,14 +84,22 @@ export const calculateBookingFinancials = ({
   packageId,
   vehicleType,
   locationType,
+  selectedAddOns = [],
 }: {
   packageId: BookingPackageId;
   vehicleType: VehicleTypeId;
   locationType: LocationType;
+  selectedAddOns?: AddOnId[];
 }) => {
   const packagePrice = bookingPackages[packageId].vehiclePricing[vehicleType];
   const mobileFee = locationType === 'mobile' ? MOBILE_FEE : 0;
-  const subtotal = packagePrice + mobileFee;
+  
+  // Calculate add-on pricing
+  const addOnsPrice = selectedAddOns.reduce((sum, addOnId) => {
+    return sum + (ADD_ON_PRICES[addOnId] || 0);
+  }, 0);
+  
+  const subtotal = packagePrice + mobileFee + addOnsPrice;
   const depositAmount = Number((subtotal * 0.2).toFixed(2));
   const taxAmount = Number((depositAmount * OAK_HARBOR_TAX_RATE).toFixed(2));
   const totalToday = Number((depositAmount + taxAmount).toFixed(2));
@@ -95,6 +113,7 @@ export const calculateBookingFinancials = ({
   return {
     packagePrice,
     mobileFee,
+    addOnsPrice,
     subtotal,
     depositAmount,
     taxAmount,

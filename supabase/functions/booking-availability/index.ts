@@ -87,7 +87,7 @@ Deno.serve(async (req) => {
           supabase
             .from('bookings')
             .select(
-              'id, full_name, phone, email, package, package_id, vehicle_info, vehicle_type, service_date, start_time, end_time, blocked_until, location_type, notes, payment_status, booking_source, calculated_price, deposit_amount, remaining_balance'
+              'id, full_name, phone, email, package, package_id, vehicle_info, vehicle_type, service_date, start_time, end_time, blocked_until, location_type, notes, payment_status, booking_source, calculated_price, deposit_amount, remaining_balance, test_mode'
             )
             .order('service_date', { ascending: true })
             .order('start_time', { ascending: true }),
@@ -124,6 +124,7 @@ Deno.serve(async (req) => {
           calculatedPrice: Number(booking.calculated_price ?? 0),
           depositAmount: Number(booking.deposit_amount ?? 0),
           remainingBalance: Number(booking.remaining_balance ?? 0),
+          testMode: booking.test_mode || false,
         })),
         ...(blocks || []).map((block) => ({
           id: block.id,
@@ -150,8 +151,9 @@ Deno.serve(async (req) => {
       await Promise.all([
         supabase
           .from('bookings')
-          .select('service_date, start_time, end_time, blocked_until, payment_status, created_at, package_id, vehicle_type, selected_addons')
+          .select('service_date, start_time, end_time, blocked_until, payment_status, created_at, package_id, vehicle_type, selected_addons, test_mode')
           .eq('payment_status', 'paid')
+          .eq('test_mode', false)
           .order('service_date', { ascending: true })
           .order('start_time', { ascending: true }),
         supabase
