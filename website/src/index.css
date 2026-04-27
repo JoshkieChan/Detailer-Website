@@ -902,6 +902,7 @@ label {
 
   .booking-layout {
     grid-template-columns: 1fr !important;
+    gap: 1rem !important;
   }
 
   .booking-sidebar {
