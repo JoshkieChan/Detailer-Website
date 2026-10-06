@@ -95,11 +95,14 @@ const OwnerSchedulePage = () => {
 
   useEffect(() => {
     if (!sessionOk) return;
-    void loadSchedule().catch(() => {
+    let active = true;
+    void fetchOwnerSchedule(getStoredOwnerPasscode()).then(data => { if (active) setEvents(data); }).catch(() => {
+      if (!active) return;
       clearStoredOwnerPasscode();
       setSessionOk(false);
     });
-  }, [sessionOk, loadSchedule]);
+    return () => { active = false; };
+  }, [sessionOk]);
 
   const eventsForSelectedDate = useMemo(
     () => events.filter((event) => event.date === selectedDate),
@@ -339,7 +342,7 @@ const OwnerSchedulePage = () => {
                                 setEditForm({
                                   paymentStatus: event.paymentStatus || 'pending_payment',
                                   notes: event.notes || '',
-                                  startTime: event.startTime || '08:00',
+                                  startTime: event.bookingStartTime || event.startTime || '08:00',
                                 });
                               }}
                             >

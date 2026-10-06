@@ -101,10 +101,9 @@ Deno.serve(async (req) => {
     );
 
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Snapshot delivery failed.';
     return errorResponse(
-      message,
-      400,
+      'Could not deliver the Snapshot. Please check your email address or try again later.',
+      500,
       ErrorCodes.INTERNAL_ERROR
     );
   }

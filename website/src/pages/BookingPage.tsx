@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { BookingCalendar } from '../components/BookingCalendar';
 import { PageHero } from '../components/PageHero';
-import { fetchAvailability } from '../api/availability';
+import { fetchAvailability, type AvailabilityResponse } from '../api/availability';
 import {
   maintenancePlans,
   maintenancePlanById,
@@ -185,11 +185,8 @@ const BookingPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(false);
-  const [availability, setAvailability] = useState<{
-    unavailableDates: string[];
-    intervalsByDate: Record<string, Array<{ startTime: string; blockedUntil: string; endTime: string }>>;
-    nextAvailableOpening: { date: string; startTime: string; label: string; serviceLabel: string } | null;
-  }>({
+  const [availabilityRevision, setAvailabilityRevision] = useState(0);
+  const [availability, setAvailability] = useState<AvailabilityResponse>({
     unavailableDates: [],
     intervalsByDate: {},
     nextAvailableOpening: null,
@@ -247,19 +244,23 @@ const BookingPage = () => {
   useEffect(() => {
     if (!validPackage) return;
 
-    setAvailabilityError(null);
+    let active = true;
     fetchAvailability(
       validPackage as SlotBookingPackageId,
       validVehicle || 'sedan',
       formData.selectedAddOns
     )
       .then((data) => {
+        if (!active) return;
+        setAvailabilityError(null);
         setAvailability(data);
       })
       .catch(() => {
+        if (!active) return;
         setAvailabilityError('Could not load live availability right now.');
       });
-  }, [validPackage, validVehicle, formData.selectedAddOns]);
+    return () => { active = false; };
+  }, [validPackage, validVehicle, formData.selectedAddOns, availabilityRevision]);
 
 
   const hourlySlots = useMemo(
@@ -327,13 +328,7 @@ const BookingPage = () => {
     });
   }, [calendarIntervalsByDate, formData.date, formData.selectedAddOns, hourlySlots, validPackage, validVehicle]);
 
-  useEffect(() => {
-    if (!formData.startTime) return;
-    const currentSlot = availableTimeSlots.find((slot) => slot.value === formData.startTime);
-    if (!currentSlot || currentSlot.disabled) {
-      setFormData((current) => ({ ...current, startTime: '' }));
-    }
-  }, [availableTimeSlots, formData.startTime]);
+  const selectedSlotAvailable = availableTimeSlots.some(slot => slot.value === formData.startTime && !slot.disabled);
 
   const pricing =
     validPackage && validVehicle && validLocation
@@ -349,7 +344,7 @@ const BookingPage = () => {
     formData.membershipIntent !== 'none' ? maintenancePlanById[formData.membershipIntent] : null;
 
   const selectedWindow =
-    validPackage && formData.date && formData.startTime
+    validPackage && formData.date && formData.startTime && selectedSlotAvailable
       ? buildBookingWindow({
           date: formData.date,
           packageId: validPackage as SlotBookingPackageId,
@@ -467,6 +462,10 @@ const BookingPage = () => {
 
       const data = await response.json();
       if (!response.ok || data.error) {
+        if (response.status === 409 || data.code === 'SLOT_UNAVAILABLE') {
+          setFormData(current => ({ ...current, startTime: '' }));
+          setAvailabilityRevision(current => current + 1);
+        }
         throw new Error(data.error || 'Failed to create booking.');
       }
 
@@ -474,7 +473,10 @@ const BookingPage = () => {
         throw new Error('Booking record was created, but the payment redirect URL was not returned.');
       }
 
-      window.location.href = data.helcimDepositUrl;
+      if (data.confirmationToken) {
+        sessionStorage.setItem('booking_confirmation', JSON.stringify({ bookingId: data.bookingId, token: data.confirmationToken }));
+      }
+      window.location.assign(data.helcimDepositUrl);
     } catch (error: unknown) {
       setSystemError(
         error instanceof Error

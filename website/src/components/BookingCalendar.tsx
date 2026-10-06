@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   hasAvailableSlot,
+  pacificNow,
   type ScheduledInterval,
   type SlotBookingPackageId,
   type VehicleTypeId,
@@ -44,7 +45,7 @@ export const BookingCalendar = ({
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   // Prevent selecting dates before today
-  const today = new Date();
+  const today = new Date(pacificNow().date + 'T00:00:00');
   today.setHours(0, 0, 0, 0);
 
   const prevMonth = () => {
@@ -98,7 +99,7 @@ export const BookingCalendar = ({
             selectedAddOns: slotSelectedAddOns,
           })
         : false;
-    const isDisabled = isPast || isSunday || (showNoSlots && isUnavailable);
+    const isDisabled = isPast || isSunday || Boolean(noSlotsForPackage) || (showNoSlots && isUnavailable);
     const isSelected = selectedDate === dateStr;
     const dayBadge = dayBadges?.[dateStr];
 

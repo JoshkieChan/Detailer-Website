@@ -1,98 +1,34 @@
-# Environment Variables Documentation
+# Environment Configuration
 
-This document lists all environment variables required for the SignalSource Car Detailing website and backend.
+## Frontend
 
-## Frontend (Vite/React)
+Create `website/.env.local` from `website/.env.example`.
 
-Located in `website/.env.local` (not committed to git)
+| Variable | Purpose |
+| --- | --- |
+| VITE_SUPABASE_URL | Public Supabase project URL |
+| VITE_SUPABASE_ANON_KEY | Public anonymous API key, never the service-role key |
 
-### Required for Production
-- `VITE_SUPABASE_URL` - Supabase project URL (e.g., `https://xxx.supabase.co`)
-- `VITE_SUPABASE_ANON_KEY` - Supabase anonymous/public key for client-side access
+Every Vite-prefixed value is public. There is no site-password gate. Remove obsolete `VITE_SITE_PASSWORD` or `VITE_OWNER_PASSWORD` deployment settings; rotate any real password previously placed there if reused elsewhere.
 
-### Optional
-- `VITE_OWNER_PASSWORD` - Owner passcode for owner tools (deprecated, use OWNER_PASSCODE instead)
+## Supabase Edge Function Secrets
 
-## Backend (Supabase Edge Functions)
+| Variable | Used By |
+| --- | --- |
+| SUPABASE_URL | Supabase-provided project URL |
+| SUPABASE_SERVICE_ROLE_KEY | Server-only database access |
+| OWNER_PASSCODE | Owner schedule, owner availability, sanity check |
+| HELCIM_VERIFIER_TOKEN | Payment webhook HMAC verification |
+| RESEND_API_KEY | Confirmation and Snapshot emails |
+| CONFIRMATION_WEBHOOK_SECRET | Database callback authentication via x-webhook-secret |
+| CONFIRMATION_FROM_EMAIL | Verified Resend sender; defaults to Resend's development sender |
+| SNAPSHOT_FROM_EMAIL | Snapshot email sender |
+| SNAPSHOT_PDF_URL | Snapshot download URL |
 
-Located in Supabase project settings under Edge Functions > Environment Variables
+Configure a Supabase database webhook for paid booking changes to call `send-confirmation-email` with `x-webhook-secret`. It looks up the record by ID, verifies paid/non-test status, and uses a Resend idempotency key. Resend's idempotency retention is finite; this is not a permanent email outbox.
 
-### Required for All Edge Functions
-- `SUPABASE_URL` - Supabase project URL
-- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key (full admin access)
+Hosted Helcim deposit URLs in the pricing configuration are public checkout destinations, not API secrets. The create endpoint selects them from the validated package and vehicle.
 
-### Required for Owner Tools
-- `OWNER_PASSCODE` - Passcode required to access owner schedule and management tools
+The production CORS origin is `https://signaldatasource.com`. For local backend development, configure a local origin in the function CORS headers; CORS is not authorization. Browser tests mock the API and require no secrets.
 
-## Edge Functions
-
-### create-booking
-- **Purpose**: Creates new booking records and generates payment links
-- **Rate Limit**: 10 requests per minute per IP
-- **Required**: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
-
-### owner-schedule
-- **Purpose**: Owner schedule management, blackout periods, manual bookings
-- **Rate Limit**: 30 requests per minute per IP
-- **Required**: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `OWNER_PASSCODE`
-- **Authentication**: Requires `x-owner-passcode` header matching `OWNER_PASSCODE`
-
-### booking-availability
-- **Purpose**: Fetches available time slots for booking
-- **Rate Limit**: 60 requests per minute per IP
-- **Required**: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
-- **Optional**: `OWNER_PASSCODE` (for owner mode access)
-
-## Local Development
-
-### Frontend
-1. Copy `website/.env.local.example` to `website/.env.local`
-2. Fill in your Supabase project URL and anon key
-3. Run `npm run dev` from the `website/` directory
-
-### Backend (Supabase Local)
-1. Run `supabase start` from the project root
-2. Environment variables are automatically loaded from `.env.local` in the project root
-3. Edge Functions will be available at `http://localhost:54321/functions/v1/`
-
-## Production Deployment
-
-### Vercel (Frontend)
-1. Go to Vercel Project Settings > Environment Variables
-2. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
-3. Redeploy to apply changes
-
-### Supabase (Edge Functions)
-1. Go to Supabase Dashboard > Edge Functions > Environment Variables
-2. Add `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `OWNER_PASSCODE`
-3. Functions will automatically pick up the new variables
-
-## Security Notes
-
-- **Never commit** `.env.local` files to version control
-- **Service role key** should only be used in Edge Functions, never in frontend code
-- **Owner passcode** should be a strong, unique password
-- **CORS** is restricted to `https://signaldatasource.com` in production
-- **Rate limiting** is implemented on all Edge Functions to prevent abuse
-
-## Rate Limits
-
-| Function | Requests per Minute | Purpose |
-|----------|---------------------|---------|
-| create-booking | 10 | Booking creation |
-| owner-schedule | 30 | Owner management tools |
-| booking-availability | 60 | Availability checks |
-
-## Troubleshooting
-
-### Frontend: Supabase client initialization fails
-- Check that `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are set in Vercel
-- Ensure variables are prefixed with `VITE_` for Vite to recognize them
-
-### Backend: Edge Function returns 401 Unauthorized
-- Verify `OWNER_PASSCODE` is set in Supabase Edge Functions environment variables
-- Check that the `x-owner-passcode` header is being sent from the frontend
-
-### Backend: Edge Function returns 429 Too Many Requests
-- Rate limit has been exceeded. Wait before retrying
-- Check rate limit configuration in the function code
+Do not commit environment files or log credentials. The in-memory rate limiter is best-effort per instance and depends on trusted proxy IP headers.

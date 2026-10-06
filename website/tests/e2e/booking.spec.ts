@@ -4,6 +4,9 @@ const availabilityUrl = '**/functions/v1/booking-availability**';
 const createBookingUrl = '**/functions/v1/create-booking';
 
 test.beforeEach(async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-10-05T16:00:00Z'));
+  await page.route('https://payments.example/**', route => route.fulfill({ body: 'Payment redirect intercepted by test.' }));
+  await page.route('https://nominatim.openstreetmap.org/**', route => route.fulfill({ contentType: 'application/json', body: '[]' }));
   await page.route(availabilityUrl, async (route) => {
     await route.fulfill({
       status: 200,
@@ -70,9 +73,9 @@ test('add-ons update pricing and submit recomputed booking payload', async ({ pa
 test('server-side booking validation errors are shown to the customer', async ({ page }) => {
   await page.route(createBookingUrl, async (route) => {
     await route.fulfill({
-      status: 400,
+      status: 409,
       contentType: 'application/json',
-      body: JSON.stringify({ error: 'Selected booking time is no longer available.' }),
+      body: JSON.stringify({ error: 'Selected booking time is no longer available.', code: 'SLOT_UNAVAILABLE' }),
     });
   });
 
@@ -89,4 +92,22 @@ test('server-side booking validation errors are shown to the customer', async ({
   await page.getByRole('button', { name: /Pay 20% Deposit/i }).click();
 
   await expect(page.getByText('Selected booking time is no longer available.')).toBeVisible();
+  await expect(page.getByRole('button', { name: /08:00 to 11:00/i })).not.toHaveClass(/selected/);
+});
+
+test('Sunday and occupied start times are disabled', async ({ page }) => {
+  await page.route(availabilityUrl, route => route.fulfill({
+    contentType: 'application/json',
+    body: JSON.stringify({ unavailableDates: [], nextAvailableOpening: null, intervalsByDate: {
+      '2026-10-09': [{ date: '2026-10-09', startTime: '08:00', endTime: '11:00', blockedUntil: '11:00', source: 'booking', totalDurationMinutes: 180 }],
+    } }),
+  }));
+  await page.goto('/booking');
+  await page.getByRole('button', { name: /Maintenance Detail/i }).click();
+  await page.getByLabel(/Vehicle size/i).selectOption('sedan');
+  await page.getByLabel('Location', { exact: true }).selectOption('garage');
+  await expect(page.getByLabel('October 11, 2026', { exact: true })).toBeDisabled();
+  await page.getByLabel('October 9, 2026', { exact: true }).click();
+  await expect(page.getByRole('button', { name: /08:00 to 11:00/i })).toBeDisabled();
+  await expect(page.getByRole('button', { name: /11:00 to 14:00/i })).toBeEnabled();
 });

@@ -1,206 +1,41 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 import { checkRateLimit, getRateLimitIdentifier } from '../_shared/rateLimiter.ts';
-import { errorResponse, ErrorCodes } from '../_shared/errorResponse.ts';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://signaldatasource.com',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-owner-passcode',
-};
-
-const getExpectedPasscode = () => Deno.env.get('OWNER_PASSCODE') || '';
-
-const isAuthorized = (req: Request) => {
-  const passcode = req.headers.get('x-owner-passcode') || '';
-  const expected = getExpectedPasscode();
-  return Boolean(expected) && passcode === expected;
-};
-
-const parseTime = (timeStr: string) => {
-  const [hours, minutes] = timeStr.split(':').map(Number);
-  return hours * 60 + minutes;
-};
-
-const intervalsOverlap = (start1: number, end1: number, start2: number, end2: number) => {
-  return start1 < end2 && start2 < end1;
-};
-
-Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-
-  // Rate limiting: 20 requests per minute per IP
-  const identifier = getRateLimitIdentifier(req);
-  const rateLimit = checkRateLimit(identifier, {
-    windowMs: 60 * 1000, // 1 minute
-    maxRequests: 20,
-  });
-
-  if (!rateLimit.allowed) {
-    return errorResponse(
-      'Too many requests. Please try again later.',
-      429,
-      ErrorCodes.RATE_LIMIT_EXCEEDED
-    );
-  }
-
-  if (!isAuthorized(req)) {
-    return errorResponse(
-      'Owner passcode required.',
-      401,
-      ErrorCodes.UNAUTHORIZED
-    );
-  }
-
+import { errorResponse, bookingErrorResponse, BookingError } from '../_shared/errorResponse.ts';
+import { intervalsOverlap, timeToMinutes } from '../../../website/src/config/scheduler.ts';
+const headers = { 'Access-Control-Allow-Origin': 'https://signaldatasource.com', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-owner-passcode', 'Content-Type': 'application/json' };
+interface CapacityRow { booking_id: string | null; segment_date: string; start_time: string; blocked_until: string; duration_minutes: number; source: string }
+Deno.serve(async req => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers });
+  if (!checkRateLimit(getRateLimitIdentifier(req), { windowMs: 60_000, maxRequests: 20 }).allowed) return errorResponse('Too many requests.', 429);
+  const expected = Deno.env.get('OWNER_PASSCODE');
+  if (!expected || req.headers.get('x-owner-passcode') !== expected) return errorResponse('Owner passcode required.', 401);
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    if (!supabaseUrl || !supabaseServiceRoleKey) {
-      throw new Error('Supabase project secrets are missing.');
-    }
-
     const url = new URL(req.url);
-    const startDate = url.searchParams.get('startDate');
-    const endDate = url.searchParams.get('endDate');
-
-    if (!startDate || !endDate) {
-      throw new Error('startDate and endDate query parameters are required.');
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
-
-    const [{ data: segments, error: segmentsError }, { data: bookings, error: bookingsError }] = await Promise.all([
-      supabase
-        .from('booking_capacity_segments')
-        .select('booking_id, segment_date, start_time, blocked_until, duration_minutes, bookings!inner(payment_status, test_mode)')
-        .gte('segment_date', startDate)
-        .lte('segment_date', endDate)
-        .eq('bookings.payment_status', 'paid')
-        .eq('bookings.test_mode', false)
-        .order('segment_date', { ascending: true })
-        .order('start_time', { ascending: true }),
-      supabase
-      .from('bookings')
-      .select('id, service_date, start_time, end_time, package_id, vehicle_type, selected_addons')
-      .gte('service_date', startDate)
-      .lte('service_date', endDate)
-      .eq('test_mode', false)
-      .eq('payment_status', 'paid')
-      .order('service_date', { ascending: true })
-        .order('start_time', { ascending: true }),
-    ]);
-
-    if (segmentsError) throw segmentsError;
-    if (bookingsError) throw bookingsError;
-
-    // Import scheduler functions for duration calculation
-    const { getTotalDuration } = await import('../../../website/src/config/scheduler.ts');
-
-    const violations: Array<{
-      date: string;
-      booking_ids: string[];
-      type: 'over_capacity' | 'overlap';
-      description: string;
-    }> = [];
-
-    const segmentBookingIds = new Set<string>();
-    const bookingsByDate: Record<string, any[]> = {};
-
-    for (const segment of segments || []) {
-      if (!segment.segment_date) continue;
-      segmentBookingIds.add(segment.booking_id);
-      bookingsByDate[segment.segment_date] = bookingsByDate[segment.segment_date] || [];
-      bookingsByDate[segment.segment_date].push({
-        id: segment.booking_id,
-        start_time: segment.start_time,
-        end_time: segment.blocked_until,
-        duration_minutes: segment.duration_minutes,
-      });
-    }
-
-    for (const booking of bookings || []) {
-      if (segmentBookingIds.has(booking.id)) continue;
-      if (!booking.service_date) continue;
-      bookingsByDate[booking.service_date] = bookingsByDate[booking.service_date] || [];
-      bookingsByDate[booking.service_date].push(booking);
-    }
-
-    // Check each day for violations
-    for (const [date, dayBookings] of Object.entries(bookingsByDate)) {
-      // Calculate total duration for the day
-      let totalDurationMinutes = 0;
-      const intervals: Array<{ start: number; end: number; bookingId: string }> = [];
-
-      for (const booking of dayBookings) {
-        if (!booking.start_time || !booking.end_time) continue;
-
-        const duration = booking.duration_minutes ?? getTotalDuration({
-          packageId: booking.package_id,
-          vehicleType: booking.vehicle_type,
-          selectedAddOns: booking.selected_addons || [],
-        });
-
-        totalDurationMinutes += duration;
-
-        const startMinutes = parseTime(booking.start_time);
-        const endMinutes = parseTime(booking.end_time);
-        intervals.push({ start: startMinutes, end: endMinutes, bookingId: booking.id });
+    const start = new Date((url.searchParams.get('startDate') || '') + 'T12:00:00Z');
+    const end = new Date((url.searchParams.get('endDate') || '') + 'T12:00:00Z');
+    const days = (end.getTime() - start.getTime()) / 86400000;
+    if (!Number.isFinite(days) || days < 0 || days > 366) throw new BookingError('Choose a valid date range of at most one year.');
+    const dates = Array.from({ length: days + 1 }, (_, offset) => new Date(start.getTime() + offset * 86400000).toISOString().slice(0, 10));
+    const supabase = createClient(Deno.env.get('SUPABASE_URL') || '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '');
+    const { data, error } = await supabase.rpc('booking_capacity_intervals', { dates });
+    if (error) throw error;
+    const rows = (data || []) as CapacityRow[];
+    const violations: Array<{ date: string; booking_ids: string[]; type: string; description: string }> = [];
+    for (const date of dates) {
+      const windows = rows.filter(row => row.segment_date === date);
+      const bookings = windows.filter(row => row.source === 'booking');
+      if (!bookings.length) continue;
+      const ids = bookings.map(row => row.booking_id!).filter(Boolean);
+      if (windows.reduce((sum, row) => sum + row.duration_minutes, 0) > 720 || (windows.length > 1 && windows.some(row => row.duration_minutes >= 600))) {
+        violations.push({ date, booking_ids: ids, type: 'over_capacity', description: 'Daily capacity or full-day exclusivity exceeded.' });
       }
-
-      // Check 12-hour capacity limit
-      if (totalDurationMinutes > 720) {
-        violations.push({
-          date,
-          booking_ids: dayBookings.map((b) => b.id),
-          type: 'over_capacity',
-          description: `Total duration (${Math.round(totalDurationMinutes / 60 * 10) / 10}h) exceeds 12-hour limit`,
-        });
-      }
-
-      // Check for overlapping intervals
-      for (let i = 0; i < intervals.length; i++) {
-        for (let j = i + 1; j < intervals.length; j++) {
-          if (intervalsOverlap(intervals[i].start, intervals[i].end, intervals[j].start, intervals[j].end)) {
-            violations.push({
-              date,
-              booking_ids: [intervals[i].bookingId, intervals[j].bookingId],
-              type: 'overlap',
-              description: `Bookings overlap: ${intervals[i].bookingId} and ${intervals[j].bookingId}`,
-            });
-          }
+      for (let i = 0; i < windows.length; i++) for (let j = i + 1; j < windows.length; j++) {
+        const a = windows[i]; const b = windows[j];
+        if ((a.source === 'booking' || b.source === 'booking') && intervalsOverlap(timeToMinutes(a.start_time), timeToMinutes(a.blocked_until), timeToMinutes(b.start_time), timeToMinutes(b.blocked_until))) {
+          violations.push({ date, booking_ids: [a.booking_id, b.booking_id].filter((id): id is string => id !== null), type: 'overlap', description: 'Booking overlaps reserved time or blackout.' });
         }
       }
     }
-
-    if (violations.length === 0) {
-      return new Response(
-        JSON.stringify({
-          status: 'ok',
-          message: 'No capacity violations found for this range.',
-        }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200,
-        }
-      );
-    }
-
-    return new Response(
-      JSON.stringify({
-        status: 'error',
-        violations,
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
-    );
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Sanity check failed.';
-    return errorResponse(
-      message,
-      400,
-      ErrorCodes.INTERNAL_ERROR
-    );
-  }
+    return new Response(JSON.stringify({ status: violations.length ? 'error' : 'ok', violations, message: violations.length ? 'Schedule conflicts found.' : 'No capacity violations found for this range.' }), { headers });
+  } catch (error) { return bookingErrorResponse(error); }
 });

@@ -152,6 +152,22 @@ const parseDateString = (date: string) => {
   return new Date(year, month - 1, day);
 };
 
+export const isServiceDate = (date: string) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const parsed = new Date(`${date}T12:00:00Z`);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === date && parsed.getUTCDay() !== 0;
+};
+
+export const pacificNow = (now = new Date()) => ({
+  date: new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now),
+  time: new Intl.DateTimeFormat('en-GB', { timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(now),
+});
+
+export const isFutureSlot = (date: string, time: string, now = new Date()) => {
+  const current = pacificNow(now);
+  return date > current.date || (date === current.date && time > current.time);
+};
+
 export const formatWindowLabel = (startMinutes: number, endMinutes: number) =>
   `${minutesToTime(startMinutes)} to ${minutesToTime(endMinutes)}`;
 
@@ -268,6 +284,7 @@ export const buildCapacitySegments = ({
   selectedAddOns?: AddOnId[];
   startTime: string;
 }): CapacitySegment[] => {
+  if (!isServiceDate(date) || !/^(0[8-9]|1\d):00$/.test(startTime)) return [];
   const totalDuration = getTotalDuration({ packageId, vehicleType, selectedAddOns });
   const startMinutes = timeToMinutes(startTime);
   const isMultiDay = isEligibleForMultiDay({ packageId, vehicleType, totalDurationMinutes: totalDuration });
@@ -324,7 +341,6 @@ export const buildCapacitySegments = ({
 // Business rules:
 // - Max 12 hours per day (720 minutes)
 // - Full-day threshold: 10 hours (600 minutes) - booking ≥ 10h blocks entire day
-// - Max 1 Deep Reset per day
 // - Bookings must not overlap
 export const checkCapacityRules = ({
   newBookingDuration,
@@ -421,6 +437,7 @@ export const isDateUnavailable = ({
   selectedAddOns?: AddOnId[];
 }) => {
   const validSlots = getHourlyStartSlots(packageId, vehicleType, selectedAddOns);
+  if (!isServiceDate(date) || date < pacificNow(now).date) return true;
 
   // Requirement: Sundays are unavailable
   const day = parseDateString(date).getDay();
@@ -483,13 +500,12 @@ export const getNextAvailableOpening = ({
   vehicleType?: VehicleTypeId;
   selectedAddOns?: AddOnId[];
 }) => {
-  const scanDate = new Date(fromDate);
-  scanDate.setHours(0, 0, 0, 0);
+  const scanDate = new Date(pacificNow(fromDate).date + 'T12:00:00Z');
 
   for (let dayOffset = 0; dayOffset < daysToScan; dayOffset += 1) {
     const current = new Date(scanDate);
-    current.setDate(scanDate.getDate() + dayOffset);
-    const weekday = current.getDay();
+    current.setUTCDate(scanDate.getUTCDate() + dayOffset);
+    const weekday = current.getUTCDay();
     if (weekday === 0) continue;
 
     const date = current.toISOString().slice(0, 10);

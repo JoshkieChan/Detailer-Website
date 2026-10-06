@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, Calendar, MapPin, CreditCard, Clock, Loader2, AlertTriangle } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 
 interface BookingConfirmation {
   package_id?: string;
@@ -14,59 +13,72 @@ interface BookingConfirmation {
   service_time?: string;
   vehicle_info?: string;
   address?: string;
+  payment_status?: string;
+  status?: string;
+  booking_capacity_segments?: Array<{ segment_date: string; start_time: string; end_time: string }>;
 }
 
 const ConfirmationPage = () => {
   const [searchParams] = useSearchParams();
-  const bookingId = searchParams.get('booking_id');
+  const [access] = useState<{ bookingId?: string; token?: string }>(() => {
+    try { return JSON.parse(sessionStorage.getItem('booking_confirmation') || '{}'); } catch { return {}; }
+  });
+  const bookingId = searchParams.get('booking_id') || access.bookingId;
   const [loading, setLoading] = useState(true);
   const [booking, setBooking] = useState<BookingConfirmation | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!bookingId) {
-      setError("No booking ID found. If you just booked, please check your email for confirmation.");
-      setLoading(false);
       return;
     }
 
+    let active = true;
+    let timer: ReturnType<typeof setTimeout>;
     const fetchBooking = async () => {
       // Poll Supabase for the booking where id matches
       let attempts = 0;
       const maxAttempts = 5;
       
       const poll = async () => {
-        const { data } = await supabase
-          .from('bookings')
-          .select('*')
-          .eq('id', bookingId)
-          .single();
+        const response = await fetch(import.meta.env.VITE_SUPABASE_URL + '/functions/v1/booking-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', apikey: import.meta.env.VITE_SUPABASE_ANON_KEY, Authorization: 'Bearer ' + import.meta.env.VITE_SUPABASE_ANON_KEY },
+          body: JSON.stringify({ bookingId, token: access.token }),
+        });
+        const data = response.ok ? await response.json() : null;
+        if (!active) return;
 
         if (data) {
           setBooking(data as BookingConfirmation);
           setLoading(false);
         } else if (attempts < maxAttempts) {
           attempts++;
-          setTimeout(poll, 1500); // Poll every 1.5s
+          timer = setTimeout(() => { void poll().catch(() => { if (active) { setError('Could not load booking details.'); setLoading(false); } }); }, 1500);
         } else {
           // If we timed out but the record exists (even if unpaid yet)
           if (data) {
             setBooking(data as BookingConfirmation);
             setLoading(false);
           } else {
-            setError("We couldn't find your booking details yet. Don't worry, your payment was processed. Please check your email shortly.");
+            setError("We could not verify this booking. Please contact SignalSource to check your booking and payment.");
             setLoading(false);
           }
         }
       };
 
-      poll();
+      await poll();
     };
 
-    fetchBooking();
-  }, [bookingId]);
+    void fetchBooking().catch(() => { if (active) { setError('Could not load booking details.'); setLoading(false); } });
+    return () => { active = false; clearTimeout(timer); };
+  }, [bookingId, access.token]);
 
   const formatCurrency = (amount: number | undefined) => `$${Number(amount ?? 0).toFixed(2)}`;
+
+  if (!bookingId || !access.token) {
+    return <div className="confirmation-page container text-center confirmation-state"><h1>Appointment Pending Confirmation</h1><p>We cannot verify payment from this page. Check your confirmation email or contact SignalSource.</p><Link to="/" className="btn primary mt-2">Return Home</Link></div>;
+  }
 
   if (loading) {
     return (
@@ -107,7 +119,9 @@ const ConfirmationPage = () => {
         </div>
         <h1>Booking Received!</h1>
         <p className="hook-text mt-1">
-          Your reservation request has been processed. We have locked in your slot and added it to our internal calendar.
+          {booking.payment_status === 'paid' && booking.status !== 'cancelled'
+            ? 'Your payment is confirmed and your appointment is reserved.'
+            : 'Your request is recorded. Payment and appointment confirmation are still pending.'}
         </p>
       </div>
 
@@ -119,7 +133,7 @@ const ConfirmationPage = () => {
           <ul className="details-list">
             <li><strong>Service:</strong> {packageName}</li>
             <li><strong>Date:</strong> {new Date(booking.service_date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'})}</li>
-            <li><strong>Time Window:</strong> {booking.service_time === 'morning' ? 'Morning (8AM - 12PM)' : 'Afternoon (12PM - 4PM)'}</li>
+            <li><strong>Time Window:</strong> {booking.booking_capacity_segments?.map(segment => segment.segment_date + ' ' + segment.start_time + '-' + segment.end_time).join(', ') || booking.service_time}</li>
             <li><strong>Vehicle:</strong> {booking.vehicle_info}</li>
           </ul>
 

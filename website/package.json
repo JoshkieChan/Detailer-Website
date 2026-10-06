@@ -9,6 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test:unit": "vitest run",
+    "test": "vitest run",
+    "test:db": "vitest run tests/database",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -22,7 +24,9 @@
     "react-router-dom": "^7.13.2"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.3.14",
     "@eslint/js": "^9.39.4",
+    "@playwright/test": "^1.56.1",
     "@types/node": "^24.12.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -31,7 +35,6 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
-    "@playwright/test": "^1.56.1",
     "rollup-plugin-visualizer": "^7.0.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.57.0",

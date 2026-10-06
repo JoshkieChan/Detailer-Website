@@ -56,6 +56,7 @@ export const fetchAvailability = async (
 };
 
 export interface OwnerScheduleEvent {
+  bookingStartTime?: string;
   id: string;
   eventType: 'booking' | 'blackout';
   date: string;

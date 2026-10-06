@@ -47,10 +47,6 @@ export function checkRateLimit(
 
 // Get identifier from request (IP address or custom header)
 export function getRateLimitIdentifier(req: Request): string {
-  // Try to get from custom header first (for testing)
-  const customId = req.headers.get('x-rate-limit-id');
-  if (customId) return customId;
-
   // Fall back to IP address from Cloudflare/CF-Connecting-IP header
   const ip = req.headers.get('cf-connecting-ip') || 
              req.headers.get('x-forwarded-for')?.split(',')[0] || 
