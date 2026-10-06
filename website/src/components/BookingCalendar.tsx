@@ -71,6 +71,7 @@ export const BookingCalendar = ({
   }
 
   const now = new Date();
+  const allIntervals = intervalsByDate ? Object.values(intervalsByDate).flat() : [];
 
   // Actual days
   for (let i = 1; i <= daysInMonth; i++) {
@@ -91,7 +92,7 @@ export const BookingCalendar = ({
         ? !hasAvailableSlot({
             date: dateStr,
             packageId: slotPackageId,
-            intervals: intervalsByDate[dateStr] ?? [],
+            intervals: allIntervals,
             now,
             vehicleType: slotVehicleType,
             selectedAddOns: slotSelectedAddOns,

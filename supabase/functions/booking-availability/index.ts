@@ -6,10 +6,10 @@ import {
   type SlotBookingPackageId,
   type VehicleTypeId,
   type AddOnId,
-  getTotalDuration,
 } from '../../../website/src/config/scheduler.ts';
 import { checkRateLimit, getRateLimitIdentifier } from '../_shared/rateLimiter.ts';
 import { errorResponse, successResponse, ErrorCodes } from '../_shared/errorResponse.ts';
+import { buildIntervalsByDate } from '../_shared/bookingCapacity.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://signaldatasource.com',
@@ -160,71 +160,24 @@ Deno.serve(async (req) => {
       });
     }
 
-    const [{ data: paidBookings, error: bookingsError }, { data: blocks, error: blocksError }] =
-      await Promise.all([
-        supabase
-          .from('bookings')
-          .select('service_date, start_time, end_time, blocked_until, payment_status, created_at, package_id, vehicle_type, selected_addons, test_mode')
-          .eq('payment_status', 'paid')
-          .eq('test_mode', false)
-          .order('service_date', { ascending: true })
-          .order('start_time', { ascending: true }),
-        supabase
-          .from('availability_blocks')
-          .select('start_at, end_at')
-          .order('start_at', { ascending: true }),
-      ]);
-
-    if (bookingsError) throw bookingsError;
-    if (blocksError) throw blocksError;
-
-    const intervalsByDate: Record<string, ScheduledInterval[]> = {};
-
-    for (const booking of paidBookings || []) {
-      if (!booking.service_date || !booking.start_time || !booking.end_time) continue;
-      const selectedAddOns: AddOnId[] = booking.selected_addons || [];
-      const totalDuration = getTotalDuration({
-        packageId: booking.package_id as SlotBookingPackageId,
-        vehicleType: booking.vehicle_type as VehicleTypeId,
-        selectedAddOns,
-      });
-
-      intervalsByDate[booking.service_date] = intervalsByDate[booking.service_date] || [];
-      intervalsByDate[booking.service_date].push({
-        date: booking.service_date,
-        startTime: booking.start_time,
-        endTime: booking.end_time,
-        blockedUntil: booking.blocked_until || booking.end_time,
-        source: 'booking',
-        paymentStatus: 'paid',
-        packageId: booking.package_id as SlotBookingPackageId,
-        vehicleType: booking.vehicle_type as VehicleTypeId,
-        selectedAddOns,
-        totalDurationMinutes: totalDuration,
-      });
-    }
-
-    for (const block of blocks || []) {
-      if (!block.start_at || !block.end_at) continue;
-      const date = toDateString(block.start_at);
-      intervalsByDate[date] = intervalsByDate[date] || [];
-      intervalsByDate[date].push({
-        date,
-        startTime: toTimeString(block.start_at),
-        endTime: toTimeString(block.end_at),
-        blockedUntil: toTimeString(block.end_at),
-        source: 'blackout',
-      });
-    }
-
     const now = new Date();
+    const scanDates: string[] = [];
+    const scanStart = new Date(now);
+    scanStart.setHours(0, 0, 0, 0);
+    for (let dayOffset = 0; dayOffset < 30; dayOffset += 1) {
+      const current = new Date(scanStart);
+      current.setDate(scanStart.getDate() + dayOffset);
+      scanDates.push(current.toISOString().slice(0, 10));
+    }
+
+    const intervalsByDate: Record<string, ScheduledInterval[]> = await buildIntervalsByDate(supabase, scanDates);
 
     const allIntervals = Object.values(intervalsByDate).flat();
     const unavailableDates = Object.keys(intervalsByDate).filter((date) =>
       isDateUnavailable({
         date,
         packageId,
-        intervals: intervalsByDate[date],
+        intervals: allIntervals,
         now,
         vehicleType,
         selectedAddOns,
@@ -234,7 +187,7 @@ Deno.serve(async (req) => {
     // Explicitly check today (Pacific calendar day, consistent with isDateUnavailable)
     const todayStr = pacificDateString(now);
     if (!unavailableDates.includes(todayStr)) {
-      if (isDateUnavailable({ date: todayStr, packageId, intervals: intervalsByDate[todayStr] || [], now, vehicleType, selectedAddOns })) {
+      if (isDateUnavailable({ date: todayStr, packageId, intervals: allIntervals, now, vehicleType, selectedAddOns })) {
         unavailableDates.push(todayStr);
       }
     }

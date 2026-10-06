@@ -69,8 +69,17 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-    // Fetch all non-test paid bookings in the date range
-    const { data: bookings, error: bookingsError } = await supabase
+    const [{ data: segments, error: segmentsError }, { data: bookings, error: bookingsError }] = await Promise.all([
+      supabase
+        .from('booking_capacity_segments')
+        .select('booking_id, segment_date, start_time, blocked_until, duration_minutes, bookings!inner(payment_status, test_mode)')
+        .gte('segment_date', startDate)
+        .lte('segment_date', endDate)
+        .eq('bookings.payment_status', 'paid')
+        .eq('bookings.test_mode', false)
+        .order('segment_date', { ascending: true })
+        .order('start_time', { ascending: true }),
+      supabase
       .from('bookings')
       .select('id, service_date, start_time, end_time, package_id, vehicle_type, selected_addons')
       .gte('service_date', startDate)
@@ -78,8 +87,10 @@ Deno.serve(async (req) => {
       .eq('test_mode', false)
       .eq('payment_status', 'paid')
       .order('service_date', { ascending: true })
-      .order('start_time', { ascending: true });
+        .order('start_time', { ascending: true }),
+    ]);
 
+    if (segmentsError) throw segmentsError;
     if (bookingsError) throw bookingsError;
 
     // Import scheduler functions for duration calculation
@@ -92,9 +103,23 @@ Deno.serve(async (req) => {
       description: string;
     }> = [];
 
-    // Group bookings by date
+    const segmentBookingIds = new Set<string>();
     const bookingsByDate: Record<string, any[]> = {};
+
+    for (const segment of segments || []) {
+      if (!segment.segment_date) continue;
+      segmentBookingIds.add(segment.booking_id);
+      bookingsByDate[segment.segment_date] = bookingsByDate[segment.segment_date] || [];
+      bookingsByDate[segment.segment_date].push({
+        id: segment.booking_id,
+        start_time: segment.start_time,
+        end_time: segment.blocked_until,
+        duration_minutes: segment.duration_minutes,
+      });
+    }
+
     for (const booking of bookings || []) {
+      if (segmentBookingIds.has(booking.id)) continue;
       if (!booking.service_date) continue;
       bookingsByDate[booking.service_date] = bookingsByDate[booking.service_date] || [];
       bookingsByDate[booking.service_date].push(booking);
@@ -109,11 +134,10 @@ Deno.serve(async (req) => {
       for (const booking of dayBookings) {
         if (!booking.start_time || !booking.end_time) continue;
 
-        const selectedAddOns = booking.selected_addons || [];
-        const duration = getTotalDuration({
+        const duration = booking.duration_minutes ?? getTotalDuration({
           packageId: booking.package_id,
           vehicleType: booking.vehicle_type,
-          selectedAddOns,
+          selectedAddOns: booking.selected_addons || [],
         });
 
         totalDurationMinutes += duration;

@@ -31,10 +31,11 @@ import {
 import {
   SERVICE_TIMING_RULES,
   buildBookingWindow,
+  buildCapacitySegments,
   getHourlyStartSlots,
   getNextAvailableOpening,
-  intervalsOverlap,
   timeToMinutes,
+  validateCapacitySegments,
   type ScheduledInterval,
   type SlotBookingPackageId,
   type AddOnId,
@@ -261,9 +262,17 @@ const BookingPage = () => {
   }, [validPackage, validVehicle, formData.selectedAddOns]);
 
 
-  const hourlySlots = validPackage ? getHourlyStartSlots(validPackage as SlotBookingPackageId, validVehicle || 'sedan') : [];
-  const selectedDayIntervals = formData.date ? availability.intervalsByDate[formData.date] || [] : [];
-
+  const hourlySlots = useMemo(
+    () =>
+      validPackage
+        ? getHourlyStartSlots(
+            validPackage as SlotBookingPackageId,
+            validVehicle || 'sedan',
+            formData.selectedAddOns
+          )
+        : [],
+    [formData.selectedAddOns, validPackage, validVehicle]
+  );
   const calendarIntervalsByDate = useMemo(() => {
     if (!validPackage) return undefined;
     const out: Record<string, ScheduledInterval[]> = {};
@@ -287,7 +296,7 @@ const BookingPage = () => {
     const todayStr = pacificDate; // 'YYYY-MM-DD'
 
     return hourlySlots.map((slot) => {
-      const slotWindow = buildBookingWindow({
+      const segments = buildCapacitySegments({
         date: formData.date,
         packageId: validPackage as SlotBookingPackageId,
         startTime: slot.value,
@@ -306,21 +315,17 @@ const BookingPage = () => {
       const currentMinutes = h * 60 + m;
 
       const isPastSlot = formData.date === todayStr && currentMinutes >= slotStart;
-      const overlaps = selectedDayIntervals.some((interval) =>
-        intervalsOverlap(
-          slotWindow.startMinutes,
-          slotWindow.blockedUntilMinutes,
-          timeToMinutes(interval.startTime),
-          timeToMinutes(interval.blockedUntil)
-        )
-      );
+      const overlaps = !validateCapacitySegments({
+        segments,
+        intervalsByDate: calendarIntervalsByDate || {},
+      }).allowed;
 
       return {
         ...slot,
         disabled: isPastSlot || overlaps,
       };
     });
-  }, [formData.date, hourlySlots, selectedDayIntervals, validPackage]);
+  }, [calendarIntervalsByDate, formData.date, formData.selectedAddOns, hourlySlots, validPackage, validVehicle]);
 
   useEffect(() => {
     if (!formData.startTime) return;

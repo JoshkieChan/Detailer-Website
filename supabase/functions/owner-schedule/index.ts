@@ -1,8 +1,9 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 import { calculateBookingFinancials, isBookingPackageId, isLocationType, isVehicleTypeId, locationTypeLabels, vehicleTypeLabels, bookingPackages } from '../../../website/src/data/bookingPricing.ts';
-import { getTotalDuration, checkCapacityRules, type SlotBookingPackageId, type VehicleTypeId, type AddOnId, intervalsOverlap } from '../../../website/src/config/scheduler.ts';
+import { buildBookingWindow, buildCapacitySegments, getTotalDuration, validateCapacitySegments, type SlotBookingPackageId, type VehicleTypeId, type AddOnId } from '../../../website/src/config/scheduler.ts';
 import { checkRateLimit, getRateLimitIdentifier } from '../_shared/rateLimiter.ts';
 import { errorResponse, successResponse, ErrorCodes } from '../_shared/errorResponse.ts';
+import { buildIntervalsByDate } from '../_shared/bookingCapacity.ts';
 
 // Note: Relative imports from website are used because these functions/types are shared
 // between the Edge Function and the website. This is acceptable for this architecture.
@@ -147,56 +148,28 @@ Deno.serve(async (req) => {
         selectedAddOns: finalSelectedAddOns,
       });
 
-      // Fetch existing paid bookings for capacity check (excluding test mode)
-      const { data: existingBookings, error: fetchError } = await supabase
-        .from('bookings')
-        .select('service_date, start_time, end_time, blocked_until, package_id, vehicle_type, selected_addons')
-        .eq('payment_status', 'paid')
-        .eq('test_mode', false)
-        .eq('service_date', date);
-
-      if (fetchError) throw fetchError;
-
-      // Calculate total duration for existing bookings
-      const existingBookingsWithDuration = (existingBookings || []).map((booking: {
-        package_id: string;
-        vehicle_type: string;
-        selected_addons: string[];
-      }) => ({
-        totalDurationMinutes: getTotalDuration({
-          packageId: booking.package_id as SlotBookingPackageId,
-          vehicleType: booking.vehicle_type as VehicleTypeId,
-          selectedAddOns: (booking.selected_addons || []) as AddOnId[],
-        }),
-      }));
-
-      // Check capacity rules
-      const capacityCheck = checkCapacityRules({
-        newBookingDuration: totalDuration,
-        existingBookings: existingBookingsWithDuration,
+      const bookingWindow = buildBookingWindow({
+        date,
+        packageId: packageId as SlotBookingPackageId,
+        vehicleType: vehicleType as VehicleTypeId,
+        selectedAddOns: finalSelectedAddOns,
+        startTime,
       });
+      const capacitySegments = buildCapacitySegments({
+        date,
+        packageId: packageId as SlotBookingPackageId,
+        vehicleType: vehicleType as VehicleTypeId,
+        selectedAddOns: finalSelectedAddOns,
+        startTime,
+      });
+      const intervalsByDate = await buildIntervalsByDate(
+        supabase,
+        capacitySegments.map((segment) => segment.date)
+      );
+      const capacityCheck = validateCapacitySegments({ segments: capacitySegments, intervalsByDate });
 
       if (!capacityCheck.allowed) {
         throw new Error(capacityCheck.reason || 'Booking would violate capacity rules.');
-      }
-
-      // Check for overlap with existing bookings
-      const parseTime = (timeStr: string) => {
-        const [hours, minutes] = timeStr.split(':').map(Number);
-        return hours * 60 + minutes;
-      };
-
-      const newStartMinutes = parseTime(startTime);
-      const newEndMinutes = parseTime(endTime);
-
-      for (const booking of existingBookings || []) {
-        if (!booking.start_time || !booking.end_time) continue;
-        const existingStart = parseTime(booking.start_time);
-        const existingEnd = parseTime(booking.end_time);
-        
-        if (intervalsOverlap(newStartMinutes, newEndMinutes, existingStart, existingEnd)) {
-          throw new Error('Booking time overlaps with existing booking.');
-        }
       }
 
       const pricing = calculateBookingFinancials({
@@ -216,7 +189,7 @@ Deno.serve(async (req) => {
           ? Math.round(centsRaw)
           : Math.round(totalTodayVal * 100);
 
-      const { error } = await supabase.from('bookings').insert([
+      const { data: insertedBooking, error } = await supabase.from('bookings').insert([
         {
           full_name: fullName,
           email,
@@ -229,9 +202,9 @@ Deno.serve(async (req) => {
           vehicle_type: vehicleType,
           service_date: date,
           start_time: startTime,
-          end_time: endTime,
+          end_time: bookingWindow.endTime,
           service_time: startTime,
-          blocked_until: blockedUntil,
+          blocked_until: bookingWindow.blockedUntil,
           service_duration_minutes: totalDuration,
           buffer_minutes: bufferMinutes,
           location_type: locationType,
@@ -253,9 +226,23 @@ Deno.serve(async (req) => {
           selected_addons: finalSelectedAddOns,
           test_mode: testMode || false,
         },
-      ]);
+      ]).select('id').single();
 
       if (error) throw error;
+
+      const { error: segmentsError } = await supabase.from('booking_capacity_segments').insert(
+        capacitySegments.map((segment) => ({
+          booking_id: insertedBooking.id,
+          segment_date: segment.date,
+          start_time: segment.startTime,
+          end_time: segment.endTime,
+          blocked_until: segment.blockedUntil,
+          duration_minutes: segment.durationMinutes,
+          segment_index: segment.segmentIndex,
+        }))
+      );
+
+      if (segmentsError) throw segmentsError;
       return new Response(JSON.stringify({ ok: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
