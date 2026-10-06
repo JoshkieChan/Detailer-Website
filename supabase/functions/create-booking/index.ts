@@ -11,7 +11,7 @@ const corsHeaders = {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (req.method !== 'POST') return errorResponse('Method not allowed.', 405, ErrorCodes.BAD_REQUEST);
-  if (!checkRateLimit(getRateLimitIdentifier(req), { windowMs: 60_000, maxRequests: 10 }).allowed) {
+  if (!(await checkRateLimit(getRateLimitIdentifier(req), { windowMs: 60_000, maxRequests: 10 })).allowed) {
     return errorResponse('Too many requests. Please try again later.', 429, ErrorCodes.RATE_LIMIT_EXCEEDED);
   }
   try {

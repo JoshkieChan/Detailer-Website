@@ -12,7 +12,7 @@ const ok = () => new Response(JSON.stringify({ ok: true }), { headers: { ...cors
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
-  if (!checkRateLimit(getRateLimitIdentifier(req), { windowMs: 60_000, maxRequests: 30 }).allowed) return errorResponse('Too many requests.', 429, ErrorCodes.RATE_LIMIT_EXCEEDED);
+  if (!(await checkRateLimit(getRateLimitIdentifier(req), { windowMs: 60_000, maxRequests: 30 })).allowed) return errorResponse('Too many requests.', 429, ErrorCodes.RATE_LIMIT_EXCEEDED);
   const expected = Deno.env.get('OWNER_PASSCODE');
   if (!expected || req.headers.get('x-owner-passcode') !== expected) return errorResponse('Owner passcode required.', 401, ErrorCodes.UNAUTHORIZED);
   if (req.method === 'GET') return ok();

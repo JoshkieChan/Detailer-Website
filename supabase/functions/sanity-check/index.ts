@@ -6,7 +6,7 @@ const headers = { 'Access-Control-Allow-Origin': 'https://signaldatasource.com',
 interface CapacityRow { booking_id: string | null; segment_date: string; start_time: string; blocked_until: string; duration_minutes: number; source: string }
 Deno.serve(async req => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers });
-  if (!checkRateLimit(getRateLimitIdentifier(req), { windowMs: 60_000, maxRequests: 20 }).allowed) return errorResponse('Too many requests.', 429);
+  if (!(await checkRateLimit(getRateLimitIdentifier(req), { windowMs: 60_000, maxRequests: 20 })).allowed) return errorResponse('Too many requests.', 429);
   const expected = Deno.env.get('OWNER_PASSCODE');
   if (!expected || req.headers.get('x-owner-passcode') !== expected) return errorResponse('Owner passcode required.', 401);
   try {

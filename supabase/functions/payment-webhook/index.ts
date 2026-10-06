@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
 
   // Rate limiting: 50 requests per minute per IP (higher for webhooks)
   const identifier = getRateLimitIdentifier(req);
-  const rateLimit = checkRateLimit(identifier, {
+  const rateLimit = await checkRateLimit(identifier, {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 50,
   });

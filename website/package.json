@@ -11,6 +11,7 @@
     "test:unit": "vitest run",
     "test": "vitest run",
     "test:db": "vitest run tests/database",
+    "test:concurrency": "node tests/database/concurrency.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -35,10 +36,11 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.4.0",
+    "pg": "^8.16.3",
     "rollup-plugin-visualizer": "^7.0.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.57.0",
     "vite": "^8.0.1",
-    "vitest": "^3.2.4"
+    "vitest": "^5.0.3"
   }
 }

@@ -1,30 +1,43 @@
 import { PGlite } from '@electric-sql/pglite';
-import { readFileSync } from 'node:fs';
+import { schemaSql } from './bootstrap';
 import { afterAll, beforeAll, beforeEach, expect, test } from 'vitest';
 
 const db = new PGlite();
-const migration = (name: string) => readFileSync(new URL('../../../supabase/migrations/' + name, import.meta.url), 'utf8');
 beforeAll(async () => {
-  // Minimal pre-existing schema: the repository predates its migration history.
   await db.exec(`
     create role anon; create role authenticated; create role service_role bypassrls;
-    create table bookings (
-      id uuid primary key default gen_random_uuid(), service_date date, service_time text,
-      package_id text default 'maintenance', vehicle_type text default 'sedan',
-      selected_addons text[], status text default 'pending', test_mode boolean default false
-    );
-    create table snapshot_leads(id uuid primary key default gen_random_uuid());
   `);
-  await db.exec(migration('20260417_signalsource_v2_scheduler_and_payments.sql'));
-  await db.exec(migration('20260426_booking_capacity_events.sql'));
-  await db.exec(migration('20261006_booking_capacity_segments.sql'));
-  await db.exec(migration('20261006032815_booking_integrity.sql'));
+  await db.exec(schemaSql());
 });
 beforeEach(async () => { await db.exec('delete from bookings; delete from availability_blocks;'); });
 afterAll(async () => { await db.close(); });
+test('quotas are shared, bounded, and unavailable to public roles', async () => {
+  const key = 'a'.repeat(64);
+  for (let i=0; i<3; i++) {
+    const result = await db.query<{ quota: { allowed: boolean } }>('select consume_rate_limit($1,60000,2) quota', [key]);
+    expect(result.rows[0].quota.allowed).toBe(i < 2);
+  }
+  await db.exec('set role anon');
+  try { await expect(db.query('select consume_rate_limit($1,60000,2)', [key])).rejects.toMatchObject({ code: '42501' }); }
+  finally { await db.exec('reset role'); }
+});
+
+test('email claims serialize, preserve retry payload, and stop ambiguous late retries', async () => {
+  const id = (await book()).rows[0].id;
+  const claim = async (payload: string) => (await db.query<{ result: { action: string; payload?: unknown } }>(
+    'select claim_confirmation_email($1,$2::jsonb) result', [id, payload])).rows[0].result;
+  expect(await claim('{"subject":"first"}')).toEqual({ action: 'send', payload: { subject: 'first' } });
+  expect((await claim('{}')).action).toBe('busy');
+  await db.query("update booking_private.email_deliveries set lease_until=now()-interval '1 minute' where booking_id=$1", [id]);
+  expect(await claim('{"subject":"changed"}')).toEqual({ action: 'send', payload: { subject: 'first' } });
+  await db.query("update booking_private.email_deliveries set first_attempt_at=now()-interval '24 hours' where booking_id=$1", [id]);
+  expect((await claim('{}')).action).toBe('review');
+  await db.query('select complete_confirmation_email($1)', [id]);
+  expect((await claim('{}')).action).toBe('sent');
+});
 async function book(start = '08:00', duration = 180, date = '2030-06-10', extra = '') {
-  return db.query<{ id: string }>(`insert into bookings(service_date,start_time,service_duration_minutes,payment_status ${extra ? ',package_id,vehicle_type' : ''})
-    values($1,$2,$3,'pending_payment' ${extra}) returning id`, [date, start, duration]);
+  return db.query<{ id: string }>(`insert into bookings(full_name,email,location_type,service_time,service_date,start_time,service_duration_minutes,payment_status,package_id,vehicle_type)
+    values('Test Customer','test@example.test','garage',$2,$1,$2,$3,'pending_payment' ${extra || ",'maintenance','sedan'"}) returning id`, [date, start, duration]);
 }
 test('holds reject overlapping inserts and rollback booking plus segments; adjacency succeeds', async () => {
   await book();
@@ -77,4 +90,16 @@ test('service role can write bookings but cannot edit generated segments', async
     await book();
     await expect(db.query('delete from booking_capacity_segments')).rejects.toMatchObject({ code: '42501' });
   } finally { await db.exec('reset role'); }
+});
+
+test('photo metadata supports service-role retries but is never publicly readable', async () => {
+  const id = (await book()).rows[0].id;
+  await db.exec('set role service_role');
+  try {
+    for (let i=0; i<2; i++) await db.query("insert into booking_photos(booking_id,slot,path,content_type) values($1,0,$2,'image/png') on conflict(booking_id,slot) do update set content_type=excluded.content_type", [id, id+'/0']);
+  } finally { await db.exec('reset role'); }
+  expect((await db.query('select * from booking_photos')).rows).toHaveLength(1);
+  await db.exec('set role anon');
+  try { await expect(db.query('select * from booking_photos')).rejects.toMatchObject({ code: '42501' }); }
+  finally { await db.exec('reset role'); }
 });

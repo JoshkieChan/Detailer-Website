@@ -5,7 +5,7 @@ const headers = { 'Access-Control-Allow-Origin': 'https://signaldatasource.com',
 Deno.serve(async req => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers });
   if (req.method !== 'POST') return errorResponse('Method not allowed.', 405);
-  if (!checkRateLimit(getRateLimitIdentifier(req), { windowMs: 60_000, maxRequests: 30 }).allowed) return errorResponse('Too many requests.', 429);
+  if (!(await checkRateLimit(getRateLimitIdentifier(req), { windowMs: 60_000, maxRequests: 30 })).allowed) return errorResponse('Too many requests.', 429);
   try {
     const { bookingId, token } = await req.json();
     if (typeof bookingId !== 'string' || typeof token !== 'string') return errorResponse('Booking access required.', 401);

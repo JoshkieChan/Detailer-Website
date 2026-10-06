@@ -1,66 +1,30 @@
-// Simple in-memory rate limiter for Supabase Edge Functions
-// Note: For production, consider using a distributed cache like Upstash Redis
+export interface RateLimitConfig { windowMs: number; maxRequests: number }
 
-interface RateLimitStore {
-  count: number;
-  resetTime: number;
-}
-
-const store = new Map<string, RateLimitStore>();
-
-export interface RateLimitConfig {
-  windowMs: number; // Time window in milliseconds
-  maxRequests: number; // Max requests per window
-}
-
-export function checkRateLimit(
-  identifier: string,
-  config: RateLimitConfig
-): { allowed: boolean; remaining: number; resetTime: number } {
-  const now = Date.now();
-  const entry = store.get(identifier);
-
-  // Clean up expired entries
-  if (entry && entry.resetTime < now) {
-    store.delete(identifier);
+export async function checkRateLimit(identifier: string, config: RateLimitConfig): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
+  const denied = { allowed: false, remaining: 0, resetTime: Date.now() + config.windowMs };
+  try {
+    const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const url = Deno.env.get('SUPABASE_URL');
+    if (!key || !url) return denied;
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(identifier));
+    const bucket = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+    const response = await fetch(url + '/rest/v1/rpc/consume_rate_limit', {
+      method: 'POST',
+      headers: { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bucket, window_ms: config.windowMs, maximum: config.maxRequests }),
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!response.ok) return denied;
+    return await response.json();
+  } catch {
+    // Fail closed when the shared quota store is unavailable.
+    return denied;
   }
-
-  const currentEntry = store.get(identifier) || { count: 0, resetTime: now + config.windowMs };
-
-  if (currentEntry.count >= config.maxRequests) {
-    return {
-      allowed: false,
-      remaining: 0,
-      resetTime: currentEntry.resetTime,
-    };
-  }
-
-  currentEntry.count++;
-  store.set(identifier, currentEntry);
-
-  return {
-    allowed: true,
-    remaining: config.maxRequests - currentEntry.count,
-    resetTime: currentEntry.resetTime,
-  };
 }
 
-// Get identifier from request (IP address or custom header)
 export function getRateLimitIdentifier(req: Request): string {
-  // Fall back to IP address from Cloudflare/CF-Connecting-IP header
-  const ip = req.headers.get('cf-connecting-ip') || 
-             req.headers.get('x-forwarded-for')?.split(',')[0] || 
-             'unknown';
-  
-  return ip;
+  // Deployment must preserve trusted ingress IP headers. No client-defined
+  // testing header can bypass the quota.
+  const ip = req.headers.get('cf-connecting-ip') || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  return new URL(req.url).pathname + ':' + ip;
 }
-
-// Clean up old entries periodically to prevent memory leaks
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of store.entries()) {
-    if (entry.resetTime < now) {
-      store.delete(key);
-    }
-  }
-}, 60000); // Clean up every minute

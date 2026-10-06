@@ -8,7 +8,7 @@ import {
   type AddOnId,
 } from '../../../website/src/config/scheduler.ts';
 import { checkRateLimit, getRateLimitIdentifier } from '../_shared/rateLimiter.ts';
-import { errorResponse, bookingErrorResponse, ErrorCodes } from '../_shared/errorResponse.ts';
+import { errorResponse, bookingErrorResponse, BookingError, ErrorCodes } from '../_shared/errorResponse.ts';
 import { parseAddOns } from '../_shared/bookingValidation.ts';
 import { isBookingPackageId, isVehicleTypeId } from '../../../website/src/data/bookingPricing.ts';
 import { buildIntervalsByDate } from '../_shared/bookingCapacity.ts';
@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
 
   // Rate limiting: 60 requests per minute per IP (higher for availability checks)
   const identifier = getRateLimitIdentifier(req);
-  const rateLimit = checkRateLimit(identifier, {
+  const rateLimit = await checkRateLimit(identifier, {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 60,
   });
@@ -85,6 +85,8 @@ Deno.serve(async (req) => {
     const vehicleType = url.searchParams.get('vehicleType') || 'sedan';
     const selectedAddOnsParam = url.searchParams.get('selectedAddOns') || '';
     const ownerMode = url.searchParams.get('owner') === 'true';
+    const requestedMonth = url.searchParams.get('month');
+    if (requestedMonth && !/^20\d{2}-(0[1-9]|1[0-2])$/.test(requestedMonth)) throw new BookingError('Invalid calendar month.');
 
     // Validate packageId
     if (!isBookingPackageId(packageId)) {
@@ -190,7 +192,16 @@ Deno.serve(async (req) => {
       scanDates.push(current.toISOString().slice(0, 10));
     }
 
-    const intervalsByDate: Record<string, ScheduledInterval[]> = await buildIntervalsByDate(supabase, scanDates);
+    if (requestedMonth) {
+      const monthStart = new Date(requestedMonth + '-01T12:00:00Z');
+      // Include the next service day for bookings spanning Saturday to Monday.
+      for (let offset = 0; offset < 34; offset++) {
+        const date = new Date(monthStart);
+        date.setUTCDate(date.getUTCDate() + offset);
+        scanDates.push(date.toISOString().slice(0, 10));
+      }
+    }
+    const intervalsByDate: Record<string, ScheduledInterval[]> = await buildIntervalsByDate(supabase, [...new Set(scanDates)]);
 
     const allIntervals = Object.values(intervalsByDate).flat();
     const unavailableDates = Object.keys(intervalsByDate).filter((date) =>

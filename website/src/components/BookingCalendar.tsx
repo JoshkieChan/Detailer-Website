@@ -24,6 +24,8 @@ interface BookingCalendarProps {
   showNoSlots?: boolean;
   dayBadges?: Record<string, string>;
   onSlotUnavailable?: () => void;
+  onMonthChange?: (month: string) => void;
+  disabled?: boolean;
 }
 
 export const BookingCalendar = ({
@@ -41,6 +43,8 @@ export const BookingCalendar = ({
   showNoSlots = false,
   dayBadges,
   onSlotUnavailable,
+  onMonthChange,
+  disabled = false,
 }: BookingCalendarProps) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
@@ -49,10 +53,15 @@ export const BookingCalendar = ({
   today.setHours(0, 0, 0, 0);
 
   const prevMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+    changeMonth(-1);
   };
   const nextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+    changeMonth(1);
+  };
+  const changeMonth = (offset: number) => {
+    const next = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + offset, 1);
+    setCurrentMonth(next);
+    onMonthChange?.(String(next.getFullYear()) + '-' + String(next.getMonth() + 1).padStart(2, '0'));
   };
 
   const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
@@ -99,7 +108,7 @@ export const BookingCalendar = ({
             selectedAddOns: slotSelectedAddOns,
           })
         : false;
-    const isDisabled = isPast || isSunday || Boolean(noSlotsForPackage) || (showNoSlots && isUnavailable);
+    const isDisabled = disabled || isPast || isSunday || Boolean(noSlotsForPackage) || (showNoSlots && isUnavailable);
     const isSelected = selectedDate === dateStr;
     const dayBadge = dayBadges?.[dateStr];
 

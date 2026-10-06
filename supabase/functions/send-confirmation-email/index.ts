@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
 
   // Rate limiting: 30 requests per minute per IP
   const identifier = getRateLimitIdentifier(req);
-  const rateLimit = checkRateLimit(identifier, {
+  const rateLimit = await checkRateLimit(identifier, {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 30,
   });
@@ -40,9 +40,10 @@ Deno.serve(async (req) => {
     const payload = await req.json();
 
     // Payload structure for Supabase Webhook: { type: 'INSERT', table: 'bookings', record: { ... } }
-    const { data: record, error: lookupError } = await createClient(
+    const supabase = createClient(
       Deno.env.get('SUPABASE_URL') || '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
-    ).from('bookings').select('id, email, full_name, package, service_date, start_time, location_type, vehicle_type, payment_status, test_mode, status').eq('id', payload.record?.id).single();
+    );
+    const { data: record, error: lookupError } = await supabase.from('bookings').select('id, email, full_name, package, service_date, start_time, location_type, vehicle_type, payment_status, test_mode, status').eq('id', payload.record?.id).single();
     if (lookupError) throw lookupError;
     if (!record || !record.email) {
       return new Response(JSON.stringify({ error: 'No record or email found' }), {
@@ -95,22 +96,32 @@ Deno.serve(async (req) => {
       </div>
     `;
 
+    const { data: delivery, error: claimError } = await supabase.rpc('claim_confirmation_email', {
+      email_booking: record.id,
+      email_payload: {
+        from: Deno.env.get('CONFIRMATION_FROM_EMAIL') || 'SignalSource <onboarding@resend.dev>',
+        to: [record.email],
+        subject: `Booking Confirmed: ${record.package} on ${record.service_date}`,
+        html: emailHtml,
+      },
+    });
+    if (claimError) throw claimError;
+    if (delivery.action === 'sent') return new Response(JSON.stringify({ success: true, duplicate: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    if (delivery.action !== 'send') return errorResponse(delivery.action === 'review' ? 'Email delivery requires owner review.' : 'Email delivery is already in progress.', 503);
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
+      signal: AbortSignal.timeout(30_000),
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${RESEND_API_KEY}`,
         'Idempotency-Key': 'booking-confirmation/' + record.id,
       },
-      body: JSON.stringify({
-        from: Deno.env.get('CONFIRMATION_FROM_EMAIL') || 'SignalSource <onboarding@resend.dev>',
-        to: [record.email],
-        subject: `Booking Confirmed: ${record.package} on ${record.service_date}`,
-        html: emailHtml,
-      }),
+      body: JSON.stringify(delivery.payload),
     });
 
     if (!res.ok) throw new Error('Email provider rejected the request.');
+    const { error: completionError } = await supabase.rpc('complete_confirmation_email', { email_booking: record.id });
+    if (completionError) throw completionError;
 
     return new Response(
       JSON.stringify({ success: true }),

@@ -5,7 +5,7 @@ import { OwnerGate } from '../components/OwnerGate';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { clearStoredOwnerPasscode, getStoredOwnerPasscode } from '../lib/ownerSession';
 import { fetchOwnerSchedule, type OwnerScheduleEvent } from '../api/availability';
-import { createAvailabilityBlock, createManualBooking, verifyOwnerPasscode, deleteOwnerEvent, updateManualBooking } from '../api/ownerSchedule';
+import { createAvailabilityBlock, createManualBooking, verifyOwnerPasscode, deleteOwnerEvent, updateManualBooking, fetchBookingPhotos } from '../api/ownerSchedule';
 import {
   bookingPackages,
   calculateBookingFinancials,
@@ -47,6 +47,7 @@ const OwnerSchedulePage = () => {
   const [events, setEvents] = useState<OwnerScheduleEvent[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
   const [systemMessage, setSystemMessage] = useState('');
+  const [photoLinks, setPhotoLinks] = useState<Record<string, string[]>>({});
   const [sessionOk, setSessionOk] = useState(() => Boolean(getStoredOwnerPasscode()));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -329,6 +330,14 @@ const OwnerSchedulePage = () => {
                               Phone: {event.phone || 'n/a'} | Email: {event.email || 'n/a'}
                             </div>
                             <div>Notes: {event.notes || 'None'}</div>
+                            <button type="button" onClick={async () => {
+                              try {
+                                const urls = await fetchBookingPhotos(ownerPasscode || '', event.id);
+                                setPhotoLinks(current => ({ ...current, [event.id]: urls }));
+                                if (!urls.length) setSystemMessage('No photos uploaded for this booking.');
+                              } catch (error) { setSystemMessage(error instanceof Error ? error.message : 'Could not load photos.'); }
+                            }}>Load vehicle photos</button>
+                            {photoLinks[event.id]?.map((url, index) => <p key={url}><a href={url} target="_blank" rel="noopener noreferrer">Vehicle photo {index + 1}</a></p>)}
                           </div>
                           <div className="owner-event-card-pricing">
                             Pricing: {formatCurrency(event.calculatedPrice || 0)} subtotal · {formatCurrency(event.depositAmount || 0)} deposit · {formatCurrency(event.remainingBalance || 0)} remaining

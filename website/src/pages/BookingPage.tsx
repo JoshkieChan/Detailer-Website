@@ -184,8 +184,14 @@ const BookingPage = () => {
   const [availabilityError, setAvailabilityError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [checkout, setCheckout] = useState<{ bookingId: string; confirmationToken: string; helcimDepositUrl: string } | null>(null);
   const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(false);
   const [availabilityRevision, setAvailabilityRevision] = useState(0);
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const today = new Date();
+    return String(today.getFullYear()) + '-' + String(today.getMonth() + 1).padStart(2, '0');
+  });
+  const [loadedAvailabilityKey, setLoadedAvailabilityKey] = useState('');
   const [availability, setAvailability] = useState<AvailabilityResponse>({
     unavailableDates: [],
     intervalsByDate: {},
@@ -240,6 +246,8 @@ const BookingPage = () => {
   const validVehicle = isVehicleTypeId(formData.vehicleType) ? formData.vehicleType : null;
   const validLocation = isLocationType(formData.locationType) ? formData.locationType : null;
   const showNoSlots = Boolean(validPackage && validVehicle && validLocation);
+  const availabilityKey = JSON.stringify([validPackage, validVehicle, formData.selectedAddOns, calendarMonth, availabilityRevision]);
+  const availabilityReady = loadedAvailabilityKey === availabilityKey && !availabilityError;
 
   useEffect(() => {
     if (!validPackage) return;
@@ -248,19 +256,21 @@ const BookingPage = () => {
     fetchAvailability(
       validPackage as SlotBookingPackageId,
       validVehicle || 'sedan',
-      formData.selectedAddOns
+      formData.selectedAddOns,
+      calendarMonth
     )
       .then((data) => {
         if (!active) return;
         setAvailabilityError(null);
         setAvailability(data);
+        setLoadedAvailabilityKey(availabilityKey);
       })
       .catch(() => {
         if (!active) return;
         setAvailabilityError('Could not load live availability right now.');
       });
     return () => { active = false; };
-  }, [validPackage, validVehicle, formData.selectedAddOns, availabilityRevision]);
+  }, [validPackage, validVehicle, formData.selectedAddOns, availabilityRevision, calendarMonth, availabilityKey]);
 
 
   const hourlySlots = useMemo(
@@ -328,7 +338,7 @@ const BookingPage = () => {
     });
   }, [calendarIntervalsByDate, formData.date, formData.selectedAddOns, hourlySlots, validPackage, validVehicle]);
 
-  const selectedSlotAvailable = availableTimeSlots.some(slot => slot.value === formData.startTime && !slot.disabled);
+  const selectedSlotAvailable = availabilityReady && availableTimeSlots.some(slot => slot.value === formData.startTime && !slot.disabled);
 
   const pricing =
     validPackage && validVehicle && validLocation
@@ -375,7 +385,37 @@ const BookingPage = () => {
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
-      setSelectedFiles((prev) => [...prev, ...Array.from(event.target.files || [])]);
+      const files = [...selectedFiles, ...Array.from(event.target.files)];
+      if (files.length > 5 || files.some(file => file.size > 5 * 1024 * 1024 || !['image/jpeg', 'image/png', 'image/webp'].includes(file.type))) {
+        setSystemError('Choose up to five JPEG, PNG, or WebP photos, each 5 MB or smaller.');
+      } else {
+        setSelectedFiles(files);
+        setSystemError(null);
+      }
+      event.target.value = '';
+    }
+  };
+
+  const finishCheckout = async (saved: NonNullable<typeof checkout>) => {
+    setIsSubmitting(true);
+    setSystemError(null);
+    try {
+      for (const [slot, photo] of selectedFiles.entries()) {
+        const body = new FormData();
+        body.set('bookingId', saved.bookingId);
+        body.set('token', saved.confirmationToken);
+        body.set('slot', String(slot));
+        body.set('photo', photo);
+        const key = import.meta.env.VITE_SUPABASE_ANON_KEY.trim();
+        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL.trim()}/functions/v1/booking-photos`, {
+          method: 'POST', headers: { Authorization: `Bearer ${key}`, apikey: key }, body,
+        });
+        if (!response.ok) throw new Error('Your booking was saved, but a photo could not upload. Retry or continue to payment with the photos already uploaded.');
+      }
+      window.location.assign(saved.helcimDepositUrl);
+    } catch (error) {
+      setSystemError(error instanceof Error ? error.message : 'Photo upload failed. Please retry.');
+      setIsSubmitting(false);
     }
   };
 
@@ -476,7 +516,8 @@ const BookingPage = () => {
       if (data.confirmationToken) {
         sessionStorage.setItem('booking_confirmation', JSON.stringify({ bookingId: data.bookingId, token: data.confirmationToken }));
       }
-      window.location.assign(data.helcimDepositUrl);
+      setCheckout(data);
+      await finishCheckout(data);
     } catch (error: unknown) {
       setSystemError(
         error instanceof Error
@@ -486,6 +527,18 @@ const BookingPage = () => {
       setIsSubmitting(false);
     }
   };
+
+  if (checkout) return (
+    <div className="page-shell booking-page">
+      <h1>Continue Your Booking</h1>
+      <p>Your appointment is held for 15 minutes while you complete payment.</p>
+      {systemError && <p role="alert">{systemError}</p>}
+      <button type="button" disabled={isSubmitting} onClick={() => void finishCheckout(checkout)}>
+        {isSubmitting ? 'Uploading photos...' : 'Retry photo upload'}
+      </button>
+      <button type="button" disabled={isSubmitting} onClick={() => window.location.assign(checkout.helcimDepositUrl)}>Continue to payment</button>
+    </div>
+  );
 
   return (
     <div className="page-shell booking-page">
@@ -629,6 +682,11 @@ const BookingPage = () => {
                 <label>Preferred day</label>
                 <div className="booking-calendar-panel">
                   <BookingCalendar
+                    disabled={!availabilityReady}
+                    onMonthChange={(month) => {
+                      setCalendarMonth(month);
+                      setFormData(current => ({ ...current, date: '', startTime: '' }));
+                    }}
                     selectedDate={formData.date}
                     onChange={(date) => setFormData({ ...formData, date, startTime: '' })}
                     unavailableDates={availability.unavailableDates}
@@ -654,7 +712,7 @@ const BookingPage = () => {
                       key={slot.value}
                       type="button"
                       className={`slot-choice ${formData.startTime === slot.value ? 'selected' : ''}`}
-                      disabled={slot.disabled}
+                      disabled={slot.disabled || !availabilityReady}
                       onClick={() => setFormData({ ...formData, startTime: slot.value })}
                     >
                       {slot.label}
@@ -722,7 +780,7 @@ const BookingPage = () => {
             <h2>Anything we should know before service day?</h2>
             <p className="field-help">Pet hair, stains, child seats, access notes, and special requests should go here.</p>
             <p className="field-help add-ons-notice">
-              Interested in add-ons like paint correction, light engine bay cleaning, severe pet hair removal, or headlight restoration? For now, please text or call before booking so we can confirm scope, time, and updated pricing. You can also mention what you're considering in the notes below and attach photos.
+              For work beyond the selected add-ons, please contact us to confirm scope, time, and pricing. Include vehicle-condition details and photos below.
             </p>
             <div className="form-grid">
               <div className="input-group full-width">
@@ -772,13 +830,13 @@ const BookingPage = () => {
                   type="file"
                   id="photo-upload"
                   multiple
-                  accept="image/*"
+                    accept="image/jpeg,image/png,image/webp"
                   className="sr-only"
                   onChange={handleFileChange}
                 />
                 <label htmlFor="photo-upload" className="upload-dropzone">
                   <UploadCloud size={28} className="icon-lime" />
-                  <p>Click to browse or drag and drop photos of the vehicle.</p>
+                    <p>Choose up to five vehicle photos, each 5 MB or smaller (JPEG, PNG, WebP).</p>
                 </label>
                 {selectedFiles.length > 0 ? (
                   <div className="file-preview-grid mt-1">

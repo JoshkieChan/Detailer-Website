@@ -43,7 +43,7 @@ npm run dev
 
 Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to your development Supabase project. These are public configuration values. Never put service-role keys, owner passcodes, or webhook secrets in a `VITE_*` variable. See [environment configuration](ENV_VARIABLES.md).
 
-The backend requires the existing database schema plus the migrations described in [deployment notes](DEPLOYMENT.md). Historical migrations are not a complete clean-install baseline; do not blindly replay them against customer data. Unit and database tests run without a Supabase account.
+The backend setup and safe migration allowlist are described in [deployment notes](DEPLOYMENT.md). A clean-install baseline is provided in `supabase/bootstrap/base.sql`; never apply it over customer data or blindly replay historical cleanup scripts. Unit and database tests run without a Supabase account.
 
 ## Testing
 
@@ -59,7 +59,7 @@ npm run build
 
 Vitest covers pricing, scheduling, validation, webhook signatures, and actual SQL migration behavior using an isolated PGlite database. Database tests cover rollback, segment regeneration, expiring holds, second-day conflicts, blackouts, and role permissions. Playwright uses a fixed clock and mocked API/payment responses; it does not charge cards or send emails.
 
-PGlite tests do not prove multi-connection concurrency on hosted PostgreSQL. A staging concurrency test and deployed integration verification remain release checks.
+Independent-connection races are tested with `npm run test:concurrency` against an empty local PostgreSQL database named `signalsource_test` using `TEST_DATABASE_URL` (Node 24). CI supplies PostgreSQL 17. A local native PostgreSQL 18 run passed overlapping inserts, booking/blackout races, and expired-hold payment races. Hosted integration verification remains a release check.
 
 ## Deployment
 
@@ -73,8 +73,9 @@ This is a portfolio/full-stack application with a real business workflow and exp
 - The payment webhook records verified events. Automatic transaction-to-booking reconciliation is **not implemented**. The owner verifies payment in Helcim and updates booking status. A paid customer whose hold expired may need manual rescheduling or refund handling if the slot was taken.
 - Multi-day support is exactly two service days for the eligible package/vehicle combination, not a general multi-resource scheduling engine.
 - Owner access uses a shared server-verified passcode stored in the browser session, not individual accounts/MFA.
-- Rate limiting is per Edge Function instance, not a distributed quota.
-- Photo selection in the booking form does not upload files.
+- Rate limiting uses atomic database-backed quotas shared across Edge Function instances and fails closed when the quota store is unavailable.
+- Booking photos upload to a private bucket with per-booking capabilities; owner-only signed links expire after five minutes.
+- Confirmation-email delivery uses a durable ledger, short delivery leases, and provider idempotency. Ambiguous attempts older than 23 hours require manual review.
 
 ## Author
 
