@@ -70,7 +70,7 @@ Vercel serves `website/dist` with SPA routing. Supabase hosts the database and E
 This is a portfolio/full-stack application with a real business workflow and explicit operational boundaries:
 
 - Web checkout holds last 15 minutes. Paid bookings and non-cancelled owner reservations block capacity; test bookings do not.
-- The payment webhook records verified events. Automatic transaction-to-booking reconciliation is **not implemented**. The owner verifies payment in Helcim and updates booking status. A paid customer whose hold expired may need manual rescheduling or refund handling if the slot was taken.
+- The existing Helcim integration is retained, but automatic transaction-to-booking matching and live payment processing are **not verified**. This is an intentional portfolio limitation; real payments are not planned and Helcim payment access is not required for portfolio completion. Staging email checks use synthetic booking status updates.
 - Multi-day support is exactly two service days for the eligible package/vehicle combination, not a general multi-resource scheduling engine.
 - Owner access uses a shared server-verified passcode stored in the browser session, not individual accounts/MFA.
 - Rate limiting uses atomic database-backed quotas shared across Edge Function instances and fails closed when the quota store is unavailable.

@@ -24,9 +24,11 @@ Photos upload to private Storage using a booking capability during checkout. The
 
 The only connected active detailing project is not identified as staging. Its schema is behind the repository; production was inspected read-only and left unchanged. Follow DEPLOYMENT.md rather than running a blanket db push.
 
-Helcim events are verified and recorded, but static hosted payment links do not establish a verified per-booking transaction reference. Automatic reconciliation remains blocked on a confirmed checkout correlation contract and Helcim test credentials. Never match payments by customer name, email, or amount alone. Manual verification remains required before marking paid.
+The existing Helcim integration is retained as a portfolio integration. Its webhook signature logic and event recording are implemented, but automatic payment-to-booking matching and live payment processing are not verified. This is an intentional limitation: no live or test Helcim access is required for portfolio completion, and no real payments are planned. Portfolio verification may mark a synthetic staging booking paid to exercise confirmation email; this does not verify payment processing. No matching workaround is implemented.
 
-A separate staging project, coordinated migration/function rollout, private bucket provisioning, and hosted HTTP/payment/email/storage acceptance tests remain necessary. Local mocked browser tests do not prove these deployed integrations.
+A separate staging project named `signalsource-staging`, coordinated migration/function rollout, private bucket provisioning, and hosted booking/email/storage acceptance tests remain necessary. Use the reference returned by Supabase when that project is created. Local mocked browser tests do not prove these deployed integrations.
+
+On October 6, GitHub Actions passed for `d7c980d`. Vercel marked its preview deployment `BLOCKED`; the project's published `project-7ih9x.vercel.app` URL returned HTTP 503 with `DEPLOYMENT_PAUSED`. This explains the hosting-state failure; the project was not resumed because production changes are out of scope.
 
 ## Operational Boundaries
 

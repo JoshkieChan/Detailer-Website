@@ -25,10 +25,10 @@ Every Vite-prefixed value is public. There is no site-password gate. Remove obso
 | SNAPSHOT_FROM_EMAIL | Snapshot email sender |
 | SNAPSHOT_PDF_URL | Snapshot download URL |
 
-Configure a Supabase database webhook for paid booking changes to call `send-confirmation-email` with `x-webhook-secret`. It looks up the record by ID, verifies paid/non-test status, and uses a Resend idempotency key. Resend's idempotency retention is finite; this is not a permanent email outbox.
+Configure a Supabase database webhook for paid booking changes to call `send-confirmation-email` with `x-webhook-secret`. It looks up the record by ID, verifies paid/non-test status, and uses a durable delivery ledger plus a Resend idempotency key. Ambiguous attempts older than 23 hours require review. Staging checks can use a synthetic booking marked paid; no Helcim payment access is required.
 
 Hosted Helcim deposit URLs in the pricing configuration are public checkout destinations, not API secrets. The create endpoint selects them from the validated package and vehicle.
 
 The production CORS origin is `https://signaldatasource.com`. For local backend development, configure a local origin in the function CORS headers; CORS is not authorization. Browser tests mock the API and require no secrets.
 
-Do not commit environment files or log credentials. The in-memory rate limiter is best-effort per instance and depends on trusted proxy IP headers.
+Do not commit environment files or log credentials. The database-backed rate limiter shares quotas across instances and depends on trusted proxy IP headers.

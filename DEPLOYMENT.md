@@ -20,7 +20,7 @@ Review existing active bookings for overlap, missing timing fields, and unsuppor
    Then apply `20261006134023_operational_completion.sql` and `supabase/bootstrap/storage.sql` to provision quotas, the email ledger, private photo metadata, and the private bucket.
 4. Configure the server secrets in [ENV_VARIABLES.md](ENV_VARIABLES.md), including the confirmation callback secret.
 5. Deploy `create-booking`, `booking-availability`, `booking-status`, `booking-photos`, `owner-schedule`, `sanity-check`, `payment-webhook`, `send-confirmation-email`, and `deliver-snapshot` from the repository root so shared imports are included.
-6. Configure the paid-booking database callback and verify the Helcim callback signature using test events.
+6. Configure the paid-booking database callback. For portfolio staging, verify confirmation email using a synthetic booking marked paid without making a payment. Helcim live/test access is not a portfolio prerequisite; automatic payment matching remains intentionally unverified.
 7. Deploy the frontend and run staging checks before reopening booking writes.
 
 The migration makes capacity segments database-managed. Old functions that separately insert segments are incompatible with the new permissions, so this must be a coordinated deployment.
@@ -41,11 +41,13 @@ Payment and database callbacks do not carry a customer Supabase JWT. Configure t
 
 Submit two concurrent HTTP requests for one slot: one should succeed and one should return 409 with no partial records. Check a blackout racing a booking, rescheduling, payment confirmation after hold expiry, second-day conflicts, and cancellation releasing capacity. Local independent-connection PostgreSQL race tests pass; hosted HTTP/integration checks are still required.
 
-Verify anonymous callers cannot read customer tables, forged owner state cannot access endpoints, and email callbacks require the configured secret. Use test payment events and a test inbox. No real payments or customer emails are needed for local checks.
+Verify anonymous callers cannot read customer tables, forged owner state cannot access endpoints, and email callbacks require the configured secret. Use a synthetic staging booking and a controlled test inbox or the email provider's test recipient. Do not follow the hosted checkout link or make a payment.
 
 ## Operational Boundaries
 
 Checkout holds expire after 15 minutes. Verified payment notifications are logged and deduplicated, but payment reconciliation is manual. Before marking paid, the owner must verify the transaction and handle any expired-hold conflict. The database rejects a conflicting confirmation.
+
+The portfolio does not accept real payments. Retaining the existing Helcim integration does not imply verified automatic payment matching. Synthetic staging status changes verify the booking/email flow only.
 
 The original single-owner schedule uses a database mutex to serialize writes; this favors correctness over high write throughput. It is not a multi-detailer scheduling platform.
 
