@@ -6,10 +6,12 @@ import {
   type SlotBookingPackageId,
   type VehicleTypeId,
   type AddOnId,
-  getTotalDuration,
 } from '../../../website/src/config/scheduler.ts';
 import { checkRateLimit, getRateLimitIdentifier } from '../_shared/rateLimiter.ts';
-import { errorResponse, successResponse, ErrorCodes } from '../_shared/errorResponse.ts';
+import { errorResponse, bookingErrorResponse, BookingError, ErrorCodes } from '../_shared/errorResponse.ts';
+import { parseAddOns } from '../_shared/bookingValidation.ts';
+import { isBookingPackageId, isVehicleTypeId } from '../../../website/src/data/bookingPricing.ts';
+import { buildIntervalsByDate } from '../_shared/bookingCapacity.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://signaldatasource.com',
@@ -32,8 +34,24 @@ const pacificDateString = (d: Date) =>
     day: '2-digit',
   }).format(d);
 
-const toDateString = (iso: string) => iso.slice(0, 10);
-const toTimeString = (iso: string) => iso.slice(11, 16);
+const toDateString = (iso: string) => pacificDateString(new Date(iso));
+const toTimeString = (iso: string) => new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+}).format(new Date(iso));
+
+const blackoutDays = (start: string, end: string) => {
+  const days: Array<{ date: string; start: string; end: string }> = [];
+  const first = toDateString(start);
+  const last = toDateString(end);
+  const cursor = new Date(first + 'T12:00:00Z');
+  while (cursor.toISOString().slice(0, 10) <= last && days.length <= 366) {
+    const date = cursor.toISOString().slice(0, 10);
+    const endTime = date === last ? toTimeString(end) : '24:00';
+    if (endTime !== '00:00') days.push({ date, start: date === first ? toTimeString(start) : '00:00', end: endTime });
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  return days;
+};
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -42,7 +60,7 @@ Deno.serve(async (req) => {
 
   // Rate limiting: 60 requests per minute per IP (higher for availability checks)
   const identifier = getRateLimitIdentifier(req);
-  const rateLimit = checkRateLimit(identifier, {
+  const rateLimit = await checkRateLimit(identifier, {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 60,
   });
@@ -63,27 +81,26 @@ Deno.serve(async (req) => {
     }
 
     const url = new URL(req.url);
-    const packageId = url.searchParams.get('packageId') || '';
+    const packageId = url.searchParams.get('packageId') || 'maintenance';
     const vehicleType = url.searchParams.get('vehicleType') || 'sedan';
     const selectedAddOnsParam = url.searchParams.get('selectedAddOns') || '';
     const ownerMode = url.searchParams.get('owner') === 'true';
+    const requestedMonth = url.searchParams.get('month');
+    if (requestedMonth && !/^20\d{2}-(0[1-9]|1[0-2])$/.test(requestedMonth)) throw new BookingError('Invalid calendar month.');
 
     // Validate packageId
-    const validPackageIds: SlotBookingPackageId[] = ['maintenance', 'deepReset'];
-    if (!validPackageIds.includes(packageId as SlotBookingPackageId)) {
+    if (!isBookingPackageId(packageId)) {
       throw new Error('Invalid package ID. Must be maintenance or deepReset.');
     }
 
     // Validate vehicleType
-    const validVehicleTypes: VehicleTypeId[] = ['sedan', 'smallSuv', 'largeSuvTruck'];
-    if (!validVehicleTypes.includes(vehicleType as VehicleTypeId)) {
+    if (!isVehicleTypeId(vehicleType)) {
       throw new Error('Invalid vehicle type. Must be sedan, smallSuv, or largeSuvTruck.');
     }
 
     // Validate selectedAddOns
-    const validAddOnIds: AddOnId[] = ['paintProtection', 'petHairRemoval', 'engineBay', 'headlightRestoration'];
     const rawSelectedAddOns = selectedAddOnsParam ? selectedAddOnsParam.split(',').map((s) => s.trim()) : [];
-    const selectedAddOns: AddOnId[] = rawSelectedAddOns.filter((id: string) => validAddOnIds.includes(id as AddOnId)) as AddOnId[];
+    const selectedAddOns = parseAddOns(rawSelectedAddOns);
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
@@ -100,7 +117,7 @@ Deno.serve(async (req) => {
           supabase
             .from('bookings')
             .select(
-              'id, full_name, phone, email, package, package_id, vehicle_info, vehicle_type, service_date, start_time, end_time, blocked_until, location_type, notes, payment_status, booking_source, calculated_price, deposit_amount, remaining_balance, test_mode'
+              'id, full_name, phone, email, package, package_id, vehicle_info, vehicle_type, service_date, start_time, end_time, blocked_until, location_type, notes, payment_status, booking_source, calculated_price, deposit_amount, remaining_balance, test_mode, booking_capacity_segments(segment_date, start_time, end_time, blocked_until, segment_index)'
             )
             .order('service_date', { ascending: true })
             .order('start_time', { ascending: true }),
@@ -114,13 +131,19 @@ Deno.serve(async (req) => {
       if (blocksError) throw blocksError;
 
       const events = [
-        ...(bookings || []).map((booking) => ({
+        ...(bookings || []).flatMap((booking) => {
+          const segments: Array<{ segment_date: string; start_time: string; end_time: string; blocked_until: string; segment_index: number }> = booking.booking_capacity_segments?.length ? booking.booking_capacity_segments : [{
+            segment_date: booking.service_date, start_time: booking.start_time, end_time: booking.end_time, blocked_until: booking.blocked_until, segment_index: 1,
+          }];
+          return segments.map((segment) => ({
           id: booking.id,
           eventType: 'booking',
-          date: booking.service_date,
-          startTime: booking.start_time,
-          endTime: booking.end_time,
-          blockedUntil: booking.blocked_until || booking.end_time,
+          date: segment.segment_date,
+          startTime: segment.start_time,
+          endTime: segment.end_time,
+          blockedUntil: segment.blocked_until || segment.end_time,
+          segmentIndex: segment.segment_index,
+          bookingStartTime: booking.start_time,
           title: `${booking.full_name} — ${booking.package}`,
           details: [booking.notes || 'No notes'],
           paymentStatus: booking.payment_status || null,
@@ -138,20 +161,20 @@ Deno.serve(async (req) => {
           depositAmount: Number(booking.deposit_amount ?? 0),
           remainingBalance: Number(booking.remaining_balance ?? 0),
           testMode: booking.test_mode || false,
-        })),
-        ...(blocks || []).map((block) => ({
+        })); }),
+        ...(blocks || []).flatMap((block) => blackoutDays(block.start_at, block.end_at).map(day => ({
           id: block.id,
           eventType: 'blackout',
-          date: toDateString(block.start_at),
-          startTime: toTimeString(block.start_at),
-          endTime: toTimeString(block.end_at),
-          blockedUntil: toTimeString(block.end_at),
+          date: day.date,
+          startTime: day.start,
+          endTime: day.end,
+          blockedUntil: day.end,
           title: `Blackout block — ${block.reason || 'Owner block'}`,
           details: [block.source || 'owner_manual'],
           paymentStatus: null,
           reason: block.reason || '',
           source: block.source || 'owner_manual',
-        })),
+        }))),
       ];
 
       return new Response(JSON.stringify({ events }), {
@@ -160,71 +183,32 @@ Deno.serve(async (req) => {
       });
     }
 
-    const [{ data: paidBookings, error: bookingsError }, { data: blocks, error: blocksError }] =
-      await Promise.all([
-        supabase
-          .from('bookings')
-          .select('service_date, start_time, end_time, blocked_until, payment_status, created_at, package_id, vehicle_type, selected_addons, test_mode')
-          .eq('payment_status', 'paid')
-          .eq('test_mode', false)
-          .order('service_date', { ascending: true })
-          .order('start_time', { ascending: true }),
-        supabase
-          .from('availability_blocks')
-          .select('start_at, end_at')
-          .order('start_at', { ascending: true }),
-      ]);
-
-    if (bookingsError) throw bookingsError;
-    if (blocksError) throw blocksError;
-
-    const intervalsByDate: Record<string, ScheduledInterval[]> = {};
-
-    for (const booking of paidBookings || []) {
-      if (!booking.service_date || !booking.start_time || !booking.end_time) continue;
-      const selectedAddOns: AddOnId[] = booking.selected_addons || [];
-      const totalDuration = getTotalDuration({
-        packageId: booking.package_id as SlotBookingPackageId,
-        vehicleType: booking.vehicle_type as VehicleTypeId,
-        selectedAddOns,
-      });
-
-      intervalsByDate[booking.service_date] = intervalsByDate[booking.service_date] || [];
-      intervalsByDate[booking.service_date].push({
-        date: booking.service_date,
-        startTime: booking.start_time,
-        endTime: booking.end_time,
-        blockedUntil: booking.blocked_until || booking.end_time,
-        source: 'booking',
-        paymentStatus: 'paid',
-        packageId: booking.package_id as SlotBookingPackageId,
-        vehicleType: booking.vehicle_type as VehicleTypeId,
-        selectedAddOns,
-        totalDurationMinutes: totalDuration,
-      });
-    }
-
-    for (const block of blocks || []) {
-      if (!block.start_at || !block.end_at) continue;
-      const date = toDateString(block.start_at);
-      intervalsByDate[date] = intervalsByDate[date] || [];
-      intervalsByDate[date].push({
-        date,
-        startTime: toTimeString(block.start_at),
-        endTime: toTimeString(block.end_at),
-        blockedUntil: toTimeString(block.end_at),
-        source: 'blackout',
-      });
-    }
-
     const now = new Date();
+    const scanDates: string[] = [];
+    const scanStart = new Date(pacificDateString(now) + 'T12:00:00Z');
+    for (let dayOffset = 0; dayOffset < 367; dayOffset += 1) {
+      const current = new Date(scanStart);
+      current.setDate(scanStart.getDate() + dayOffset);
+      scanDates.push(current.toISOString().slice(0, 10));
+    }
+
+    if (requestedMonth) {
+      const monthStart = new Date(requestedMonth + '-01T12:00:00Z');
+      // Include the next service day for bookings spanning Saturday to Monday.
+      for (let offset = 0; offset < 34; offset++) {
+        const date = new Date(monthStart);
+        date.setUTCDate(date.getUTCDate() + offset);
+        scanDates.push(date.toISOString().slice(0, 10));
+      }
+    }
+    const intervalsByDate: Record<string, ScheduledInterval[]> = await buildIntervalsByDate(supabase, [...new Set(scanDates)]);
 
     const allIntervals = Object.values(intervalsByDate).flat();
     const unavailableDates = Object.keys(intervalsByDate).filter((date) =>
       isDateUnavailable({
         date,
         packageId,
-        intervals: intervalsByDate[date],
+        intervals: allIntervals,
         now,
         vehicleType,
         selectedAddOns,
@@ -234,7 +218,7 @@ Deno.serve(async (req) => {
     // Explicitly check today (Pacific calendar day, consistent with isDateUnavailable)
     const todayStr = pacificDateString(now);
     if (!unavailableDates.includes(todayStr)) {
-      if (isDateUnavailable({ date: todayStr, packageId, intervals: intervalsByDate[todayStr] || [], now, vehicleType, selectedAddOns })) {
+      if (isDateUnavailable({ date: todayStr, packageId, intervals: allIntervals, now, vehicleType, selectedAddOns })) {
         unavailableDates.push(todayStr);
       }
     }
@@ -259,11 +243,6 @@ Deno.serve(async (req) => {
       }
     );
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Could not load availability.';
-    return errorResponse(
-      message,
-      400,
-      ErrorCodes.INTERNAL_ERROR
-    );
+    return bookingErrorResponse(error);
   }
 });

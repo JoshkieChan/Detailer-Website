@@ -25,6 +25,8 @@ export function errorResponse(
     status,
     headers: {
       'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': 'https://signaldatasource.com',
+      'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-owner-passcode',
     },
   });
 }
@@ -54,4 +56,24 @@ export const ErrorCodes = {
   RATE_LIMIT_EXCEEDED: 'RATE_LIMIT_EXCEEDED',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
   BAD_REQUEST: 'BAD_REQUEST',
+  SLOT_UNAVAILABLE: 'SLOT_UNAVAILABLE',
+  PRICING_MISMATCH: 'PRICING_MISMATCH',
 } as const;
+
+export class BookingError extends Error {
+  constructor(message: string, public code: string = ErrorCodes.VALIDATION_ERROR, public status = 400) {
+    super(message);
+  }
+}
+
+export function bookingErrorResponse(error: unknown): Response {
+  if (error instanceof BookingError) return errorResponse(error.message, error.status, error.code);
+  const code = typeof error === 'object' && error !== null && 'code' in error ? error.code : '';
+  if (code === '23P01' || code === '40001' || code === '40P01') {
+    return errorResponse('Selected booking time is no longer available. Please choose another time.', 409, ErrorCodes.SLOT_UNAVAILABLE);
+  }
+  if (code === '23514' || code === '22007' || code === '22008') {
+    return errorResponse('Invalid booking selection or schedule.', 400, ErrorCodes.VALIDATION_ERROR);
+  }
+  return errorResponse('We could not complete this request. Please try again later.', 500, ErrorCodes.INTERNAL_ERROR);
+}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   hasAvailableSlot,
+  pacificNow,
   type ScheduledInterval,
   type SlotBookingPackageId,
   type VehicleTypeId,
@@ -23,6 +24,8 @@ interface BookingCalendarProps {
   showNoSlots?: boolean;
   dayBadges?: Record<string, string>;
   onSlotUnavailable?: () => void;
+  onMonthChange?: (month: string) => void;
+  disabled?: boolean;
 }
 
 export const BookingCalendar = ({
@@ -40,18 +43,25 @@ export const BookingCalendar = ({
   showNoSlots = false,
   dayBadges,
   onSlotUnavailable,
+  onMonthChange,
+  disabled = false,
 }: BookingCalendarProps) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   // Prevent selecting dates before today
-  const today = new Date();
+  const today = new Date(pacificNow().date + 'T00:00:00');
   today.setHours(0, 0, 0, 0);
 
   const prevMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+    changeMonth(-1);
   };
   const nextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+    changeMonth(1);
+  };
+  const changeMonth = (offset: number) => {
+    const next = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + offset, 1);
+    setCurrentMonth(next);
+    onMonthChange?.(String(next.getFullYear()) + '-' + String(next.getMonth() + 1).padStart(2, '0'));
   };
 
   const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
@@ -71,6 +81,7 @@ export const BookingCalendar = ({
   }
 
   const now = new Date();
+  const allIntervals = intervalsByDate ? Object.values(intervalsByDate).flat() : [];
 
   // Actual days
   for (let i = 1; i <= daysInMonth; i++) {
@@ -91,13 +102,13 @@ export const BookingCalendar = ({
         ? !hasAvailableSlot({
             date: dateStr,
             packageId: slotPackageId,
-            intervals: intervalsByDate[dateStr] ?? [],
+            intervals: allIntervals,
             now,
             vehicleType: slotVehicleType,
             selectedAddOns: slotSelectedAddOns,
           })
         : false;
-    const isDisabled = isPast || isSunday || (showNoSlots && isUnavailable);
+    const isDisabled = disabled || isPast || isSunday || Boolean(noSlotsForPackage) || (showNoSlots && isUnavailable);
     const isSelected = selectedDate === dateStr;
     const dayBadge = dayBadges?.[dateStr];
 

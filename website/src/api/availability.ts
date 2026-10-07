@@ -28,7 +28,8 @@ export interface AvailabilityResponse {
 export const fetchAvailability = async (
   packageId: SlotBookingPackageId,
   vehicleType?: VehicleTypeId,
-  selectedAddOns?: string[]
+  selectedAddOns?: string[],
+  month?: string
 ): Promise<AvailabilityResponse> => {
   const { url, anonKey } = getFunctionBase();
   const searchParams = new URLSearchParams({
@@ -39,6 +40,7 @@ export const fetchAvailability = async (
   if (selectedAddOns && selectedAddOns.length > 0) {
     searchParams.set('selectedAddOns', selectedAddOns.join(','));
   }
+  if (month) searchParams.set('month', month);
 
   const response = await fetch(`${url}?${searchParams.toString()}`, {
     headers: {
@@ -56,6 +58,7 @@ export const fetchAvailability = async (
 };
 
 export interface OwnerScheduleEvent {
+  bookingStartTime?: string;
   id: string;
   eventType: 'booking' | 'blackout';
   date: string;
