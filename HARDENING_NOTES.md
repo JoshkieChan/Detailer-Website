@@ -30,7 +30,11 @@ Hosted HTTP and database checks verified single-day creation, adjacent slots, ov
 
 Photo upload and retry both returned HTTP 200 and produced one private object/metadata row. A wrong booking capability returned 403, anonymous metadata access returned 401, and the public object URL was inaccessible. The bucket is private with a 5 MB size limit.
 
-Confirmation email is deployed but delivery is not yet verified. Unauthenticated callbacks return 401. Staging still needs `RESEND_API_KEY`, `CONFIRMATION_WEBHOOK_SECRET`, `OWNER_PASSCODE`, and the paid-booking callback configured. Existing production Edge Function secrets are project-specific and cannot be read back using the available tools; the local CLI is not authenticated. Owner signed-photo retrieval also awaits its staging passcode.
+Confirmation email is verified against Resend's official test recipient `delivered+signalsource-staging@resend.dev`, not a human inbox. The user supplied the staging Resend key; authenticated CLI configuration added staging-only owner and callback secrets. A synthetic booking marked paid through the owner API triggered the database callback automatically: HTTP 200, no timeout, and persisted `sent_at` in the private ledger. An authenticated repeat returned `duplicate: true`; unauthenticated callbacks return 401. No payment was made.
+
+Owner authentication and owner availability returned HTTP 200. Owner photo retrieval returned one signed URL whose image request returned HTTP 200. Generated staging credentials are preserved only in ignored `.env.staging.local`; never commit or expose them.
+
+The staging-only `staging_confirmation_callback` migration enables pg_net and installs a private, restricted-execute trigger function. Its callback secret is stored in Vault. It invokes the existing email function after non-test, non-cancelled bookings are marked paid. This deployment configuration does not add payment matching or a retry worker and has not been applied to production.
 
 The staging security advisor reported informational RLS-without-policy notices for server-only tables; public table access is intentionally denied. Synthetic verification records and one synthetic PNG remain in staging for inspection. No payments or customer emails were sent.
 

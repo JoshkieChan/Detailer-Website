@@ -6,7 +6,8 @@
 - Supabase-generated reference: `tkxbrroiovgcnsblmcpv`.
 - Dashboard: https://supabase.com/dashboard/project/tkxbrroiovgcnsblmcpv
 - Baseline/hardening migrations, private photo bucket, and all nine Edge Functions are deployed.
-- Hosted booking, capacity/overlap, blackout, concurrent-create, and photo-upload checks passed. See HARDENING_NOTES.md for the evidence and remaining email/owner-secret setup.
+- Hosted booking, capacity/overlap, blackout, concurrent-create, photo upload/retry, owner authorization, and private signed-photo retrieval checks passed.
+- Staging owner/callback secrets and the paid-booking callback are configured. Automatic email was accepted by Resend's official test recipient and persisted in the ledger; duplicate delivery was suppressed. This verifies integration, not human-inbox delivery or payment processing. See HARDENING_NOTES.md.
 - Production `Detailer-Website` remains unchanged.
 
 ## Before Applying Database Changes
@@ -48,7 +49,7 @@ Payment and database callbacks do not carry a customer Supabase JWT. Configure t
 
 ## Staging Acceptance
 
-Submit two concurrent HTTP requests for one slot: one should succeed and one should return 409 with no partial records. Check a blackout racing a booking, rescheduling, payment confirmation after hold expiry, second-day conflicts, and cancellation releasing capacity. Local independent-connection PostgreSQL race tests pass; hosted HTTP/integration checks are still required.
+Submit two concurrent HTTP requests for one slot: one should succeed and one should return 409 with no partial records. Check a blackout racing a booking, rescheduling, payment confirmation after hold expiry, second-day conflicts, and cancellation releasing capacity. Local independent-connection PostgreSQL race tests pass. Hosted verification additionally passed concurrent creation, blackout/paid overlap rejection, adjacent bookings, Saturday-to-Monday allocation, and second-day availability/conflicts.
 
 Verify anonymous callers cannot read customer tables, forged owner state cannot access endpoints, and email callbacks require the configured secret. Use a synthetic staging booking and a controlled test inbox or the email provider's test recipient. Do not follow the hosted checkout link or make a payment.
 
