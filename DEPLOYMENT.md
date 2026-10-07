@@ -1,5 +1,14 @@
 # Deployment
 
+## Current Staging
+
+- Project: `signalsource-staging`, organization: SignalSource.
+- Supabase-generated reference: `tkxbrroiovgcnsblmcpv`.
+- Dashboard: https://supabase.com/dashboard/project/tkxbrroiovgcnsblmcpv
+- Baseline/hardening migrations, private photo bucket, and all nine Edge Functions are deployed.
+- Hosted booking, capacity/overlap, blackout, concurrent-create, and photo-upload checks passed. See HARDENING_NOTES.md for the evidence and remaining email/owner-secret setup.
+- Production `Detailer-Website` remains unchanged.
+
 ## Before Applying Database Changes
 
 Use a staging project and backup first. The checked-in migration history starts after the original bookings table was created, includes repeated date-only versions, and contains historical cleanup scripts that delete bookings. Do not run a blanket `db push` or replay those scripts on production. Compare the project's applied migration history and reconcile the schema first.

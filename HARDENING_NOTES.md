@@ -22,11 +22,17 @@ Photos upload to private Storage using a booking capability during checkout. The
 
 ## External Release Requirements
 
-The only connected active detailing project is not identified as staging. Its schema is behind the repository; production was inspected read-only and left unchanged. Follow DEPLOYMENT.md rather than running a blanket db push.
+The separate `signalsource-staging` project was created in the SignalSource organization using Supabase-generated reference `tkxbrroiovgcnsblmcpv`. Its baseline, safe migration allowlist, private photo bucket, and all nine Edge Functions are deployed. The existing `Detailer-Website` production project was not modified.
 
 The existing Helcim integration is retained as a portfolio integration. Its webhook signature logic and event recording are implemented, but automatic payment-to-booking matching and live payment processing are not verified. This is an intentional limitation: no live or test Helcim access is required for portfolio completion, and no real payments are planned. Portfolio verification may mark a synthetic staging booking paid to exercise confirmation email; this does not verify payment processing. No matching workaround is implemented.
 
-A separate staging project named `signalsource-staging`, coordinated migration/function rollout, private bucket provisioning, and hosted booking/email/storage acceptance tests remain necessary. Use the reference returned by Supabase when that project is created. Local mocked browser tests do not prove these deployed integrations.
+Hosted HTTP and database checks verified single-day creation, adjacent slots, overlap rejection, a concurrent same-slot race (one HTTP 200 and one 409), forged-price rejection, and blackout rejection. A 14-hour Saturday booking generated 720 minutes on Saturday and 120 minutes on Monday; Monday overlap was rejected and public availability included that segment.
+
+Photo upload and retry both returned HTTP 200 and produced one private object/metadata row. A wrong booking capability returned 403, anonymous metadata access returned 401, and the public object URL was inaccessible. The bucket is private with a 5 MB size limit.
+
+Confirmation email is deployed but delivery is not yet verified. Unauthenticated callbacks return 401. Staging still needs `RESEND_API_KEY`, `CONFIRMATION_WEBHOOK_SECRET`, `OWNER_PASSCODE`, and the paid-booking callback configured. Existing production Edge Function secrets are project-specific and cannot be read back using the available tools; the local CLI is not authenticated. Owner signed-photo retrieval also awaits its staging passcode.
+
+The staging security advisor reported informational RLS-without-policy notices for server-only tables; public table access is intentionally denied. Synthetic verification records and one synthetic PNG remain in staging for inspection. No payments or customer emails were sent.
 
 On October 6, GitHub Actions passed for `d7c980d`. Vercel marked its preview deployment `BLOCKED`; the project's published `project-7ih9x.vercel.app` URL returned HTTP 503 with `DEPLOYMENT_PAUSED`. This explains the hosting-state failure; the project was not resumed because production changes are out of scope.
 
