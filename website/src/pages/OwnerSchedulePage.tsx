@@ -14,7 +14,7 @@ import {
   type LocationType,
   type VehicleTypeId,
 } from '../data/bookingPricing';
-import { buildBookingWindow, getHourlyStartSlots, type SlotBookingPackageId, type AddOnId, ADD_ON_DURATIONS, getTotalDuration } from '../config/scheduler';
+import { buildBookingWindow, getHourlyStartSlots, pacificNow, type SlotBookingPackageId, type AddOnId, ADD_ON_DURATIONS, getTotalDuration } from '../config/scheduler';
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0);
@@ -45,7 +45,7 @@ const ADD_ON_OPTIONS: Array<{ id: AddOnId; label: string; description: string }>
 
 const OwnerSchedulePage = () => {
   const [events, setEvents] = useState<OwnerScheduleEvent[]>([]);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
+  const [selectedDate, setSelectedDate] = useState(() => pacificNow().date);
   const [systemMessage, setSystemMessage] = useState('');
   const [photoLinks, setPhotoLinks] = useState<Record<string, string[]>>({});
   const [sessionOk, setSessionOk] = useState(() => Boolean(getStoredOwnerPasscode()));
@@ -54,7 +54,6 @@ const OwnerSchedulePage = () => {
   const [editForm, setEditForm] = useState({
     paymentStatus: '',
     notes: '',
-    startTime: '',
   });
 
   const [bookingForm, setBookingForm] = useState({
@@ -73,8 +72,8 @@ const OwnerSchedulePage = () => {
   });
 
   const [blockForm, setBlockForm] = useState({
-    startAt: `${new Date().toISOString().slice(0, 10)}T08:00`,
-    endAt: `${new Date().toISOString().slice(0, 10)}T09:00`,
+    startAt: `${pacificNow().date}T08:00`,
+    endAt: `${pacificNow().date}T09:00`,
     reason: '',
   });
 
@@ -136,7 +135,9 @@ const OwnerSchedulePage = () => {
     return labels;
   }, [events]);
 
-  const currentSlots = getHourlyStartSlots(bookingForm.packageId as SlotBookingPackageId);
+  const currentSlots = getHourlyStartSlots(bookingForm.packageId, bookingForm.vehicleType, bookingForm.selectedAddOns);
+  const selectedStartTime = currentSlots.some(slot => slot.value === bookingForm.startTime)
+    ? bookingForm.startTime : currentSlots[0]?.value || '';
 
   const manualPricing = useMemo(
     () =>
@@ -144,8 +145,9 @@ const OwnerSchedulePage = () => {
         packageId: bookingForm.packageId,
         vehicleType: bookingForm.vehicleType,
         locationType: bookingForm.locationType,
+        selectedAddOns: bookingForm.selectedAddOns,
       }),
-    [bookingForm.packageId, bookingForm.vehicleType, bookingForm.locationType]
+    [bookingForm.packageId, bookingForm.vehicleType, bookingForm.locationType, bookingForm.selectedAddOns]
   );
 
   if (!sessionOk) {
@@ -158,16 +160,18 @@ const OwnerSchedulePage = () => {
     );
   }
 
-  const allTimeRevenue = events
-    .filter(e => e.eventType === 'booking' && e.paymentStatus === 'paid')
-    .reduce((sum, e) => sum + (e.calculatedPrice || 0), 0);
+  // Capacity segments repeat a booking across days; totals count each booking once.
+  const bookings = [...new Map(events.filter(event => event.eventType === 'booking' && !event.testMode).map(event => [event.id, event])).values()];
+  const allTimeRevenue = bookings
+    .filter(e => e.paymentStatus === 'paid')
+    .reduce((sum, e) => sum + (e.remainingBalance !== undefined ? e.remainingBalance + (e.depositAmount || 0) : e.calculatedPrice || 0), 0);
   
-  const pendingRevenue = events
-    .filter(e => e.eventType === 'booking' && e.paymentStatus !== 'paid')
+  const pendingRevenue = bookings
+    .filter(e => e.paymentStatus === 'pending_payment' || e.paymentStatus === 'unpaid')
     .reduce((sum, e) => sum + (e.remainingBalance || 0), 0);
 
-  const packageCounts = events
-    .filter(e => e.eventType === 'booking')
+  const packageCounts = bookings
+    .filter(e => e.paymentStatus !== 'cancelled')
     .reduce((acc, e) => {
       const pkg = e.packageLabel || 'Unknown';
       acc[pkg] = (acc[pkg] || 0) + 1;
@@ -189,11 +193,11 @@ const OwnerSchedulePage = () => {
         </p>
       </section>
 
-      {systemMessage ? <div className="content-card reveal is-visible">{systemMessage}</div> : null}
+      {systemMessage ? <div role="status" className="content-card reveal is-visible">{systemMessage}</div> : null}
 
       <section className="card-grid three reveal">
         <article className="content-card" style={{ padding: '1.5rem' }}>
-          <div className="eyebrow" style={{ marginBottom: '0.5rem' }}>Paid Revenue</div>
+          <div className="eyebrow" style={{ marginBottom: '0.5rem' }}>Confirmed Booking Value</div>
           <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--color-primary)' }}>{formatCurrency(allTimeRevenue)}</div>
         </article>
         <article className="content-card" style={{ padding: '1.5rem' }}>
@@ -351,7 +355,6 @@ const OwnerSchedulePage = () => {
                                 setEditForm({
                                   paymentStatus: event.paymentStatus || 'pending_payment',
                                   notes: event.notes || '',
-                                  startTime: event.bookingStartTime || event.startTime || '08:00',
                                 });
                               }}
                             >
@@ -515,8 +518,8 @@ const OwnerSchedulePage = () => {
                 <option value="mobile">On-Island Mobile</option>
               </select>
             </label>
-            <label className="full-width">
-              Add-ons (optional)
+            <div className="full-width" role="group" aria-label="Add-ons (optional)">
+              <p>Add-ons (optional)</p>
               <div className="addon-selector-list">
                 {ADD_ON_OPTIONS.map((addon) => {
                   const isSelected = bookingForm.selectedAddOns.includes(addon.id);
@@ -526,6 +529,7 @@ const OwnerSchedulePage = () => {
                     <button
                       key={addon.id}
                       type="button"
+                      aria-pressed={isSelected}
                       className={`addon-selector-row ${isSelected ? 'selected' : ''}`}
                       onClick={() => {
                         const newAddOns = isSelected
@@ -557,11 +561,11 @@ const OwnerSchedulePage = () => {
                   selectedAddOns: bookingForm.selectedAddOns,
                 }) / 60).toFixed(1)} hours (base + add-ons). Bookings 10+ hours block the full day; Deep Large SUV/Truck may reserve two days.
               </p>
-            </label>
+            </div>
             <label>
               Start time
               <select
-                value={bookingForm.startTime}
+                value={selectedStartTime}
                 onChange={(event) => setBookingForm({ ...bookingForm, startTime: event.target.value })}
               >
                 {currentSlots.map((slot) => (
@@ -605,7 +609,10 @@ const OwnerSchedulePage = () => {
             </label>
             <div className="owner-pricing-readout full-width">
               <p className="field-help">Deposit pricing (same rules as public booking)</p>
-              <p>Subtotal {formatCurrency(manualPricing.subtotal)}</p>
+              <p>Base subtotal {formatCurrency(manualPricing.basePrice)}</p>
+              <p>Add-ons {formatCurrency(manualPricing.addOnsPrice)}</p>
+              <p>Service total {formatCurrency(manualPricing.basePrice + manualPricing.addOnsPrice)}</p>
+              <p>Remaining after service {formatCurrency(manualPricing.remainingBalance)}</p>
               <p>Deposit (20%) {formatCurrency(manualPricing.depositAmount)}</p>
               <p>Tax on deposit {formatCurrency(manualPricing.taxAmount)}</p>
               <p>
@@ -619,14 +626,14 @@ const OwnerSchedulePage = () => {
           <button
             type="button"
             className="btn primary mt-1"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !selectedStartTime}
             onClick={async () => {
               setIsSubmitting(true);
               try {
                 const window = buildBookingWindow({
                   date: selectedDate,
                   packageId: bookingForm.packageId as SlotBookingPackageId,
-                  startTime: bookingForm.startTime,
+                  startTime: selectedStartTime,
                   vehicleType: bookingForm.vehicleType,
                   selectedAddOns: bookingForm.selectedAddOns,
                 });
@@ -634,6 +641,7 @@ const OwnerSchedulePage = () => {
                   passcode: ownerPasscode,
                   payload: {
                     ...bookingForm,
+                    startTime: selectedStartTime,
                     date: selectedDate,
                     endTime: window.endTime,
                     testMode: bookingForm.testMode,

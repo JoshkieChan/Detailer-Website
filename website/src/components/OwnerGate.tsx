@@ -62,12 +62,14 @@ export const OwnerGate = ({
         <input
           id="owner-passcode"
           type="password"
+          autoComplete="current-password"
+          required
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           placeholder="Enter owner passcode"
         />
         {error ? (
-          <p className="field-error-msg">
+          <p role="alert" className="field-error-msg">
             <ShieldAlert size={13} className="field-error-icon" />
             {error}
           </p>

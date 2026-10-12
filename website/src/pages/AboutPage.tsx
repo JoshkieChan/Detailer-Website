@@ -93,10 +93,6 @@ const AboutPage = () => {
             </article>
           ))}
 
-          <article className="content-card surface-card reveal" data-reveal-delay="2">
-            <h3>Coming Soon: Window Tint, Ceramic Coatings, PPF &amp; Wraps</h3>
-            <p className="section-copy">We&apos;re building out surface protection and styling services. Check back soon.</p>
-          </article>
         </div>
       </section>
 
@@ -105,10 +101,10 @@ const AboutPage = () => {
         <h2 className="section-title">Clear scope, straightforward pricing, and fewer surprises.</h2>
         <ul className="package-bullets">
           {[
-            'One vehicle per day means your appointment gets focused time instead of assembly-line turnover.',
+            'Reserved service time gives each appointment the attention its scope requires.',
             'Scope and pricing stay clear up front, without upsell games once the work starts.',
-            'No fake portfolios, fake screenshots, or padded offers that do not help.',
-            'The same systems mindset keeps reminders, follow-up, and communication tight from booking through handoff.',
+            'The detailing gallery shows the starting condition and finished result of actual work.',
+            'Booking details and service notes stay together for a clear handoff.',
           ].map((item) => (
             <li className="feature-row" key={item}>
               <CheckCircle size={18} className="icon-lime" />

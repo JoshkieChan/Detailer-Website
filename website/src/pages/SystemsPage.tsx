@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ArrowUpRight, Brain, Zap, MessageSquare, LayoutDashboard } from 'lucide-react';
 
-const CUSTOM_BUILD_INTAKE_URL = 'https://www.signaldatasource.com/intake';
+const CUSTOM_BUILD_INTAKE_URL = 'mailto:jcab@signaldatasource.com?subject=Custom%20system%20inquiry';
 
 const cases = [
   {
@@ -47,7 +47,7 @@ const SystemsPage = () => {
             approach applied to operations and automation.
           </p>
           <div className="hero-actions">
-            <a href={CUSTOM_BUILD_INTAKE_URL} className="btn primary">Start Short Intake</a>
+            <a href={CUSTOM_BUILD_INTAKE_URL} className="btn primary">Email about a custom build</a>
           </div>
         </div>
         <div className="hero-visual reveal" data-reveal-delay="1" aria-hidden="true" />
@@ -152,7 +152,7 @@ const SystemsPage = () => {
           </div>
           <div className="hero-actions mt-2">
             <a href={CUSTOM_BUILD_INTAKE_URL} className="btn primary">
-              Start the intake
+              Email your requirements
             </a>
           </div>
         </section>
@@ -169,7 +169,7 @@ const SystemsPage = () => {
 
       <section className="content-card reveal">
         <h2 className="section-title">Want a custom build? Start with a short intake here.</h2>
-        <a href={CUSTOM_BUILD_INTAKE_URL} className="btn primary">Start intake</a>
+        <a href={CUSTOM_BUILD_INTAKE_URL} className="btn primary">Email your requirements</a>
       </section>
 
       <style>{`

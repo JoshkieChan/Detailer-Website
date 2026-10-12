@@ -36,7 +36,8 @@ export const verifyOwnerPasscode = async (passcode: string) => {
     headers: buildHeaders(passcode, anonKey),
   });
 
-  if (!response.ok) return false;
+  if (response.status === 401 || response.status === 403) return false;
+  if (!response.ok) throw new Error('Owner tools are unavailable right now.');
   const data = await response.json();
   return data.ok === true;
 };

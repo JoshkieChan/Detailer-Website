@@ -6,8 +6,7 @@
 - Supabase-generated reference: `tkxbrroiovgcnsblmcpv`.
 - Dashboard: https://supabase.com/dashboard/project/tkxbrroiovgcnsblmcpv
 - Baseline/hardening migrations, private photo bucket, and all nine Edge Functions are deployed.
-- Hosted booking, capacity/overlap, blackout, concurrent-create, photo upload/retry, owner authorization, and private signed-photo retrieval checks passed.
-- Staging owner/callback secrets and the paid-booking callback are configured. Automatic email was accepted by Resend's official test recipient and persisted in the ledger; duplicate delivery was suppressed. This verifies integration, not human-inbox delivery or payment processing. See HARDENING_NOTES.md.
+- Staging provides the booking, scheduling, upload, owner, and email endpoints. See [architecture](docs/architecture.md) for access boundaries and verification scope.
 - Production `Detailer-Website` remains unchanged.
 
 ## Before Applying Database Changes
@@ -16,7 +15,7 @@ Use a staging project and backup first. The checked-in migration history starts 
 
 The new hardening migrations are additive and do not delete customer bookings. Tests apply the clean baseline and safe migration allowlist in `website/tests/database/bootstrap.ts`, rather than a hand-written partial fixture. Storage provisioning is separate because plain PostgreSQL does not include Supabase Storage.
 
-Read-only inspection on October 6 found the connected Detailer-Website project missing the April 26 price/add-on/test-mode columns. Apply the four additive April 26 migrations listed in the allowlist before the October migrations. Do not assume the repository migration history matches the hosted database.
+The existing production database lacks the April 26 price/add-on/test-mode columns. Apply the four additive April 26 migrations listed in the allowlist before the October migrations. Compare the target schema before applying changes; repository migration history alone does not establish the hosted database state.
 
 For an EMPTY local or staging database only, start with `supabase/bootstrap/base.sql`, then apply the ordered migration filenames in `website/tests/database/bootstrap.ts`. Existing customer databases must retain their existing base schema and foreign keys. The baseline intentionally does not recreate the unused legacy customers integration.
 
@@ -30,7 +29,7 @@ Review existing active bookings for overlap, missing timing fields, and unsuppor
    Then apply `20261006134023_operational_completion.sql` and `supabase/bootstrap/storage.sql` to provision quotas, the email ledger, private photo metadata, and the private bucket.
 4. Configure the server secrets in [ENV_VARIABLES.md](ENV_VARIABLES.md), including the confirmation callback secret.
 5. Deploy `create-booking`, `booking-availability`, `booking-status`, `booking-photos`, `owner-schedule`, `sanity-check`, `payment-webhook`, `send-confirmation-email`, and `deliver-snapshot` from the repository root so shared imports are included.
-6. Configure the paid-booking database callback. For portfolio staging, verify confirmation email using a synthetic booking marked paid without making a payment. Helcim live/test access is not a portfolio prerequisite; automatic payment matching remains intentionally unverified.
+6. Configure the paid-booking database callback. Verify confirmation email using a synthetic booking marked paid and the provider's test recipient. This does not verify payment processing; automatic payment matching remains unverified.
 7. Deploy the frontend and run staging checks before reopening booking writes.
 
 The migration makes capacity segments database-managed. Old functions that separately insert segments are incompatible with the new permissions, so this must be a coordinated deployment.
@@ -57,7 +56,7 @@ Verify anonymous callers cannot read customer tables, forged owner state cannot 
 
 Checkout holds expire after 15 minutes. Verified payment notifications are logged and deduplicated, but payment reconciliation is manual. Before marking paid, the owner must verify the transaction and handle any expired-hold conflict. The database rejects a conflicting confirmation.
 
-The portfolio does not accept real payments. Retaining the existing Helcim integration does not imply verified automatic payment matching. Synthetic staging status changes verify the booking/email flow only.
+Retaining the existing Helcim integration does not imply verified automatic payment matching. Synthetic staging status changes verify the booking/email flow only. Do not enable real payments until reconciliation has been verified.
 
 The original single-owner schedule uses a database mutex to serialize writes; this favors correctness over high write throughput. It is not a multi-detailer scheduling platform.
 

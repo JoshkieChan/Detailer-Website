@@ -1,17 +1,14 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Mail, Loader2, CheckCircle2 } from 'lucide-react';
 
 interface LeadMagnetProps {
-  redirectUrl?: string;
   className?: string;
 }
 
-export const LeadMagnet = ({ redirectUrl, className = '' }: LeadMagnetProps) => {
+export const LeadMagnet = ({ className = '' }: LeadMagnetProps) => {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
@@ -64,11 +61,6 @@ export const LeadMagnet = ({ redirectUrl, className = '' }: LeadMagnetProps) => 
       setStatus('success');
       setEmail('');
 
-      if (redirectUrl) {
-        setTimeout(() => {
-          navigate(redirectUrl);
-        }, 1200);
-      }
     } catch (err: unknown) {
       setStatus('error');
       const message = err instanceof Error ? err.message : null;
@@ -82,12 +74,10 @@ export const LeadMagnet = ({ redirectUrl, className = '' }: LeadMagnetProps) => 
         <CheckCircle2 className="success-icon" size={32} />
         <div className="lead-magnet-copy">
           <h3>
-            {redirectUrl ? 'Success! Redirecting...' : 'Snapshot is on the way!'}
+            Snapshot is on the way!
           </h3>
           <p className="section-copy">
-            {redirectUrl 
-              ? 'Taking you to your special offer now.' 
-              : 'Check your inbox. The Life & Money Snapshot PDF is heading to your email now.'}
+            Check your inbox. The Life &amp; Money Snapshot PDF is heading to your email now.
           </p>
         </div>
       </div>
@@ -133,7 +123,7 @@ export const LeadMagnet = ({ redirectUrl, className = '' }: LeadMagnetProps) => 
           )}
         </button>
         {status === 'error' && (
-          <p className="error-text">{errorMessage || 'Something went wrong. Please try again or contact us directly.'}</p>
+          <p role="alert" className="error-text">{errorMessage || 'Something went wrong. Please try again or contact us directly.'}</p>
         )}
       </form>
     </div>

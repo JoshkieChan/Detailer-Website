@@ -29,7 +29,7 @@ const ConfirmationPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!bookingId) {
+    if (!bookingId || !access.token) {
       return;
     }
 
@@ -132,7 +132,7 @@ const ConfirmationPage = () => {
           <h3><Calendar size={20} className="icon-lime" /> Appointment Details</h3>
           <ul className="details-list">
             <li><strong>Service:</strong> {packageName}</li>
-            <li><strong>Date:</strong> {new Date(booking.service_date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'})}</li>
+            <li><strong>Date:</strong> {new Date(`${booking.service_date}T12:00:00Z`).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'})}</li>
             <li><strong>Time Window:</strong> {booking.booking_capacity_segments?.map(segment => segment.segment_date + ' ' + segment.start_time + '-' + segment.end_time).join(', ') || booking.service_time}</li>
             <li><strong>Vehicle:</strong> {booking.vehicle_info}</li>
           </ul>
@@ -150,7 +150,7 @@ const ConfirmationPage = () => {
         <div className="payment-card glass highlight-border">
           <h3><CreditCard size={20} className="icon-lime" /> Payment Summary</h3>
           <div className="payment-row">
-            <span>Base Package Price:</span>
+            <span>Base Service Price:</span>
             <span>{formatCurrency(booking.total_amount)}</span>
           </div>
           <div className="payment-row deposit-row">

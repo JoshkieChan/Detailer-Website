@@ -67,6 +67,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="layout">
+      <a href="#main-content" className="skip-link">Skip to content</a>
       {/* Navbar */}
       <header className="navbar glass-nav">
         <div className="navbar-inner">
@@ -118,7 +119,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             >
               {getThemeIcon()}
             </button>
-            <button className="mobile-toggle" onClick={toggleMenu} aria-label="Toggle menu">
+            <button className="mobile-toggle" onClick={toggleMenu} aria-label="Toggle menu" aria-expanded={isMenuOpen} aria-controls="mobile-navigation">
               {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           </div>
@@ -126,6 +127,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
         {/* Mobile Nav */}
         <div 
+          id="mobile-navigation"
+          inert={!isMenuOpen}
           className={`mobile-nav glass-nav ${isMenuOpen ? 'open' : ''}`}
           role="navigation"
           aria-label="Mobile navigation menu"
