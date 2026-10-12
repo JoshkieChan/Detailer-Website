@@ -11,8 +11,8 @@ const BookingThanksPage = () => {
         <span className="eyebrow">Booking Received</span>
         <h1 className="hero-title">Appointment Pending Confirmation.</h1>
         <p className="hero-subtitle">
-          Your deposit has been attempted. Final booking confirmation will be sent to your email
-          once your payment is successfully processed.
+          This page cannot verify payment. Check your booking status or contact SignalSource
+          to confirm your appointment.
         </p>
 
         <div className="thanks-copy">
@@ -28,6 +28,7 @@ const BookingThanksPage = () => {
         </div>
 
         <div className="hero-actions hero-actions-center">
+          <Link to="/booking/confirmation" className="btn secondary">Check booking status</Link>
           <Link to="/services" className="btn primary btn-lg">
             Back to Detailing Services
           </Link>

@@ -1,3 +1,16 @@
+.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 10000;
+  padding: 0.75rem 1rem;
+  background: var(--color-background-surface);
+  color: var(--color-text-primary);
+  transform: translateY(-150%);
+}
+
+.skip-link:focus { transform: translateY(0); }
+
 /* Footer Contact Block Styles */
 .footer-contact-block {
   display: flex;

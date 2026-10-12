@@ -19,6 +19,16 @@ const buildHeaders = (passcode: string, anonKey: string) => ({
   'x-owner-passcode': passcode,
 });
 
+export const fetchBookingPhotos = async (passcode: string, bookingId: string): Promise<string[]> => {
+  const { url, anonKey } = getOwnerFunctionBase();
+  const response = await fetch(url.replace(/owner-schedule$/, 'booking-photos'), {
+    method: 'POST', headers: buildHeaders(passcode, anonKey), body: JSON.stringify({ bookingId }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Could not load photos.');
+  return data.urls;
+};
+
 export const verifyOwnerPasscode = async (passcode: string) => {
   const { url, anonKey } = getOwnerFunctionBase();
   const response = await fetch(url, {
@@ -26,7 +36,8 @@ export const verifyOwnerPasscode = async (passcode: string) => {
     headers: buildHeaders(passcode, anonKey),
   });
 
-  if (!response.ok) return false;
+  if (response.status === 401 || response.status === 403) return false;
+  if (!response.ok) throw new Error('Owner tools are unavailable right now.');
   const data = await response.json();
   return data.ok === true;
 };

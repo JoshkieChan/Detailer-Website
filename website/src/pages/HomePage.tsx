@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import {
-  Star,
   CalendarCheck,
   Gauge,
   MapPinned,
@@ -86,18 +85,6 @@ const HomePage = () => {
         ) : null}
       </header>
 
-      <section className="review-strip reveal">
-        <div className="quote-shell">
-          <p className="quote-blurb">“Easy to book, clear on price, and the car looked right when I got it back.”</p>
-          <div className="stars-row">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} fill="var(--color-rating-star)" color="var(--color-rating-star)" size={18} />
-            ))}
-            <span className="review-label">5.0★ local reviews — NAS Whidbey &amp; Oak Harbor</span>
-          </div>
-        </div>
-      </section>
-
       <section className="detailing-section">
         <div className="section-header reveal">
           <span className="eyebrow">Our Work</span>
@@ -162,7 +149,7 @@ const HomePage = () => {
                 <div>
                   <div className="tier-title-row">
                     <h3>{pkg.title}</h3>
-                    {pkg.highlight && <div className="badge-popular tier-badge">Most booked</div>}
+                    {pkg.highlight && <div className="badge-popular tier-badge">Deep cleaning</div>}
                   </div>
                   <p className="tier-for-line">{pkg.description}</p>
                 </div>
@@ -285,28 +272,6 @@ const HomePage = () => {
         .our-work-proof-card__copy {
           display: grid;
           gap: 0.5rem;
-        }
-
-        .review-strip {
-          padding: 1.75rem 2rem;
-          background: var(--color-background-surface);
-          border: 1px solid var(--color-border-default);
-          border-radius: 20px;
-        }
-
-        .quote-shell {
-          display: grid;
-          gap: 0.85rem;
-          justify-items: center;
-          text-align: center;
-        }
-
-        .stars-row {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          align-items: center;
-          gap: 0.55rem;
         }
 
         .detailing-section {

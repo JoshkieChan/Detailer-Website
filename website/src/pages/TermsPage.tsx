@@ -294,6 +294,8 @@ const TermsPage = () => {
         }
 
         .legal-content {
+          min-width: 0;
+          overflow-wrap: anywhere;
           background: var(--color-background-surface);
           border: 1px solid var(--color-border-default);
           border-radius: var(--radius-card);

@@ -27,7 +27,7 @@ const HubPage = () => {
       </section>
 
       <section id="hub-paths" className="hub-paths">
-        <div className="card-grid three">
+        <div className="card-grid two">
           <article className="hub-card hub-card-primary reveal">
             <div className="hub-card-top">
               <div className="support-pill">
@@ -71,14 +71,6 @@ const HubPage = () => {
             </Link>
           </article>
 
-          <article className="hub-card reveal" data-reveal-delay="2">
-            <div className="hub-card-copy">
-              <h2>Coming Soon: Window Tint, Ceramic Coatings, PPF &amp; Wraps</h2>
-              <p className="section-copy">
-                We&apos;re building out surface protection and styling services. Check back soon.
-              </p>
-            </div>
-          </article>
         </div>
       </section>
 
@@ -116,15 +108,15 @@ const HubPage = () => {
           padding-top: 0.5rem;
         }
 
-        .card-grid.three {
+        .hub-paths .card-grid {
           display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
+          grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 1.25rem;
           align-items: stretch;
         }
 
         @media (max-width: 850px) {
-          .card-grid.three {
+          .hub-paths .card-grid {
             grid-template-columns: 1fr;
             gap: 1.5rem;
           }

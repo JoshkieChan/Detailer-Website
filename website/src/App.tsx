@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { HelmetProvider } from 'react-helmet-async';
@@ -16,11 +16,9 @@ import FAQPage from './pages/FAQPage';
 import SystemsPage from './pages/SystemsPage';
 import HubPage from './pages/HubPage';
 import DigitalAssetsExamples from './pages/DigitalAssetsExamples';
-import LocalSystemsExamples from './pages/LocalSystemsExamples';
 import BookingPage from './pages/BookingPage';
 import ConfirmationPage from './pages/ConfirmationPage';
 import BookingThanksPage from './pages/BookingThanksPage';
-import TripwirePage from './pages/TripwirePage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import OwnerSchedulePage from './pages/OwnerSchedulePage';
@@ -59,10 +57,9 @@ function App() {
                 <Route path="/owner/schedule" element={<><SEO title="Owner Schedule" description="Owner schedule management for SignalSource car detailing." noindex /><OwnerSchedulePage /></>} />
                 <Route path="/" element={<><SEO /><HomePage /></>} />
                 <Route path="/systems/examples/digital-assets" element={<DigitalAssetsExamples />} />
-                <Route path="/systems/examples/local-systems" element={<LocalSystemsExamples />} />
                 <Route path="/booking/thanks" element={<BookingThanksPage />} />
                 <Route path="/booking/confirmation" element={<ConfirmationPage />} />
-                <Route path="/snapshot/order" element={<TripwirePage />} />
+                <Route path="*" element={<div className="page-shell"><SEO title="Page not found" noindex /><h1>Page not found</h1><p>The page may have moved or is no longer available.</p><Link to="/" className="btn primary">Return home</Link></div>} />
               </Routes>
             </Layout>
           </Router>

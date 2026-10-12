@@ -1,313 +1,78 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-import { calculateBookingFinancials, isBookingPackageId, isLocationType, isVehicleTypeId, locationTypeLabels, vehicleTypeLabels, bookingPackages } from '../../../website/src/data/bookingPricing.ts';
-import { getTotalDuration, checkCapacityRules, type SlotBookingPackageId, type VehicleTypeId, type AddOnId, intervalsOverlap } from '../../../website/src/config/scheduler.ts';
 import { checkRateLimit, getRateLimitIdentifier } from '../_shared/rateLimiter.ts';
-import { errorResponse, successResponse, ErrorCodes } from '../_shared/errorResponse.ts';
-
-// Note: Relative imports from website are used because these functions/types are shared
-// between the Edge Function and the website. This is acceptable for this architecture.
+import { errorResponse, ErrorCodes, BookingError, bookingErrorResponse } from '../_shared/errorResponse.ts';
+import { validateBooking, textField } from '../_shared/bookingValidation.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://signaldatasource.com',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-owner-passcode',
 };
-
-const getExpectedPasscode = () => Deno.env.get('OWNER_PASSCODE') || '';
-
-const isAuthorized = (req: Request) => {
-  const passcode = req.headers.get('x-owner-passcode') || '';
-  const expected = getExpectedPasscode();
-  return Boolean(expected) && passcode === expected;
-};
-
-const pickMoney = (value: unknown, fallback: number): number => {
-  const n = typeof value === 'number' ? value : typeof value === 'string' ? Number.parseFloat(value) : Number.NaN;
-  if (!Number.isFinite(n) || n < 0) return fallback;
-  return n;
-};
+const paymentStatuses = ['unpaid', 'pending_payment', 'paid', 'failed', 'cancelled'];
+const ok = () => new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-
-  // Rate limiting: 30 requests per minute per IP (higher for owner tools)
-  const identifier = getRateLimitIdentifier(req);
-  const rateLimit = checkRateLimit(identifier, {
-    windowMs: 60 * 1000, // 1 minute
-    maxRequests: 30,
-  });
-
-  if (!rateLimit.allowed) {
-    return errorResponse(
-      'Too many requests. Please try again later.',
-      429,
-      ErrorCodes.RATE_LIMIT_EXCEEDED
-    );
-  }
-
-  if (!isAuthorized(req)) {
-    return errorResponse(
-      'Owner passcode required.',
-      401,
-      ErrorCodes.UNAUTHORIZED
-    );
-  }
-
-  if (req.method === 'GET') {
-    return new Response(JSON.stringify({ ok: true }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    });
-  }
-
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  if (!(await checkRateLimit(getRateLimitIdentifier(req), { windowMs: 60_000, maxRequests: 30 })).allowed) return errorResponse('Too many requests.', 429, ErrorCodes.RATE_LIMIT_EXCEEDED);
+  const expected = Deno.env.get('OWNER_PASSCODE');
+  if (!expected || req.headers.get('x-owner-passcode') !== expected) return errorResponse('Owner passcode required.', 401, ErrorCodes.UNAUTHORIZED);
+  if (req.method === 'GET') return ok();
+  if (req.method !== 'POST') return errorResponse('Method not allowed.', 405, ErrorCodes.BAD_REQUEST);
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    if (!supabaseUrl || !supabaseServiceRoleKey) {
-      throw new Error('Supabase project secrets are missing.');
-    }
-
-    const payload = await req.json();
-    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
-
+    const url = Deno.env.get('SUPABASE_URL');
+    const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (!url || !key) throw new Error('Missing configuration');
+    const supabase = createClient(url, key);
+    const payload = await req.json().catch(() => { throw new BookingError('Invalid JSON.'); });
+    if (!payload || typeof payload !== 'object') throw new BookingError('Invalid request.');
     if (payload.action === 'create_blackout') {
-      if (!payload.startAt || !payload.endAt) {
-        throw new Error('startAt and endAt are required for blackout creation.');
-      }
-      const { error } = await supabase.from('availability_blocks').insert([
-        {
-          start_at: payload.startAt,
-          end_at: payload.endAt,
-          reason: payload.reason || '',
-          created_by: 'owner',
-          source: 'owner_manual',
-        },
-      ]);
+      // datetime-local values represent the business's Pacific wall clock, not
+      // the browser's timezone. The RPC uses PostgreSQL's DST-aware conversion.
+      const startAt = textField(payload.startAt, 'blackout start', 40);
+      const endAt = textField(payload.endAt, 'blackout end', 40);
+      const { error } = await supabase.rpc('create_booking_blackout', { starts: startAt, ends: endAt, reason: textField(payload.reason, 'reason', 1000, false) });
       if (error) throw error;
-      return new Response(JSON.stringify({ ok: true }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      });
-    }
-
-    if (payload.action === 'create_manual_booking') {
-      const {
-        fullName,
-        email,
-        phone,
-        address,
-        notes,
-        packageId,
-        vehicleType,
-        locationType,
-        date,
-        startTime,
-        endTime,
-        blockedUntil,
-        paymentStatus,
-        serviceDurationMinutes,
-        bufferMinutes,
-        calculatedPrice,
-        calculated_price,
-        base_price,
-        addons_price,
-        depositAmount,
-        deposit_amount,
-        tax_amount,
-        taxAmount,
-        total_today,
-        totalToday,
-        remaining_balance,
-        remainingBalance,
-        total_amount_cents,
-        totalAmountCents,
-        selectedAddOns,
-        testMode,
-      } = payload;
-
-      if (!fullName || !email || !phone || !packageId || !vehicleType || !locationType || !date || !startTime || !endTime) {
-        throw new Error('Missing required fields for manual booking.');
-      }
-
-      if (!isBookingPackageId(packageId) || !isVehicleTypeId(vehicleType) || !isLocationType(locationType)) {
-        throw new Error('Invalid manual booking selection.');
-      }
-
-      // Validate add-on IDs
-      const validAddOnIds: AddOnId[] = ['paintProtection', 'petHairRemoval', 'engineBay', 'headlightRestoration'];
-      const finalSelectedAddOns: AddOnId[] = (selectedAddOns || [])
-        .filter((id: string) => validAddOnIds.includes(id as AddOnId))
-        .map((id: string) => id as AddOnId);
-
-      // Calculate total duration using scheduler logic
-      const totalDuration = getTotalDuration({
-        packageId: packageId as SlotBookingPackageId,
-        vehicleType: vehicleType as VehicleTypeId,
-        selectedAddOns: finalSelectedAddOns,
-      });
-
-      // Fetch existing paid bookings for capacity check (excluding test mode)
-      const { data: existingBookings, error: fetchError } = await supabase
-        .from('bookings')
-        .select('service_date, start_time, end_time, blocked_until, package_id, vehicle_type, selected_addons')
-        .eq('payment_status', 'paid')
-        .eq('test_mode', false)
-        .eq('service_date', date);
-
-      if (fetchError) throw fetchError;
-
-      // Calculate total duration for existing bookings
-      const existingBookingsWithDuration = (existingBookings || []).map((booking: {
-        package_id: string;
-        vehicle_type: string;
-        selected_addons: string[];
-      }) => ({
-        totalDurationMinutes: getTotalDuration({
-          packageId: booking.package_id as SlotBookingPackageId,
-          vehicleType: booking.vehicle_type as VehicleTypeId,
-          selectedAddOns: (booking.selected_addons || []) as AddOnId[],
-        }),
-      }));
-
-      // Check capacity rules
-      const capacityCheck = checkCapacityRules({
-        newBookingDuration: totalDuration,
-        existingBookings: existingBookingsWithDuration,
-      });
-
-      if (!capacityCheck.allowed) {
-        throw new Error(capacityCheck.reason || 'Booking would violate capacity rules.');
-      }
-
-      // Check for overlap with existing bookings
-      const parseTime = (timeStr: string) => {
-        const [hours, minutes] = timeStr.split(':').map(Number);
-        return hours * 60 + minutes;
-      };
-
-      const newStartMinutes = parseTime(startTime);
-      const newEndMinutes = parseTime(endTime);
-
-      for (const booking of existingBookings || []) {
-        if (!booking.start_time || !booking.end_time) continue;
-        const existingStart = parseTime(booking.start_time);
-        const existingEnd = parseTime(booking.end_time);
-        
-        if (intervalsOverlap(newStartMinutes, newEndMinutes, existingStart, existingEnd)) {
-          throw new Error('Booking time overlaps with existing booking.');
+    } else if (payload.action === 'create_manual_booking') {
+      const { record } = validateBooking(payload, new Date(), true);
+      if (!paymentStatuses.includes(payload.paymentStatus ?? 'pending_payment') || (payload.testMode !== undefined && typeof payload.testMode !== 'boolean')) throw new BookingError('Invalid booking status.');
+      // Owner price adjustments remain supported, but must be finite and nonnegative.
+      const overrides: Record<string, unknown> = {};
+      const fields: Record<string, string> = { calculated_price: 'calculatedPrice', base_price: 'base_price', addons_price: 'addons_price', deposit_amount: 'depositAmount', tax_amount: 'taxAmount', total_today: 'totalToday', remaining_balance: 'remainingBalance', total_amount_cents: 'totalAmountCents' };
+      for (const [field, alias] of Object.entries(fields)) {
+        const value = payload[field] ?? payload[alias];
+        if (value !== undefined) {
+          if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) throw new BookingError('Invalid price adjustment.');
+          overrides[field] = value;
         }
       }
-
-      const pricing = calculateBookingFinancials({
-        packageId,
-        vehicleType,
-        locationType,
+      const { error } = await supabase.from('bookings').insert({
+        ...record, ...overrides, total_amount: overrides.calculated_price ?? record.total_amount,
+        booking_source: 'admin_manual', status: 'confirmed',
+        payment_status: payload.paymentStatus ?? 'pending_payment', test_mode: payload.testMode ?? false,
+        helcim_deposit_url: null,
       });
-
-      const subtotal = pickMoney(calculated_price ?? calculatedPrice, pricing.subtotal);
-      const deposit = pickMoney(deposit_amount ?? depositAmount, pricing.depositAmount);
-      const tax = pickMoney(tax_amount ?? taxAmount, pricing.taxAmount);
-      const totalTodayVal = pickMoney(total_today ?? totalToday, pricing.totalToday);
-      const remaining = pickMoney(remaining_balance ?? remainingBalance, pricing.remainingBalance);
-      const centsRaw = total_amount_cents ?? totalAmountCents;
-      const cents =
-        typeof centsRaw === 'number' && Number.isFinite(centsRaw) && centsRaw >= 0
-          ? Math.round(centsRaw)
-          : Math.round(totalTodayVal * 100);
-
-      const { error } = await supabase.from('bookings').insert([
-        {
-          full_name: fullName,
-          email,
-          phone,
-          address: address || '',
-          notes: notes || '',
-          package: bookingPackages[packageId].label,
-          package_id: packageId,
-          vehicle_info: vehicleTypeLabels[vehicleType],
-          vehicle_type: vehicleType,
-          service_date: date,
-          start_time: startTime,
-          end_time: endTime,
-          service_time: startTime,
-          blocked_until: blockedUntil,
-          service_duration_minutes: totalDuration,
-          buffer_minutes: bufferMinutes,
-          location_type: locationType,
-          mobile_fee_applied: locationType === 'mobile',
-          membership_intent: 'none',
-          calculated_price: subtotal,
-          base_price: base_price || subtotal,
-          addons_price: addons_price || 0,
-          total_amount: subtotal,
-          deposit_amount: deposit,
-          tax_amount: tax,
-          total_today: totalTodayVal,
-          remaining_balance: remaining,
-          helcim_deposit_url: null,
-          booking_source: 'admin_manual',
-          payment_status: paymentStatus || 'pending_payment',
-          total_amount_cents: cents,
-          status: 'confirmed',
-          selected_addons: finalSelectedAddOns,
-          test_mode: testMode || false,
-        },
-      ]);
-
       if (error) throw error;
-      return new Response(JSON.stringify({ ok: true }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      });
-    }
-
-    if (payload.action === 'delete_event') {
-      const { id, type } = payload;
-      if (!id || !type) {
-        throw new Error('Event id and type required.');
-      }
-      if (type !== 'booking' && type !== 'blackout') {
-        throw new Error('Invalid event type. Must be "booking" or "blackout".');
-      }
-      
-      const table = type === 'booking' ? 'bookings' : 'availability_blocks';
-      const { error } = await supabase.from(table).delete().eq('id', id);
-      
+    } else if (payload.action === 'delete_event') {
+      if (!['booking', 'blackout'].includes(payload.type)) throw new BookingError('Invalid event type.');
+      const id = textField(payload.id, 'event ID', 36);
+      const { error } = await supabase.from(payload.type === 'booking' ? 'bookings' : 'availability_blocks').delete().eq('id', id);
       if (error) throw error;
-      return new Response(JSON.stringify({ ok: true }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      });
-    }
-
-
-    if (payload.action === 'update_booking') {
-      const { id, updates } = payload;
-      if (!id) throw new Error('Booking ID required.');
-
-      // Only allow safe, known fields to be updated
-      const allowedFields = ['payment_status', 'notes', 'start_time', 'end_time', 'service_date', 'blocked_until'];
-      const safeUpdates: Record<string, unknown> = {};
-      for (const key of allowedFields) {
-        if (key in updates) safeUpdates[key] = updates[key];
+    } else if (payload.action === 'update_booking') {
+      const id = textField(payload.id, 'booking ID', 36);
+      if (!payload.updates || typeof payload.updates !== 'object') throw new BookingError('Updates required.');
+      const updates: Record<string, unknown> = {};
+      for (const field of ['payment_status', 'notes', 'start_time', 'service_date']) {
+        if (field in payload.updates) updates[field] = textField(payload.updates[field], field, field === 'notes' ? 4000 : 30, field !== 'notes');
       }
-
-      const { error } = await supabase.from('bookings').update(safeUpdates).eq('id', id);
+      if (updates.payment_status && !paymentStatuses.includes(String(updates.payment_status))) throw new BookingError('Invalid payment status.');
+      // Database triggers recompute end times and both segments, then reject
+      // conflicts before committing any of these changes.
+      const { error } = await supabase.from('bookings').update(updates).eq('id', id);
       if (error) throw error;
-      return new Response(JSON.stringify({ ok: true }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      });
+    } else {
+      throw new BookingError('Unsupported owner action.');
     }
-
-    throw new Error('Unsupported owner action.');
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Owner schedule action failed.';
-    return errorResponse(
-      message,
-      400,
-      ErrorCodes.INTERNAL_ERROR
-    );
+    return ok();
+  } catch (error) {
+    return bookingErrorResponse(error);
   }
 });

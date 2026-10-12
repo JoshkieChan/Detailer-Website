@@ -33,7 +33,7 @@ const PricingPage = () => {
                 <div>
                   <div className="tier-title-row">
                     <h3>{pkg.title}</h3>
-                    {pkg.highlight && <div className="badge-popular tier-badge">Most booked</div>}
+                    {pkg.highlight && <div className="badge-popular tier-badge">Deep cleaning</div>}
                   </div>
                   <p className="tier-for-line">{pkg.bestFor}</p>
                 </div>

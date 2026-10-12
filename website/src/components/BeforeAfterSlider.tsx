@@ -52,7 +52,7 @@ export const BeforeAfterSlider = ({
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
     };
-  }, [isDragging]);
+  }, [isDragging, draggingSlider]);
 
   const selectIndex = (index: number) => {
     setActiveIndex(index);

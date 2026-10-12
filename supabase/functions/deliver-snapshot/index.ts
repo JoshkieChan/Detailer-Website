@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
 
   // Rate limiting: 10 requests per minute per IP
   const identifier = getRateLimitIdentifier(req);
-  const rateLimit = checkRateLimit(identifier, {
+  const rateLimit = await checkRateLimit(identifier, {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 10,
   });
@@ -101,10 +101,9 @@ Deno.serve(async (req) => {
     );
 
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Snapshot delivery failed.';
     return errorResponse(
-      message,
-      400,
+      'Could not deliver the Snapshot. Please check your email address or try again later.',
+      500,
       ErrorCodes.INTERNAL_ERROR
     );
   }
